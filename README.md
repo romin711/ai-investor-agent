@@ -1,64 +1,65 @@
-# 🚀 AI Investor Agent
+<div align="center">
 
-> Multi-agent stock + portfolio analysis system built for hackathons, demos, and rapid experimentation.
+# AI Investor Agent
 
-![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)
-![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi)
-![Status](https://img.shields.io/badge/Status-Prototype-orange)
-![Architecture](https://img.shields.io/badge/Architecture-Multi--Agent-purple)
+### Portfolio-aware stock intelligence dashboard
 
----
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-Frontend-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Recharts](https://img.shields.io/badge/Recharts-Charting-0F172A?style=for-the-badge&logo=chartdotjs&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Prototype-F59E0B?style=for-the-badge)
 
-## ✨ Highlights
-
-- 📈 Signal analysis: trend, momentum, breakout, and volume strength
-- 🧠 Rule-based decision engine: `Buy`, `Hold`, `Reduce`, `Avoid`, `No Trade`
-- 🧩 Portfolio intelligence: sector exposure + overexposure detection
-- 🗣️ Explanation engine: structured, human-readable reasoning
-- 🛡️ Safety-first data handling with `data_quality` guardrails
+</div>
 
 ---
 
-## 🏗️ Architecture
+## Overview
 
-### Agents
+AI Investor Agent combines a multi-agent backend and a modern React UI to:
 
-- `data_agent` → fetches market data and assigns quality status
-- `signal_agent` → computes technical signals
-- `decision_agent` → maps signals + portfolio context to actions
-- `portfolio_agent` → analyzes sector concentration and diversification
-- `explanation_agent` → generates assistant-style narrative output
-
-### Orchestration
-
-- `ai_investor_agent/workflow.py` → single symbol workflow
-- `ai_investor_agent/api_service.py` → portfolio-level orchestration for API
-- `api.py` → FastAPI app (`POST /analyze`)
-- `main.py` → CLI demo entrypoint
+- Analyze market signal quality (trend, momentum, breakout, volume)
+- Add portfolio context (sector concentration and overexposure)
+- Produce decisions with confidence (`Buy`, `Hold`, `Reduce`, `Avoid`, `No Trade`)
+- Explain reasoning, suggest next action, and show alternatives
+- Visualize price history and confidence in a clean finance-style dashboard
 
 ---
 
-## 🛡️ Data Safety Guardrails
+## System Design
 
-`data_quality` is one of:
-
-- `valid`
-- `fallback`
-- `missing`
-
-If `data_quality != "valid"`:
-
-- ✅ Action is forced to `Hold` or `No Trade`
-- ⛔ `Buy` and `Reduce` are blocked
-- 📉 Confidence is capped at `<= 0.3`
-- 📝 Explanation includes:
-  `Data is incomplete or fallback-based, so no strong decision is made.`
-
-This keeps the system conservative when market data is unreliable.
+```mermaid
+flowchart LR
+    A[Portfolio Input] --> B[FastAPI: POST /analyze]
+    B --> C[Data Agent]
+    B --> D[Signal Agent]
+    B --> E[Portfolio Agent]
+    B --> F[Decision Agent]
+    B --> G[Explanation Agent]
+    C --> H[Response JSON]
+    D --> H
+    E --> H
+    F --> H
+    G --> H
+    H --> I[React Dashboard]
+```
 
 ---
 
-## 📂 Project Structure
+## Core Features
+
+| Module | What it provides |
+|---|---|
+| `data_agent` | Live/fallback market data + data quality flags |
+| `signal_agent` | Trend, momentum, breakout, and volume strength |
+| `portfolio_agent` | Sector exposure, concentration detection |
+| `decision_agent` | Action + confidence scoring |
+| `explanation_agent` | Human-readable reasoning output |
+| React Dashboard | Input, card view, line chart, decision badge, confidence bar |
+
+---
+
+## Project Structure
 
 ```text
 ai-investor-agent/
@@ -74,51 +75,50 @@ ai-investor-agent/
 │   └── types.py
 ├── api.py
 ├── main.py
+├── frontend/
+│   ├── src/
+│   │   ├── App.js
+│   │   ├── App.css
+│   │   └── components/PortfolioAnalyzer.js
+│   └── package.json
 └── README.md
 ```
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
-### 1. Create environment
+### 1) Backend (FastAPI)
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-```
-
-### 2. Install dependencies
-
-```bash
-pip install fastapi uvicorn yfinance
-```
-
-### 3. Run CLI demo
-
-```bash
-python main.py --symbols AAPL,MSFT,RELIANCE.NS
-```
-
-### 4. Run API server
-
-```bash
+pip install fastapi "uvicorn[standard]" pydantic yfinance
 uvicorn api:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Swagger UI:
+- API docs: `http://127.0.0.1:8000/docs`
 
-- `http://127.0.0.1:8000/docs`
+### 2) Frontend (React Dashboard)
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+- Frontend URL: `http://localhost:3000`
+- API URL used by frontend: `http://localhost:8000/analyze`
 
 ---
 
-## 🔌 API
+## API Contract
 
 ### Endpoint
 
 `POST /analyze`
 
-### Request example
+### Request
 
 ```json
 [
@@ -128,54 +128,70 @@ Swagger UI:
 ]
 ```
 
-### Response includes
+### Response (shape)
 
-- `stock_data.price`
-- `stock_data.price_history`
-- `stock_data.data_warning`
-- `signals.trend`
-- `signals.momentum_percent`
-- `signals.breakout`
-- `signals.data_quality`
-- `decision`
-- `confidence`
-- `confidence_reason`
-- `explanation`
-- `next_action`
-- `alternatives`
-- portfolio-level `sector_exposure`, `overexposure`, and suggestions
+```json
+{
+  "portfolio_insight": {
+    "sector_exposure": { "Technology": 70, "Financials": 30 },
+    "overexposure": true,
+    "overexposed_sectors": ["Technology"],
+    "diversification_suggestions": ["Trim exposure in Technology..."]
+  },
+  "results": [
+    {
+      "symbol": "AAPL",
+      "stock_data": {
+        "price": 214.22,
+        "current_volume": 53210000,
+        "avg_volume_5d": 49120000,
+        "price_history": [208.5, 209.1, 210.8, 212.3, 214.22],
+        "data_warning": null
+      },
+      "signals": {
+        "trend": "uptrend",
+        "breakout": true,
+        "momentum_percent": 2.3,
+        "volume_strength": "high",
+        "volume_ratio": 1.08,
+        "data_quality": "valid"
+      },
+      "decision": "Buy",
+      "confidence": 0.78,
+      "confidence_reason": "Strong trend and high volume confirm the signal.",
+      "explanation": "...",
+      "portfolio_insight": "...",
+      "next_action": "...",
+      "alternatives": ["XOM", "JNJ"]
+    }
+  ]
+}
+```
 
 ---
 
-## 📉 Bearish Decision Separation
+## Dashboard Highlights
 
-Decision flow has clear bearish tiers:
-
-- `Avoid` → strong bearish setup with confirmation
-- `Reduce` → moderate weakness
-- `Hold` → neutral/mixed conditions
-
-This avoids overlap and makes risk intent clearer.
-
----
-
-## 🧪 Demo Positioning
-
-This project is a **rule-based prototype** designed for:
-
-- hackathon demos
-- architecture showcases
-- rapid iteration on agentic workflows
-
-It is not investment advice.
+- Theme toggle: light/dark
+- Finance card layout with:
+  - Price, trend, momentum
+  - Smooth line chart (`price_history`)
+  - Decision badge colors
+  - Confidence bar visualization
+  - Portfolio insight summary
+  - Next action and alternatives
 
 ---
 
-## 🤝 Contributing
+## CLI Demo (Optional)
 
-Ideas to improve:
+```bash
+python main.py --symbols AAPL,MSFT,RELIANCE.NS
+```
 
-- add unit tests for decision scenarios
-- improve dynamic sector mapping
-- add backtesting/evaluation metrics
-- add richer risk controls and constraints
+---
+
+## Disclaimer
+
+This is a rule-based prototype for demos and experimentation.  
+It is not financial advice.
