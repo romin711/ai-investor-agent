@@ -222,6 +222,85 @@ function getOpportunityRadarHistory(limit = 25) {
   return readHistoryFile().slice(0, safeLimit);
 }
 
+function generatePortfolioInsights(portfolioAnalysis, alerts, normalizedRows) {
+  if (!portfolioAnalysis || !alerts) {
+    return 'Unable to generate portfolio insights at this time.';
+  }
+
+  const insightParts = [];
+  const sectorAlloc = portfolioAnalysis.sectorAllocation || {};
+  const results = portfolioAnalysis.results || [];
+
+  // Sector concentration insights
+  const sectorNames = Object.keys(sectorAlloc);
+  if (sectorNames.length > 0) {
+    const topSectors = sectorNames
+      .map((sector) => ({ sector, weight: toFiniteNumber(sectorAlloc[sector]) || 0 }))
+      .sort((a, b) => b.weight - a.weight)
+      .slice(0, 3);
+
+    const concentrationText = topSectors
+      .map((item) => `${item.sector} (${item.weight.toFixed(1)}%)`)
+      .join(', ');
+
+    if (topSectors.length > 0 && topSectors[0].weight > 35) {
+      insightParts.push(
+        `⚠️ Portfolio heavily concentrated in ${concentrationText}.`
+      );
+    } else {
+      insightParts.push(`📊 Sector exposure: ${concentrationText}.`);
+    }
+  }
+
+  // Alert summary
+  const actionCounts = {
+    BUY: alerts.filter((a) => a.action === 'BUY').length,
+    SELL: alerts.filter((a) => a.action === 'SELL').length,
+    HOLD: alerts.filter((a) => a.action === 'HOLD').length,
+  };
+
+  const buyCount = actionCounts.BUY;
+  const sellCount = actionCounts.SELL;
+  const totalAlerts = alerts.length;
+
+  if (buyCount > 0 || sellCount > 0) {
+    const actionSummary = [];
+    if (buyCount > 0) {
+      actionSummary.push(`${buyCount} buy opinion${buyCount > 1 ? 's' : ''}`);
+    }
+    if (sellCount > 0) {
+      actionSummary.push(`${sellCount} sell signal${sellCount > 1 ? 's' : ''}`);
+    }
+
+    if (actionSummary.length > 0) {
+      insightParts.push(`🎯 Radar detected ${actionSummary.join(', ')} across portfolio.`);
+    }
+  }
+
+  // Risk assessment
+  const highPriorityAlerts = alerts.filter((a) => toFiniteNumber(a.priorityScore) > 50);
+  if (highPriorityAlerts.length > 0) {
+    insightParts.push(
+      `💡 ${highPriorityAlerts.length} high-priority signal${highPriorityAlerts.length > 1 ? 's' : ''} warrant attention.`
+    );
+  }
+
+  // Overexposed sector warning
+  const overexposed = portfolioAnalysis.overexposedSectors || [];
+  if (overexposed.length > 0) {
+    insightParts.push(
+      `⚠️ Consider trimming exposure to ${overexposed.slice(0, 2).join(', ')}.`
+    );
+  }
+
+  // Fallback message
+  if (insightParts.length === 0) {
+    insightParts.push('📈 Portfolio scan complete. No immediate action signals detected.');
+  }
+
+  return insightParts.join(' ');
+}
+
 async function runOpportunityRadar(inputRows, options = {}) {
   const normalizedRows = normalizePortfolioRows(inputRows);
 
@@ -241,6 +320,9 @@ async function runOpportunityRadar(inputRows, options = {}) {
     return buildActionableAlert(signal, symbolResult || {});
   });
 
+  // Generate AI-powered portfolio insights
+  const portfolioInsight = generatePortfolioInsights(portfolioAnalysis, alerts, normalizedRows);
+
   const payload = {
     workflow: [
       'detect_signal',
@@ -248,7 +330,7 @@ async function runOpportunityRadar(inputRows, options = {}) {
       'generate_actionable_alert',
     ],
     autonomous: true,
-    portfolioInsight: portfolioAnalysis.portfolioInsight,
+    portfolioInsight,
     generatedAt: new Date().toISOString(),
     portfolioRows: normalizedRows,
     alerts,

@@ -44,5 +44,145 @@
       "sourceUrl": "https://www.sebi.gov.in/sebiweb/home/HomeAction.do?doListing=yes&sid=3&ssid=12&smid=0",
       "date": "2026-03-15"
     }
+  ],
+  "WIPRO.NS": [
+    {
+      "type": "quarterly_result",
+      "impact": "positive",
+      "title": "Q3 margins improved on cost optimization",
+      "source": "ET Markets",
+      "sourceUrl": "https://economictimes.indiatimes.com/markets",
+      "date": "2026-03-22"
+    },
+    {
+      "type": "contract_wins",
+      "impact": "positive",
+      "title": "Secured $250M multi-year deal with Fortune 500 client",
+      "source": "Company Press Release",
+      "sourceUrl": "https://www.wipro.com/news",
+      "date": "2026-03-20"
+    }
+  ],
+  "HCLTECH.NS": [
+    {
+      "type": "quarterly_result",
+      "impact": "neutral",
+      "title": "Q3 guidance maintained despite macro uncertainties",
+      "source": "ET Markets",
+      "sourceUrl": "https://economictimes.indiatimes.com/markets",
+      "date": "2026-03-21"
+    }
+  ],
+  "ICICIBANK.NS": [
+    {
+      "type": "regulatory_approval",
+      "impact": "positive",
+      "title": "RBI approves dividend payout ratio increase",
+      "source": "RBI Official",
+      "sourceUrl": "https://www.rbi.org.in",
+      "date": "2026-03-23"
+    },
+    {
+      "type": "quarterly_result",
+      "impact": "positive",
+      "title": "Q3 profitability exceeded expectations on NIM expansion",
+      "source": "BSE News",
+      "sourceUrl": "https://www.bseindia.com/investors",
+      "date": "2026-03-22"
+    }
+  ],
+  "HDFC.NS": [
+    {
+      "type": "dividend_announcement",
+      "impact": "positive",
+      "title": "Announced special dividend of Rs. 10 per share",
+      "source": "Company IR",
+      "sourceUrl": "https://www.hdfcbank.com/investor-relations",
+      "date": "2026-03-21"
+    }
+  ],
+  "SBIN.NS": [
+    {
+      "type": "regulatory_update",
+      "impact": "neutral",
+      "title": "Regulatory capital adequacy ratio in comfortable zone",
+      "source": "RBI Guidelines",
+      "sourceUrl": "https://www.rbi.org.in",
+      "date": "2026-03-19"
+    },
+    {
+      "type": "credit_rating",
+      "impact": "positive",
+      "title": "Upgraded to AA+ by CRISIL on asset quality improvement",
+      "source": "CRISIL Management",
+      "sourceUrl": "https://www.crisil.com",
+      "date": "2026-03-18"
+    }
+  ],
+  "BAJAJFINSV.NS": [
+    {
+      "type": "quarterly_result",
+      "impact": "positive",
+      "title": "Vehicle insurance premiums grew 18% YoY",
+      "source": "ET Markets",
+      "sourceUrl": "https://economictimes.indiatimes.com/markets",
+      "date": "2026-03-20"
+    }
+  ],
+  "DRHP.NS": [
+    {
+      "type": "fda_approval",
+      "impact": "positive",
+      "title": "US FDA approves new oncology drug, significant revenue potential",
+      "source": "Company Press Release",
+      "sourceUrl": "https://www.drhp.com/news",
+      "date": "2026-03-19"
+    },
+    {
+      "type": "clinical_trial",
+      "impact": "positive",
+      "title": "Phase 3 trial shows efficacy for diabetes indication",
+      "source": "Medical Journal",
+      "sourceUrl": "https://www.drhp.com/investor",
+      "date": "2026-03-16"
+    }
+  ],
+  "SUNPHARMA.NS": [
+    {
+      "type": "regulatory_approval",
+      "impact": "positive",
+      "title": "USFDA approves generic formulation ahead of competitors",
+      "source": "Company IR",
+      "sourceUrl": "https://www.sunpharma.com/news",
+      "date": "2026-03-21"
+    }
+  ],
+  "NESTLEIND.NS": [
+    {
+      "type": "quarterly_result",
+      "impact": "positive",
+      "title": "Volume growth steady at 8% despite inflation pressures",
+      "source": "ET Markets",
+      "sourceUrl": "https://economictimes.indiatimes.com/markets",
+      "date": "2026-03-22"
+    }
+  ],
+  "ITC.NS": [
+    {
+      "type": "quarterly_result",
+      "impact": "neutral",
+      "title": "FMCG segment margins squeezed by commodity costs",
+      "source": "ET Markets",
+      "sourceUrl": "https://economictimes.indiatimes.com/markets",
+      "date": "2026-03-20"
+    },
+    {
+      "type": "dividend_announcement",
+      "impact": "positive",
+      "title": "Interim dividend of Rs. 4 per share announced",
+      "source": "BSE Filings",
+      "sourceUrl": "https://www.bseindia.com/corporates",
+      "date": "2026-03-15"
+    }
   ]
 }
