@@ -23,6 +23,17 @@ dist/
 frontend/node_modules/
 frontend/build/
 
+# Backend dependencies
+backend/node_modules/
+
+# Node/Jest runtime artifacts
+npm-debug.log*
+yarn-error.log*
+.eslintcache
+frontend/.cache/
+frontend/coverage/
+backend/coverage/
+
 # Tooling caches
 .pytest_cache/
 .mypy_cache/

@@ -561,6 +561,122 @@ Example response:
 
 ---
 
+## Validation Checklist (Hackathon Demo)
+
+Use this checklist to verify the core Opportunity Radar features end-to-end.
+
+### 1) Backend health and API routes
+
+Start backend:
+
+```bash
+cd backend
+npm start
+```
+
+Health check:
+
+```bash
+curl http://127.0.0.1:3001/health
+```
+
+Expected:
+
+```json
+{ "ok": true, "service": "indian-investor-decision-engine" }
+```
+
+Run opportunity radar:
+
+```bash
+curl -X POST http://127.0.0.1:3001/api/agent/opportunity-radar \
+  -H "Content-Type: application/json" \
+  -d '[
+    {"symbol":"TCS","weight":40},
+    {"symbol":"RELIANCE","weight":35},
+    {"symbol":"ICICIBANK","weight":25}
+  ]'
+```
+
+Expected response fields:
+
+- `workflow` with 3 steps
+- `portfolioInsight` string
+- `alerts[].priorityScore`
+- `alerts[].contextSignals[].credibilityTier`
+- `alerts[].contextSignals[].recencyWeight`
+
+Read radar history:
+
+```bash
+curl "http://127.0.0.1:3001/api/agent/opportunity-radar/history?limit=5"
+```
+
+Expected:
+
+- `items` array present
+- `count` equals returned item count
+- most recent run appears first
+
+### 2) Automated backend tests
+
+Run all backend tests:
+
+```bash
+cd backend
+npm test
+```
+
+Expected summary:
+
+- market context tests pass (9/9)
+- opportunity radar API integration tests pass (positive + negative cases)
+
+### 3) Frontend manual checks
+
+Start frontend:
+
+```bash
+cd frontend
+npm start
+```
+
+Run frontend radar smoke tests (deterministic, non-watch mode):
+
+```bash
+cd frontend
+npm run test:radar
+```
+
+Expected summary:
+
+- `OpportunityRadarPage.test.js` runs and exits automatically
+- action/risk/credibility/history sorting UI assertions pass
+
+Open:
+
+```text
+http://localhost:3000/opportunity-radar
+```
+
+Verify UI behaviors:
+
+- `Run Opportunity Radar` and `Run Sample Radar` buttons trigger scans
+- `Latest Alerts` filters work for action, risk, and credibility tier
+- `Sort: Priority/Confidence/Signal Strength` updates alert ranking
+- `Recent Radar Runs` sort works for latest vs highest average priority
+- context badges display tier and recency labels (example: `[REGULATORY] [D3]`)
+
+### 4) Quick failure checks
+
+Verify these return proper errors:
+
+- invalid JSON body to radar endpoint returns HTTP 400
+- wrong payload shape returns HTTP 400
+- unknown route returns HTTP 404
+
+---
+
 ## ⚠️ Security Best Practices
 
 ### Environment Variables
