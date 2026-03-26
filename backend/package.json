@@ -4,6 +4,7 @@
   "private": true,
   "description": "Node.js market data backend for AI investor dashboard",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node tests/marketContextService.test.js && node tests/opportunityRadarApi.test.js"
   }
 }
