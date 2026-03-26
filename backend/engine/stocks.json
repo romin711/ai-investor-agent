@@ -1,0 +1,22 @@
+[
+  { "symbol": "RELIANCE", "yahooSymbol": "RELIANCE.NS", "sector": "Energy" },
+  { "symbol": "TCS", "yahooSymbol": "TCS.NS", "sector": "Technology" },
+  { "symbol": "INFY", "yahooSymbol": "INFY.NS", "sector": "Technology" },
+  { "symbol": "HDFCBANK", "yahooSymbol": "HDFCBANK.NS", "sector": "Financials" },
+  { "symbol": "ICICIBANK", "yahooSymbol": "ICICIBANK.NS", "sector": "Financials" },
+  { "symbol": "SBIN", "yahooSymbol": "SBIN.NS", "sector": "Financials" },
+  { "symbol": "LT", "yahooSymbol": "LT.NS", "sector": "Industrials" },
+  { "symbol": "ITC", "yahooSymbol": "ITC.NS", "sector": "Consumer" },
+  { "symbol": "KOTAKBANK", "yahooSymbol": "KOTAKBANK.NS", "sector": "Financials" },
+  { "symbol": "BHARTIARTL", "yahooSymbol": "BHARTIARTL.NS", "sector": "Telecom" },
+  { "symbol": "HINDUNILVR", "yahooSymbol": "HINDUNILVR.NS", "sector": "Consumer" },
+  { "symbol": "MARUTI", "yahooSymbol": "MARUTI.NS", "sector": "Auto" },
+  { "symbol": "AAPL", "yahooSymbol": "AAPL", "sector": "Technology" },
+  { "symbol": "MSFT", "yahooSymbol": "MSFT", "sector": "Technology" },
+  { "symbol": "GOOGL", "yahooSymbol": "GOOGL", "sector": "Technology" },
+  { "symbol": "NVDA", "yahooSymbol": "NVDA", "sector": "Technology" },
+  { "symbol": "TSLA", "yahooSymbol": "TSLA", "sector": "Auto" },
+  { "symbol": "META", "yahooSymbol": "META", "sector": "Technology" },
+  { "symbol": "AMZN", "yahooSymbol": "AMZN", "sector": "Consumer" },
+  { "symbol": "JPM", "yahooSymbol": "JPM", "sector": "Financials" }
+]

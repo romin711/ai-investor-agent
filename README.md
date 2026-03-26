@@ -1,537 +1,471 @@
 <div align="center">
 
-# 🤖 AI Investor Agent
+# AI Investor Agent
 
-### Your portfolio. Analyzed in seconds. Explained in plain English.
+### Portfolio-aware stock analysis dashboard
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
-[![Recharts](https://img.shields.io/badge/Recharts-Charting-0F172A?style=for-the-badge&logo=chartdotjs&logoColor=white)](https://recharts.org/)
-[![yfinance](https://img.shields.io/badge/yfinance-Live%20Data-8B5CF6?style=for-the-badge&logo=yahoo&logoColor=white)](https://pypi.org/project/yfinance/)
-[![Status](https://img.shields.io/badge/Status-Prototype-F59E0B?style=for-the-badge)](https://github.com/romin711/ai-investor-agent)
-
-<br/>
-
-> **Submit your portfolio → get per-stock decisions with confidence scores, plain-language reasoning, and sector diversification insights — in real time. No API keys. No black box.**
+![Node.js](https://img.shields.io/badge/Node.js-Backend-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-Frontend-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Yahoo Finance](https://img.shields.io/badge/Yahoo-Market%20Data-6001D2?style=for-the-badge&logo=yahoo&logoColor=white)
+![Recharts](https://img.shields.io/badge/Recharts-Charting-0F172A?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Prototype-F59E0B?style=for-the-badge)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Overview
 
-- [🧠 Overview](#-overview)
-- [❗ Problem Statement](#-problem-statement)
-- [💡 Solution](#-solution)
-- [✨ Key Features](#-key-features)
-- [🏗️ Architecture](#️-architecture)
-- [🔄 System Flow](#-system-flow)
-- [📊 Dashboard Highlights](#-dashboard-highlights)
-- [⚡ Quick Start](#-quick-start)
-- [🔌 API Contract](#-api-contract)
-- [🎯 Decision Logic](#-decision-logic)
-- [🛡️ Safety & Data Guardrails](#️-safety--data-guardrails)
-- [🏆 What Makes It Different](#-what-makes-it-different)
-- [🎬 Demo Flow](#-demo-flow)
-- [📁 Project Structure](#-project-structure)
-- [⚠️ Disclaimer](#️-disclaimer)
-- [👨‍💻 Author](#-author)
+AI Investor Agent is a rule-based stock intelligence app with:
+
+- a Node.js backend that fetches Yahoo Finance market data
+- a React dashboard for portfolio input and visualization
+- portfolio-aware scoring based on trend, RSI, momentum, breakout, and sector exposure
+- safe fallbacks for missing data so the app does not invent fake zeros
+
+The current live app uses the `backend/` Node service and the `frontend/` React app.
 
 ---
 
-## 🧠 Overview
+## What The App Does
 
-**AI Investor Agent** is a full-stack, multi-agent stock analysis platform. Drop in a weighted portfolio — tickers and allocation percentages — and five specialized agents cooperate to deliver per-symbol trade recommendations backed by live market data, technical signals, and sector concentration context.
+Given user portfolio rows like:
 
-No external AI service is required. All intelligence runs locally: live prices and volume are pulled from Yahoo Finance via `yfinance`, passed through deterministic signal and scoring rules, and rendered in a React dashboard or printed to the terminal.
-
----
-
-## ❗ Problem Statement
-
-Retail investors face a consistent set of frustrations:
-
-- **Information overload** — raw charts and data, no clear action
-- **No portfolio context** — single-stock tools ignore what you already own
-- **Opaque decisions** — black-box platforms give ratings with zero explanation
-- **Fragmented workflow** — separate tools for data, analysis, and portfolio management
-- **Jargon-heavy output** — signals that require expertise to interpret
-
-Most tools tell you *what* the market is doing. None tell you *what to do about it* given your specific holdings.
-
----
-
-## 💡 Solution
-
-AI Investor Agent replaces a fragmented, opaque analysis workflow with a single request:
-
-1. **Submit** your portfolio (tickers + weights) via the dashboard or API.
-2. **Five agents** fetch live data, compute signals, assess your sector exposure, score a decision, and write a plain-English explanation — all in one pipeline.
-3. **Receive** a confidence-scored action (`Buy`, `Hold`, `Reduce`, `Avoid`, `No Trade`) with a human-readable reason, next-step guidance, and alternative symbols to consider.
-
-Everything happens in seconds, requires no sign-up, and the logic is fully transparent and auditable.
-
----
-
-## ✨ Key Features
-
-| Feature | Details |
-|---|---|
-| 🔄 **Multi-agent pipeline** | Five decoupled agents cooperate: Data → Portfolio → Signal → Decision → Explanation |
-| 📈 **Live market data** | Prices and 5-day volume fetched in real time via `yfinance`; graceful fallback when data is missing |
-| 🧠 **Technical signal analysis** | Trend direction, 5-day momentum %, breakout detection, and volume conviction |
-| 🏦 **Portfolio-aware decisions** | Sector exposure, overconcentration detection, and diversification suggestions baked into every recommendation |
-| 🎯 **Confidence-scored actions** | Six possible actions (`Buy` · `Hold` · `Light Reduce` · `Reduce` · `Avoid` · `No Trade`) each with a 0–1 confidence score |
-| 💬 **Plain-language explanations** | Every decision comes with a structured rationale — no jargon |
-| 📊 **React dashboard** | Finance-style card layout, 7 trading-day price sparkline, confidence bar, dark/light theme |
-| ⚡ **FastAPI backend** | Auto-documented REST API at `/docs`, CORS-ready |
-| 🖥️ **CLI mode** | Full analysis from the terminal — no UI required |
-| 🌏 **Global symbol support** | US equities, NSE/BSE (`.NS`), and any other `yfinance`-compatible market |
-
----
-
-## 🏗️ Architecture
-
-The system is built as a **sequential multi-agent pipeline**. Each agent has a single responsibility and passes its output downstream.
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                     Client Layer                        │
-│   React Dashboard (Port 3000)    CLI (main.py)         │
-└─────────────────┬───────────────────────┬───────────────┘
-                  │  POST /analyze        │  --symbols flag
-                  ▼                       ▼
-┌─────────────────────────────────────────────────────────┐
-│                  FastAPI Backend (Port 8000)             │
-│                                                         │
-│  ┌─────────────┐   ┌──────────────────┐                │
-│  │  DataAgent  │   │  PortfolioAgent  │                │
-│  │  (yfinance) │   │  (sector map)    │                │
-│  └──────┬──────┘   └────────┬─────────┘                │
-│         │                   │                           │
-│         └─────────┬─────────┘                          │
-│                   ▼                                     │
-│          ┌────────────────┐                             │
-│          │  SignalAgent   │                             │
-│          │ trend·momentum │                             │
-│          │ breakout·volume│                             │
-│          └───────┬────────┘                             │
-│                  ▼                                      │
-│         ┌────────────────┐                              │
-│         │ DecisionAgent  │                              │
-│         │ score · action │                              │
-│         │  · confidence  │                              │
-│         └───────┬────────┘                              │
-│                 ▼                                       │
-│       ┌──────────────────┐                              │
-│       │ ExplanationAgent │                              │
-│       │  why · next step │                              │
-│       │  · alternatives  │                              │
-│       └────────┬─────────┘                              │
-│                │  Structured JSON                       │
-└────────────────┼────────────────────────────────────────┘
-                 ▼
-        Dashboard / Terminal
+```json
+[
+  { "symbol": "RELIANCE", "weight": 40 },
+  { "symbol": "TCS", "weight": 30 },
+  { "symbol": "INFY", "weight": 30 }
+]
 ```
 
-**Agent responsibilities at a glance:**
+the system:
 
-| Agent | Responsibility |
-|---|---|
-| `DataAgent` | Fetches live closing prices (last 7 trading days) and current + 5-day average volume |
-| `PortfolioAgent` | Maps holdings to sectors, calculates exposure %, flags overconcentration |
-| `SignalAgent` | Computes trend, momentum %, breakout flag, volume strength, and volume ratio |
-| `DecisionAgent` | Scores combined signals, applies portfolio penalties, outputs action + confidence |
-| `ExplanationAgent` | Assembles a structured plain-English summary with next steps and alternatives |
+1. normalizes the input symbols and weights
+2. resolves each symbol to a Yahoo Finance ticker
+3. fetches historical market data
+4. cleans invalid price points
+5. calculates indicators such as MA20, MA50, RSI, momentum, and breakout
+6. adds portfolio context like sector concentration
+7. produces a final decision such as `BUY`, `SELL`, or `HOLD`
+8. renders the output in the dashboard as cards, chart, confidence, and reasoning
 
 ---
 
-## 🔄 System Flow
+## System Flow
 
-**Step-by-step for a single portfolio submission:**
-
-```
-1. User submits:  [{ "symbol": "AAPL", "weight": 40 }, { "symbol": "JPM", "weight": 60 }]
-
-2. DataAgent      →  fetches last 7 trading-day close prices + volume for each symbol
-                     fallback series used if yfinance returns no data
-
-3. PortfolioAgent →  Technology: 40% | Financials: 60%
-                     overexposure: false (no sector > 50%)
-
-4. SignalAgent    →  AAPL: uptrend | momentum +2.7% | breakout: true | volume: high
-                     JPM:  neutral  | momentum +0.3% | breakout: false | volume: normal
-
-5. DecisionAgent  →  AAPL: trend(+0.35) + breakout(+0.25) + momentum(+0.23) → raw 0.83, × 1.08 (high vol) = 0.89 → BUY (confidence: 0.78)
-                     JPM:  momentum near zero, no breakout → HOLD (confidence: 0.56)
-
-6. ExplanationAgent → structured rationale + next action + alternatives per symbol
-
-7. Response JSON  →  rendered as cards in the React dashboard
+```mermaid
+flowchart LR
+    A[User Input: symbols + weights] --> B[React Portfolio Page]
+    B --> C[PortfolioContext]
+    C --> D[POST /api/portfolio/analyze]
+    D --> E[Node Backend]
+    E --> F[Symbol Resolver]
+    E --> G[Yahoo Data Fetch]
+    G --> H[Data Cleanup]
+    H --> I[Indicator Pipeline]
+    E --> J[Portfolio Exposure]
+    I --> K[Decision Engine]
+    J --> K
+    K --> L[Response JSON]
+    L --> M[React Dashboard]
 ```
 
 ---
 
-## 📊 Dashboard Highlights
+## Theory: How Input Becomes Output
 
-The React dashboard is the fastest way to use the system. Open it at `http://localhost:3000` after starting both servers.
+This is the core idea of the project.
 
-**Input panel:**
-- Accepts plain-text format (`AAPL 40`) or raw JSON array
-- Validates and normalises weights automatically
-- Supports multi-symbol portfolios with tabbed navigation
+### 1) User input becomes normalized portfolio rows
 
-**Per-symbol card:**
+The user enters data in the frontend, either by:
 
-| Element | What it shows |
-|---|---|
-| 💰 **Price + Trend** | Current close price · `uptrend` / `downtrend` / `neutral` badge |
-| 📉 **Momentum %** | 5-day price change percentage |
-| 📈 **Price sparkline** | Last 7 trading-day close-price line chart (Recharts) with dynamic Y-axis padding |
-| 🧠 **Decision badge** | Colour-coded: 🟢 Buy · 🟡 Hold · 🔴 Reduce / Avoid |
-| 📊 **Confidence bar** | Animated fill bar showing 0–100% confidence |
-| 💡 **Next action** | Contextual follow-up guidance |
-| 🔄 **Alternatives** | Alternative symbols with sector labels for rebalancing |
+- uploading JSON
+- typing rows manually
 
-**Portfolio panel:**
-- Top sector exposure summary (e.g. `Technology 70% (Overexposed)`)
-- Live overexposure warnings
+The frontend converts that into a clean internal array:
 
-**Theme:**
-- One-click dark/light mode toggle
-- CSS custom properties for consistent theming
+```json
+[
+  { "symbol": "RELIANCE", "weight": 40 },
+  { "symbol": "TCS", "weight": 30 }
+]
+```
+
+At this stage:
+
+- symbols are uppercased
+- weights are converted to numbers
+- empty rows are ignored
+- invalid weights are rejected
+
+### 2) The frontend sends the portfolio to the backend
+
+When the user clicks analyze, the frontend sends a `POST` request to:
+
+```text
+/api/portfolio/analyze
+```
+
+The backend accepts multiple request styles:
+
+- array of rows
+- `portfolio` object map
+- raw text input
+
+but internally converts all of them into the same row structure.
+
+### 3) Symbols are resolved to Yahoo-compatible tickers
+
+User input is often human-friendly, for example:
+
+- `RELIANCE`
+- `TCS`
+- `INFY`
+
+The backend resolves these into Yahoo Finance symbols such as:
+
+- `RELIANCE.NS`
+- `TCS.NS`
+- `INFY.NS`
+
+Resolution uses:
+
+- a local symbol map from `backend/engine/stocks.json`
+- fuzzy matching for near-miss tickers
+- optional Gemini fallback if mapping fails
+
+### 4) Yahoo market data is fetched and cleaned
+
+For each resolved symbol, the backend requests chart data from Yahoo Finance.
+
+Then it cleans the data before calculations:
+
+- removes `null`, `NaN`, and invalid close values
+- keeps valid historical points only
+- sorts data oldest to latest
+- keeps price history for charting and indicators
+
+This matters because technical indicators depend on time order and valid numeric values.
+
+### 5) Indicators are calculated from historical closes
+
+After cleanup, the backend computes:
+
+- `MA20`: average of the latest 20 valid closes
+- `MA50`: average of the latest 50 valid closes
+- `RSI(14)`: gain/loss strength over 14 periods
+- `Momentum`: percentage move vs. a 5-day lookback
+- `Volatility`: latest daily percentage move
+- `Breakout`: whether current price is above the previous 20-day high
+
+If there is not enough history, the indicator returns `null`, not `0`.
+
+That is a deliberate design choice:
+
+- `0` would look like a real market signal
+- `null` correctly means "not enough data"
+
+### 6) Portfolio context changes the interpretation
+
+The app does not look at each stock in isolation.
+
+It also computes portfolio context:
+
+- sector allocation
+- overexposed sectors
+- the sector exposure of the current symbol
+
+Example:
+
+- if the portfolio is already 80% in one sector, even a good technical setup may be downgraded
+
+This is handled through a portfolio adjustment layer.
+
+### 7) Technical score and portfolio score become a final decision
+
+The decision engine combines:
+
+- technical score
+- portfolio adjustment
+
+to create a final score.
+
+Basic idea:
+
+- strong bullish signals raise the score
+- weak or bearish signals lower the score
+- concentration risk can reduce the score further
+
+Then the decision is mapped approximately like this:
+
+- high positive score -> `BUY`
+- high negative score -> `SELL`
+- middle zone -> `HOLD`
+
+Confidence is then derived from:
+
+- score magnitude
+- RSI neutrality
+- distance between price and MA50
+
+### 8) Missing critical indicators trigger a safety guard
+
+If key indicators are missing, the app does not try to bluff confidence.
+
+Instead it forces:
+
+- `decision = HOLD`
+- `confidence = low`
+- `reason = "Insufficient data"`
+
+The frontend then shows:
+
+- `Not enough data`
+
+instead of `0` or `--`.
+
+### 9) The backend returns structured output
+
+For each symbol, the backend returns data such as:
+
+- current price
+- historical series
+- MA20 / MA50 / RSI
+- momentum and breakout
+- technical score
+- portfolio adjustment
+- final score
+- decision
+- confidence
+- reasoning
+
+It also returns portfolio-level insight such as:
+
+- sector allocation
+- overexposed sectors
+- top-level portfolio summary
+
+### 10) The frontend transforms JSON into UI
+
+The React dashboard turns the response into:
+
+- a price chart
+- tracked stock cards
+- RSI / MA metrics
+- decision badge
+- confidence display
+- portfolio insight panel
+- signals list
+- reasoning panel
+
+So the final theory is:
+
+```text
+User input -> normalization -> symbol resolution -> Yahoo data -> cleanup ->
+indicator calculation -> portfolio adjustment -> decision engine -> API response ->
+dashboard rendering
+```
 
 ---
 
-## ⚡ Quick Start
+## Current Stack
 
-### Prerequisites
+### Backend
 
-| Tool | Min. version | Purpose |
-|---|---|---|
-| [Python](https://python.org) | 3.10 | Backend runtime |
-| [Node.js](https://nodejs.org) | 18 LTS | React frontend |
-| [npm](https://www.npmjs.com/) | 9+ | Frontend package manager |
-| Internet access | — | Live data via `yfinance` |
+- Node.js HTTP server
+- Yahoo Finance chart API
+- optional Gemini fallback for ticker resolution / reasoning
 
-### 1 — Clone
+### Frontend
+
+- React
+- React Router
+- Axios
+- Recharts
+- Tailwind-based styling
+
+---
+
+## Project Structure
+
+```text
+ai-investor-agent/
+├── backend/
+│   ├── server.js
+│   ├── README.md
+│   ├── package.json
+│   └── engine/
+│       ├── pipeline.js
+│       ├── yahooClient.js
+│       ├── symbolResolver.js
+│       ├── indicators.js
+│       ├── indicatorService.js
+│       ├── portfolioService.js
+│       ├── riskService.js
+│       ├── decisionEngine.js
+│       ├── aiService.js
+│       └── stocks.json
+├── frontend/
+│   ├── package.json
+│   └── src/
+│       ├── context/
+│       ├── pages/
+│       ├── components/
+│       └── layout/
+├── ai_investor_agent/
+├── api.py
+├── main.py
+└── README.md
+```
+
+Note:
+
+- `backend/` + `frontend/` is the current live web app path
+- `ai_investor_agent/`, `api.py`, and `main.py` are older prototype assets kept in the repo
+
+---
+
+## Quick Start
+
+### 1) Start the backend
 
 ```bash
-git clone https://github.com/romin711/ai-investor-agent.git
-cd ai-investor-agent
+cd backend
+cp .env.example .env
+npm install
+npm start
 ```
 
-### 2 — Backend
+Default backend URL:
 
-```bash
-# Create and activate a virtual environment
-python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
-
-# Install dependencies
-pip install fastapi "uvicorn[standard]" pydantic yfinance
-
-# Start the API server
-uvicorn api:app --reload --host 127.0.0.1 --port 8000
+```text
+http://127.0.0.1:3001
 ```
 
-| URL | Description |
-|---|---|
-| `http://127.0.0.1:8000` | Health check (`GET /`) |
-| `http://127.0.0.1:8000/docs` | Interactive Swagger UI |
-| `http://127.0.0.1:8000/analyze` | Analysis endpoint (`POST`) |
+Optional backend `.env` values:
 
-### 3 — Frontend
+```env
+PORT=3001
+HOST=127.0.0.1
+GEMINI_API_KEY=
+```
 
-Open a second terminal:
+### 2) Start the frontend
 
 ```bash
 cd frontend
 npm install
 npm start
-# → http://localhost:3000
 ```
 
-### 4 — CLI (no UI required)
+Default frontend URL:
 
-```bash
-# Single symbol
-python main.py --symbols AAPL
-
-# Multi-symbol
-python main.py --symbols AAPL,MSFT,RELIANCE.NS
+```text
+http://localhost:3000
 ```
 
----
+Optional frontend env:
 
-## 🔌 API Contract
-
-### `GET /`
-
-Health check.
-
-```json
-{
-  "message": "AI Investor Agent API is running.",
-  "analyze_endpoint": "POST /analyze"
-}
+```env
+REACT_APP_API_BASE_URL=http://127.0.0.1:3001
 ```
 
 ---
 
-### `POST /analyze`
+## API
 
-**Request** — array of portfolio items:
+### Health check
+
+```text
+GET /health
+```
+
+### Single stock analysis
+
+```text
+GET /api/stock/:symbol
+```
+
+Example:
+
+```text
+GET /api/stock/RELIANCE
+```
+
+### Portfolio analysis
+
+```text
+POST /api/portfolio/analyze
+```
+
+Example request:
 
 ```json
 [
-  { "symbol": "AAPL", "weight": 40 },
-  { "symbol": "MSFT", "weight": 30 },
-  { "symbol": "JPM",  "weight": 30 }
+  { "symbol": "RELIANCE", "weight": 50 },
+  { "symbol": "TCS", "weight": 30 },
+  { "symbol": "INFY", "weight": 20 }
 ]
 ```
 
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| `symbol` | `string` | ✅ | Any Yahoo Finance ticker (`AAPL`, `RELIANCE.NS`, …) |
-| `weight` | `number` | ✅ | Positive value; normalised to % internally |
-
-**Response:**
+Example response:
 
 ```json
 {
-  "portfolio_insight": {
-    "sector_exposure": { "Technology": 70.0, "Financials": 30.0 },
-    "overexposure": true,
-    "overexposed_sectors": ["Technology"],
-    "diversification_suggestions": ["Trim exposure in Technology; keep each sector closer to 20-35%."]
+  "portfolioInsight": "Technology sector exposure is 60.00%",
+  "sectorAllocation": {
+    "Technology": 60,
+    "Energy": 40
   },
+  "overexposedSectors": [],
   "results": [
     {
-      "symbol": "AAPL",
-      "stock_data": {
-        "price": 214.22,
-        "current_volume": 53210000,
-        "avg_volume_5d": 49120000,
-        "price_history": [208.5, 209.1, 210.8, 212.3, 214.22],
-        "data_warning": null
-      },
-      "signals": {
-        "trend": "uptrend",
-        "breakout": true,
-        "momentum_percent": 2.73,
-        "volume_strength": "high",
-        "volume_ratio": 1.08,
-        "data_quality": "valid"
-      },
-      "decision": "Buy",
-      "confidence": 0.78,
-      "confidence_reason": "Strong trend and high volume confirm the signal.",
-      "next_action": "Accumulate in small tranches with stop-loss discipline.",
-      "alternatives": ["XOM", "JNJ"]
+      "symbol": "RELIANCE",
+      "resolvedSymbol": "RELIANCE.NS",
+      "price": 2941.35,
+      "historical": [
+        { "date": "2026-03-19", "close": 2880.4 },
+        { "date": "2026-03-20", "close": 2892.6 }
+      ],
+      "trend": "neutral",
+      "rsi": 52.61,
+      "ma20": 2901.84,
+      "ma50": 2890.12,
+      "momentum_percent": 2.04,
+      "volatility_percent": 0.44,
+      "breakout": false,
+      "technical_score": 1,
+      "portfolio_adjustment": 0,
+      "risk_score": 0,
+      "final_score": 1,
+      "decision": "HOLD",
+      "confidence": 20,
+      "data_warning": null,
+      "reason": "Gemini API key not configured.",
+      "next_action": "Evaluate manually based on signals."
     }
   ]
 }
 ```
 
-**Error codes:**
+---
 
-| Status | Cause |
-|---|---|
-| `422 Unprocessable Entity` | Missing symbol, invalid weight, empty portfolio |
-| `500 Internal Server Error` | Unexpected backend error |
+## Important Behaviors
+
+- Missing or invalid Yahoo values are removed before indicator calculation
+- Historical data is processed oldest to latest
+- Indicators return `null` if history is insufficient
+- The backend does not use default `0` values for missing indicators
+- Missing key indicators trigger a safe `HOLD` decision
+- The frontend shows `Not enough data` for missing metrics
+- Insufficient-data cases are logged in the backend for debugging
 
 ---
 
-## 🎯 Decision Logic
+## Disclaimer
 
-The `DecisionAgent` builds a composite score from four signal inputs, then maps it to an action and confidence level.
+This project is a rule-based prototype for demos, experimentation, and learning.
 
-```
-Score = trend_weight + breakout_bonus + momentum_cap
-
-  trend_weight    = +0.35 (uptrend) | 0 (neutral) | −0.35 (downtrend)
-  breakout_bonus  = +0.25 if price breaks above 5-day high
-  momentum_cap    = clamped to [−0.25, +0.25] from (momentum_pct / 12)
-
-Score is then adjusted:
-  × 1.08  if volume_strength = "high"
-  × 0.60  if volume_strength = "low"
-  − 0.25  if sector exposure > 50%   (overconcentration penalty)
-  − 0.10  if sector exposure ≥ 35%   (elevated exposure penalty)
-
-Action mapping:
-  score ≥ 0.45 + uptrend          → Buy
-  neutral + |momentum| < 1%        → Hold
-  downtrend + momentum ≤ −3.5% + high volume → Avoid
-  downtrend + −3.5% < momentum ≤ −1.5%        → Reduce
-  overexposed + weak signals        → Light Reduce
-  data_quality = "missing"          → No Trade
-
-Confidence = 0.45 + 0.35 × |score| + 0.20 × signal_agreement
-  Capped at 1.0; adjusted down for low volume or high sector concentration.
-```
-
----
-
-## 🛡️ Safety & Data Guardrails
-
-The system is built to fail gracefully and never produce a confident recommendation from bad data.
-
-**Data quality levels:**
-
-| Level | Meaning | Effect on pipeline |
-|---|---|---|
-| `valid` | Full OHLCV data returned by yfinance | Normal signal + decision computation |
-| `fallback` | Partial data (e.g. < 5 days of volume) | Signals computed with caveats; confidence reduced |
-| `missing` | No data returned (invalid/delisted symbol) | Action forced to `No Trade`; confidence = 0.2 |
-
-**Anti-overreaction guardrails:**
-
-- **Momentum is capped** at ±0.25 contribution regardless of magnitude — prevents extreme swings from driving decisions alone.
-- **Low-volume signals** are penalised: score multiplied by 0.60, confidence multiplied by 0.88.
-- **Sector overconcentration** reduces both score and confidence — the system will not recommend aggressively buying into an already-heavy sector.
-- **`Light Reduce` confidence** is capped at 0.72 to reflect inherent uncertainty in mild repositioning signals.
-- **`Hold` confidence** is capped at 0.62 when momentum is weak — the system does not pretend certainty where none exists.
-- **Fallback price series** are deterministically generated (not random) from the ticker string, so the pipeline always completes without crashing.
-
-**Input validation:**
-
-- All portfolio items are validated before processing: symbol must be non-empty, weight must be positive.
-- Empty or fully-invalid portfolios return a `422` error immediately.
-
----
-
-## 🏆 What Makes It Different
-
-Most stock-analysis tools do one thing: show you signals. This system does something harder — it tells you what to do about those signals **given your actual portfolio**.
-
-| Typical analysis tool | AI Investor Agent |
-|---|---|
-| Single-stock view | Analyses your whole portfolio at once |
-| Raw signals (RSI, MACD) | Human-readable decision with confidence score |
-| No context | Sector exposure + overconcentration penalties built in |
-| Black-box rating | Fully transparent, auditable scoring formula |
-| Requires API keys or subscriptions | Runs entirely locally with `yfinance` |
-| Crashes on bad data | Graceful fallback at every data quality level |
-| One output format | Dashboard UI + REST API + CLI |
-
-The differentiating design decision: **the Decision Agent knows what you own**. A `Buy` signal on a stock in a sector you're already 55% exposed to will be down-scored and flagged — something most tools simply ignore.
-
----
-
-## 🎬 Demo Flow
-
-Here is the fastest way to see the full system in action:
-
-**Step 1 — Start the backend**
-```bash
-source .venv/bin/activate
-uvicorn api:app --reload --port 8000
-```
-
-**Step 2 — Start the frontend**
-```bash
-cd frontend && npm start
-```
-
-**Step 3 — Open the dashboard**
-
-Navigate to `http://localhost:3000`. You'll see the input panel pre-filled with an example portfolio.
-
-**Step 4 — Submit the portfolio**
-
-The default input is:
-```
-AAPL 40
-MSFT 30
-GOOGL 30
-```
-> All three are Technology sector stocks, so this portfolio has 100% Technology concentration.
-
-Click **Analyze**. Within a few seconds, results appear for each symbol.
-
-**Step 5 — Explore the output**
-
-- Click between symbol tabs (`AAPL`, `MSFT`, `GOOGL`) to see per-stock cards.
-- Check the portfolio insight bar: with 100% Technology allocation, an **Overexposed** warning appears.
-- Observe that `Buy` confidence is reduced on all three symbols due to the sector overconcentration penalty.
-- Toggle to **dark mode** with the button in the top-right corner.
-
-**Step 6 — Try a diversified portfolio**
-
-Update the input to:
-```
-AAPL 30
-JPM 30
-XOM 20
-JNJ 20
-```
-
-Re-analyze. Confidence scores increase, overexposure warning disappears, and `Reduce` / `Avoid` actions may appear if any symbol is in a downtrend.
-
-**Step 7 — Try the CLI**
-```bash
-python main.py --symbols AAPL,JPM,XOM,JNJ
-```
-
-The same pipeline runs in the terminal, printing signal summaries, decisions, and explanations for each symbol.
-
----
-
-## 📁 Project Structure
-
-```text
-ai-investor-agent/
-├── ai_investor_agent/              # Core Python package
-│   ├── agents/
-│   │   ├── __init__.py             # Package exports
-│   │   ├── data_agent.py           # Live price & volume fetching (yfinance)
-│   │   ├── signal_agent.py         # Trend, momentum, breakout, volume signals
-│   │   ├── portfolio_agent.py      # Sector exposure & concentration analysis
-│   │   ├── decision_agent.py       # Action + confidence scoring engine
-│   │   └── explanation_agent.py    # Plain-language reasoning output
-│   ├── api_service.py              # InvestorAnalysisService (used by FastAPI)
-│   ├── workflow.py                 # MultiAgentStockAnalyzer orchestrator
-│   └── types.py                    # Shared dataclasses (MarketData, TradeDecision …)
-├── api.py                          # FastAPI app entry point
-├── main.py                         # CLI entry point
-├── frontend/                       # React dashboard
-│   ├── src/
-│   │   ├── App.js                  # Root component
-│   │   ├── App.css                 # Finance-style global styles
-│   │   └── components/
-│   │       └── PortfolioAnalyzer.js  # Main UI: input, cards, chart, theme
-│   ├── public/
-│   └── package.json
-└── README.md
-```
-
----
-
-## ⚠️ Disclaimer
-
-> This project is a **rule-based prototype** built for learning, demos, and experimentation.
->
-> - It is **not financial advice**.
-> - Do **not** invest real money based on its output.
-> - Market data accuracy depends on `yfinance` and Yahoo Finance availability.
-> - The scoring model is intentionally simple — it does not account for earnings, macro factors, options flow, or fundamental analysis.
-> - Always consult a qualified financial advisor before making any investment decision.
-
----
-
-## 👨‍💻 Author
-
-**Romin** — [@romin711](https://github.com/romin711)
-
-Built as a full-stack multi-agent demonstration project combining real-time market data, a deterministic decision engine, and a React portfolio dashboard.
-
----
-
-<div align="center">
-
-⭐ If you find this useful, consider giving it a star on GitHub!
-
-</div>
+It is not financial advice.
