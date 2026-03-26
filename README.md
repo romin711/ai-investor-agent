@@ -1,436 +1,225 @@
 <div align="center">
 
 # AI Investor Agent
+### Portfolio-Aware Decision Intelligence for Indian Equities
 
-### Portfolio-aware stock analysis dashboard
-
-![Node.js](https://img.shields.io/badge/Node.js-Backend-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
-![React](https://img.shields.io/badge/React-Frontend-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Yahoo Finance](https://img.shields.io/badge/Yahoo-Market%20Data-6001D2?style=for-the-badge&logo=yahoo&logoColor=white)
-![Lightweight Charts](https://img.shields.io/badge/TradingView-Lightweight--Charts-0F172A?style=for-the-badge)
-![Status](https://img.shields.io/badge/Status-Prototype-F59E0B?style=for-the-badge)
+![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![React](https://img.shields.io/badge/Frontend-React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Yahoo Finance](https://img.shields.io/badge/Market%20Data-Yahoo%20Finance-6001D2?style=for-the-badge&logo=yahoo&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Hackathon%20Ready-0ea5e9?style=for-the-badge)
+![Tests](https://img.shields.io/badge/Tests-Backend%20API%20%2B%20UI%20Smoke-10b981?style=for-the-badge)
 
 </div>
 
 ---
 
-## Overview
+## Project Overview
+AI Investor Agent is a full-stack decision-support system that helps investors analyze portfolio positions and detect actionable opportunities from live market data.
 
-AI Investor Agent is a rule-based stock intelligence app with:
+It addresses a common investing problem: most tools either show raw indicators without portfolio context, or provide generic recommendations without explaining concentration risk and data freshness. This project combines both.
 
-- a Node.js backend that fetches Yahoo Finance market data
-- a React dashboard for portfolio input and visualization
-- portfolio-aware scoring based on trend, RSI, momentum, breakout, and sector exposure
-- safe fallbacks for missing data so the app does not invent fake zeros
-
-The current live app uses the `backend/` Node service and the `frontend/` React app.
+Given portfolio holdings, the system:
+- fetches market history from Yahoo Finance
+- computes technical indicators and signal strength
+- adjusts decisions using portfolio sector exposure
+- enriches opportunities with market-context events (results, filings, deals)
+- ranks alerts with explainable scoring and stores historical radar runs
 
 ---
 
-## What The App Does
+## Unique Value Proposition
+Most AI investor demos stop at "BUY/SELL/HOLD". This project is different because it implements a practical decision pipeline with explainability and portfolio-aware risk controls.
 
-Given user portfolio rows like:
+### What makes it different
+- **Portfolio-aware scoring**: decisions are not symbol-only; sector concentration modifies confidence and priority.
+- **Autonomous 3-step Opportunity Radar**: signal detection -> portfolio context enrichment -> actionable alerts.
+- **Context credibility + recency model**: market events are weighted by source quality and time decay.
+- **Persisted radar history**: historical scans are stored and exposed via API for review in UI.
+- **Fail-safe reasoning fallback**: if Gemini is unavailable or misconfigured, rule-based reasoning still returns clear output.
 
-```json
-[
-  { "symbol": "RELIANCE", "weight": 40 },
-  { "symbol": "TCS", "weight": 30 },
-  { "symbol": "INFY", "weight": 30 }
-]
+---
+
+## Demo
+### Live Demo Placeholders
+- Dashboard Screenshot: `docs/demo/dashboard.png`
+- Opportunity Radar Screenshot: `docs/demo/opportunity-radar.png`
+- Alert Filters GIF: `docs/demo/filters.gif`
+
+```md
+![Dashboard](docs/demo/dashboard.png)
+![Opportunity Radar](docs/demo/opportunity-radar.png)
+![Filters Demo](docs/demo/filters.gif)
 ```
 
-the system:
-
-1. normalizes the input symbols and weights
-2. resolves each symbol to a Yahoo Finance ticker
-3. fetches historical market data
-4. cleans invalid price points
-5. calculates indicators such as MA20, MA50, RSI, momentum, and breakout
-6. adds portfolio context like sector concentration
-7. produces a final decision such as `BUY`, `SELL`, or `HOLD`
-8. renders the output in the dashboard as cards, chart, confidence, and reasoning
+### How It Works Visually
+1. User inputs portfolio symbols and weights
+2. System analyzes each symbol with technical + portfolio context
+3. Opportunity Radar generates ranked alerts
+4. UI displays credibility-tagged context signals and history timeline
 
 ---
 
-## System Flow
+## Features
+- 📈 **Live Portfolio Analysis**: symbol resolution, market fetch, indicator computation, and decision output.
+- 🧠 **Decision Engine**: combines technical score with portfolio adjustment and risk score.
+- 🛰️ **Opportunity Radar Agent**: autonomous 3-step workflow for actionable opportunity generation.
+- 🧾 **Source-Cited Context Signals**: filings/results/deals with URLs, impact, credibility tier, and recency metadata.
+- 🎯 **Priority Ranking**: alerts ranked using signal strength, confidence, breakout bonus, context score, and exposure penalty.
+- 🗂️ **Radar History Persistence**: latest runs stored in backend storage and served to frontend.
+- 🎛️ **Radar UI Filters**: action, risk flag, credibility tier, and sort controls.
+- 🧪 **Automated Tests**: backend unit/integration tests + frontend Opportunity Radar smoke tests.
 
+---
+
+## Architecture
+### System Flow
+Input -> Symbol Resolution -> Market Data + Indicators -> Portfolio Exposure -> Decision Engine -> Opportunity Radar Enrichment -> Ranked Alerts -> UI + History
+
+### Mermaid Diagram
 ```mermaid
-flowchart LR
-    A[User Input: symbols + weights] --> B[React Portfolio Page]
-    B --> C[PortfolioContext]
-    C --> D[POST /api/portfolio/analyze]
-    D --> E[Node Backend]
-    E --> F[Symbol Resolver]
-    E --> G[Yahoo Data Fetch]
-    G --> H[Data Cleanup]
-    H --> I[Indicator Pipeline]
-    E --> J[Portfolio Exposure]
-    I --> K[Decision Engine]
-    J --> K
-    K --> L[Response JSON]
-    L --> M[React Dashboard]
+flowchart TD
+    A[User Portfolio Input] --> B[Frontend React App]
+    B --> C[POST /api/portfolio/analyze]
+    B --> D[POST /api/agent/opportunity-radar]
+
+    C --> E[Backend Pipeline]
+    D --> F[Opportunity Radar Engine]
+
+    E --> G[Symbol Resolver]
+    E --> H[Yahoo Finance Client]
+    H --> I[Indicator Engine MA RSI Momentum Breakout]
+    I --> J[Portfolio Exposure + Risk Services]
+    J --> K[Decision Engine]
+
+    F --> K
+    F --> L[Market Context Service]
+    L --> M[Credibility Tier + Recency Decay Scoring]
+    M --> N[Priority Scoring + Actionable Alerts]
+
+    N --> O[History Storage JSON]
+    O --> P[GET /api/agent/opportunity-radar/history]
+
+    K --> B
+    N --> B
+    P --> B
 ```
+
+### Opportunity Radar Pipeline
+1. `detect_signal`
+2. `enrich_with_portfolio_context`
+3. `generate_actionable_alert`
 
 ---
 
-## Theory: How Input Becomes Output
-
-This is the core idea of the project.
-
-### 1) User input becomes normalized portfolio rows
-
-The user enters data in the frontend, either by:
-
-- uploading JSON
-- typing rows manually
-
-The frontend converts that into a clean internal array:
-
-```json
-[
-  { "symbol": "RELIANCE", "weight": 40 },
-  { "symbol": "TCS", "weight": 30 }
-]
-```
-
-At this stage:
-
-- symbols are uppercased
-- weights are converted to numbers
-- empty rows are ignored
-- invalid weights are rejected
-
-### 2) The frontend sends the portfolio to the backend
-
-When the user clicks analyze, the frontend sends a `POST` request to:
-
-```text
-/api/portfolio/analyze
-```
-
-The backend accepts multiple request styles:
-
-- array of rows
-- `portfolio` object map
-- raw text input
-
-but internally converts all of them into the same row structure.
-
-### 3) Symbols are resolved to Yahoo-compatible tickers
-
-User input is often human-friendly, for example:
-
-- `RELIANCE`
-- `TCS`
-- `INFY`
-
-The backend resolves these into Yahoo Finance symbols such as:
-
-- `RELIANCE.NS`
-- `TCS.NS`
-- `INFY.NS`
-
-Resolution uses:
-
-- a local symbol map from `backend/engine/stocks.json`
-- fuzzy matching for near-miss tickers
-- optional Gemini fallback if mapping fails
-
-### 4) Yahoo market data is fetched and cleaned
-
-For each resolved symbol, the backend requests chart data from Yahoo Finance.
-
-Then it cleans the data before calculations:
-
-- removes `null`, `NaN`, and invalid OHLC values
-- keeps valid historical points only
-- sorts data oldest to latest
-- keeps OHLC price history for candlestick charting and indicators
-
-This matters because technical indicators depend on time order and valid numeric values.
-
-### 5) Indicators are calculated from historical closes
-
-After cleanup, the backend computes:
-
-- `MA20`: average of the latest 20 valid closes
-- `MA50`: average of the latest 50 valid closes
-- `RSI(14)`: gain/loss strength over 14 periods
-- `Momentum`: percentage move vs. a 5-day lookback
-- `Volatility`: latest daily percentage move
-- `Breakout`: whether current price is above the previous 20-day high
-
-If there is not enough history, the indicator returns `null`, not `0`.
-
-That is a deliberate design choice:
-
-- `0` would look like a real market signal
-- `null` correctly means "not enough data"
-
-### 6) Portfolio context changes the interpretation
-
-The app does not look at each stock in isolation.
-
-It also computes portfolio context:
-
-- sector allocation
-- overexposed sectors
-- the sector exposure of the current symbol
-
-Example:
-
-- if the portfolio is already 80% in one sector, even a good technical setup may be downgraded
-
-This is handled through a portfolio adjustment layer.
-
-### 7) Technical score and portfolio score become a final decision
-
-The decision engine combines:
-
-- technical score
-- portfolio adjustment
-
-to create a final score.
-
-Basic idea:
-
-- strong bullish signals raise the score
-- weak or bearish signals lower the score
-- concentration risk can reduce the score further
-
-Then the decision is mapped approximately like this:
-
-- high positive score -> `BUY`
-- high negative score -> `SELL`
-- middle zone -> `HOLD`
-
-Confidence is then derived from:
-
-- score magnitude
-- RSI neutrality
-- distance between price and MA50
-
-### 8) Missing critical indicators trigger a safety guard
-
-If key indicators are missing, the app does not try to bluff confidence.
-
-Instead it forces:
-
-- `decision = HOLD`
-- `confidence = low`
-- `reason = "Insufficient data"`
-
-The frontend then shows:
-
-- `Not enough data`
-
-instead of `0` or `--`.
-
-### 9) The backend returns structured output
-
-For each symbol, the backend returns data such as:
-
-- current price
-- historical series
-- MA20 / MA50 / RSI
-- momentum and breakout
-- technical score
-- portfolio adjustment
-- final score
-- decision
-- confidence
-- reasoning
-
-It also returns portfolio-level insight such as:
-
-- sector allocation
-- overexposed sectors
-- top-level portfolio summary
-
-### 10) The frontend transforms JSON into UI
-
-The React dashboard turns the response into:
-
-- a price chart
-- tracked stock cards
-- RSI / MA metrics
-- decision badge
-- confidence display
-- portfolio insight panel
-- signals list
-- reasoning panel
-
-So the final theory is:
-
-```text
-User input -> normalization -> symbol resolution -> Yahoo data -> cleanup ->
-indicator calculation -> portfolio adjustment -> decision engine -> API response ->
-dashboard rendering
-```
-
----
-
-## Current Stack
+## Tech Stack
+### Frontend
+- React 18
+- React Router 6
+- Axios
+- Lightweight Charts (TradingView)
+- Tailwind CSS
 
 ### Backend
+- Node.js (HTTP server)
+- Modular engine services (`pipeline`, `decisionEngine`, `portfolioService`, `riskService`)
+- File-based persistence for radar history
 
-- Node.js HTTP server
-- Yahoo Finance chart API
-- optional Gemini fallback for ticker resolution / reasoning
+### AI / Reasoning
+- Gemini API integration (optional)
+- Rule-based fallback reasoning when API key is missing/invalid
 
-### Frontend
-
-- React
-- React Router
-- Axios
-- TradingView `lightweight-charts`
-- Tailwind-based styling
+### Data Sources
+- Yahoo Finance chart/price data
+- Local market context event dataset (`backend/engine/market_context_events.json`)
 
 ---
 
-## Project Structure
+## Installation & Setup
+### Prerequisites
+- Node.js 18+
+- npm 9+
 
-```text
-ai-investor-agent/
-├── backend/
-│   ├── server.js
-│   ├── README.md
-│   ├── package.json
-│   └── engine/
-│       ├── pipeline.js
-│       ├── yahooClient.js
-│       ├── symbolResolver.js
-│       ├── indicators.js
-│       ├── indicatorService.js
-│       ├── portfolioService.js
-│       ├── riskService.js
-│       ├── decisionEngine.js
-│       ├── aiService.js
-│       └── stocks.json
-├── frontend/
-│   ├── package.json
-│   └── src/
-│       ├── context/
-│       ├── pages/
-│       ├── components/
-│       └── layout/
-├── ai_investor_agent/
-├── api.py
-├── main.py
-└── README.md
+### 1) Clone
+```bash
+git clone https://github.com/romin711/ai-investor-agent.git
+cd ai-investor-agent
 ```
 
-Note:
-
-- `backend/` + `frontend/` is the current live web app path
-- `ai_investor_agent/`, `api.py`, and `main.py` are older prototype assets kept in the repo
-
----
-
-## Quick Start
-
-### 1) Start the backend
-
+### 2) Backend setup
 ```bash
 cd backend
-cp .env.example .env
 npm install
+cp .env.example .env
 npm start
 ```
 
-Default backend URL:
-
+Backend default:
 ```text
 http://127.0.0.1:3001
 ```
 
-Optional backend `.env` values:
+### 3) Frontend setup
+```bash
+cd ../frontend
+npm install
+npm start
+```
 
+Frontend default:
+```text
+http://localhost:3000
+```
+
+### Environment Variables
+Backend `.env` example:
 ```env
 PORT=3001
 HOST=127.0.0.1
 GEMINI_API_KEY=
 ```
 
-### 2) Start the frontend
-
-```bash
-cd frontend
-npm install
-npm start
-```
-
-Default frontend URL:
-
-```text
-http://localhost:3000
-```
-
-Optional frontend env:
-
+Frontend optional `.env`:
 ```env
 REACT_APP_API_BASE_URL=http://127.0.0.1:3001
 ```
 
 ---
 
-## API
+## Usage
+### A) UI Usage
+1. Open `http://localhost:3000`
+2. Add portfolio rows (symbol + weight)
+3. Run analysis
+4. Navigate to Opportunity Radar for ranked alerts and history
 
-### Health check
-
-```text
-GET /health
+### B) API Usage
+#### Portfolio Analyze
+```bash
+curl -X POST http://127.0.0.1:3001/api/portfolio/analyze \
+  -H "Content-Type: application/json" \
+  -d '[
+    {"symbol":"RELIANCE","weight":40},
+    {"symbol":"TCS","weight":35},
+    {"symbol":"INFY","weight":25}
+  ]'
 ```
 
-### Single stock analysis
-
-```text
-GET /api/stock/:symbol
+#### Opportunity Radar
+```bash
+curl -X POST http://127.0.0.1:3001/api/agent/opportunity-radar \
+  -H "Content-Type: application/json" \
+  -d '[
+    {"symbol":"TCS","weight":40},
+    {"symbol":"RELIANCE","weight":35}
+  ]'
 ```
 
-Example:
-
-```text
-GET /api/stock/RELIANCE
+#### Radar History
+```bash
+curl "http://127.0.0.1:3001/api/agent/opportunity-radar/history?limit=5"
 ```
 
-### Portfolio analysis
-
-```text
-POST /api/portfolio/analyze
-```
-
-### Autonomous opportunity radar (3-step agent)
-
-```text
-POST /api/agent/opportunity-radar
-```
-
-### Opportunity radar history
-
-```text
-GET /api/agent/opportunity-radar/history?limit=25
-```
-
-Returns the latest persisted autonomous radar runs so UI can show daily signal history.
-
-This endpoint runs a fully autonomous 3-step workflow:
-
-1. detect signal from market + indicators
-2. enrich each signal with portfolio context
-3. generate actionable alert with explainability + sources
-
-Example request:
-
-```json
-[
-  { "symbol": "TCS", "weight": 40 },
-  { "symbol": "RELIANCE", "weight": 35 }
-]
-```
-
-Example response shape:
-
+### Sample Radar Output (trimmed)
 ```json
 {
   "workflow": [
@@ -439,121 +228,22 @@ Example response shape:
     "generate_actionable_alert"
   ],
   "autonomous": true,
-  "portfolioInsight": "Technology sector exposure is 53.33%",
-  "generatedAt": "2026-03-26T16:29:35.956Z",
+  "portfolioInsight": "Portfolio heavily concentrated in Technology...",
   "alerts": [
     {
       "symbol": "TCS",
       "action": "HOLD",
-      "signalType": "oversold-reversal-watch",
-      "signalStrength": 30,
-      "priorityScore": 34,
-      "backtestedSuccessRate": null,
-      "portfolioRelevance": "Moderate concentration: use staged entries and tight risk controls.",
+      "priorityScore": 29.8,
       "contextSignals": [
         {
           "type": "quarterly_result",
           "impact": "positive",
-          "title": "Q3 revenue beat street estimates",
-          "source": "ET Markets",
-          "sourceUrl": "https://economictimes.indiatimes.com/markets",
           "credibilityTier": "news",
-          "credibilityScore": 2,
-          "ageDays": 2,
-          "recencyWeight": 1,
-          "weightedImpactScore": 6
-        }
-      ],
-      "explanation": "...",
-      "riskFlags": ["high-sector-concentration", "oversold"],
-      "sources": [
-        "Yahoo Finance chart API",
-        "In-house indicator pipeline (MA/RSI/momentum)",
-        "Portfolio exposure engine"
-      ]
-    }
-  ]
-}
-```
-
-Example history response shape:
-
-```json
-{
-  "items": [
-    {
-      "generatedAt": "2026-03-26T16:43:03.491Z",
-      "portfolioInsight": "Technology sector exposure is 53.33%",
-      "alerts": [
-        {
-          "symbol": "TCS",
-          "action": "HOLD",
-          "signalType": "oversold-reversal-watch"
+          "ageDays": 6,
+          "recencyWeight": 0.8,
+          "weightedImpactScore": 4.8
         }
       ]
-    }
-  ],
-  "count": 1
-}
-```
-
-Example request:
-
-```json
-[
-  { "symbol": "RELIANCE", "weight": 50 },
-  { "symbol": "TCS", "weight": 30 },
-  { "symbol": "INFY", "weight": 20 }
-]
-```
-
-Example response:
-
-```json
-{
-  "portfolioInsight": "Technology sector exposure is 60.00%",
-  "sectorAllocation": {
-    "Technology": 60,
-    "Energy": 40
-  },
-  "overexposedSectors": [],
-  "results": [
-    {
-      "symbol": "RELIANCE",
-      "resolvedSymbol": "RELIANCE.NS",
-      "price": 2941.35,
-      "historical": [
-        {
-          "date": "2026-03-19",
-          "open": 2868.2,
-          "high": 2890.95,
-          "low": 2859.6,
-          "close": 2880.4
-        },
-        {
-          "date": "2026-03-20",
-          "open": 2880.4,
-          "high": 2901.4,
-          "low": 2873.1,
-          "close": 2892.6
-        }
-      ],
-      "trend": "neutral",
-      "rsi": 52.61,
-      "ma20": 2901.84,
-      "ma50": 2890.12,
-      "momentum_percent": 2.04,
-      "volatility_percent": 0.44,
-      "breakout": false,
-      "technical_score": 1,
-      "portfolio_adjustment": 0,
-      "risk_score": 0,
-      "final_score": 1,
-      "decision": "HOLD",
-      "confidence": 20,
-      "data_warning": null,
-      "reason": "Gemini API key not configured.",
-      "next_action": "Evaluate manually based on signals."
     }
   ]
 }
@@ -561,192 +251,92 @@ Example response:
 
 ---
 
-## Validation Checklist (Hackathon Demo)
-
-Use this checklist to verify the core Opportunity Radar features end-to-end.
-
-### 1) Backend health and API routes
-
-Start backend:
-
-```bash
-cd backend
-npm start
-```
-
-Health check:
-
-```bash
-curl http://127.0.0.1:3001/health
-```
-
-Expected:
-
-```json
-{ "ok": true, "service": "indian-investor-decision-engine" }
-```
-
-Run opportunity radar:
-
-```bash
-curl -X POST http://127.0.0.1:3001/api/agent/opportunity-radar \
-  -H "Content-Type: application/json" \
-  -d '[
-    {"symbol":"TCS","weight":40},
-    {"symbol":"RELIANCE","weight":35},
-    {"symbol":"ICICIBANK","weight":25}
-  ]'
-```
-
-Expected response fields:
-
-- `workflow` with 3 steps
-- `portfolioInsight` string
-- `alerts[].priorityScore`
-- `alerts[].contextSignals[].credibilityTier`
-- `alerts[].contextSignals[].recencyWeight`
-
-Read radar history:
-
-```bash
-curl "http://127.0.0.1:3001/api/agent/opportunity-radar/history?limit=5"
-```
-
-Expected:
-
-- `items` array present
-- `count` equals returned item count
-- most recent run appears first
-
-### 2) Automated backend tests
-
-Run all backend tests:
-
+## Testing
+### Backend tests
 ```bash
 cd backend
 npm test
 ```
+Covers:
+- market context scoring logic
+- opportunity radar API integration (positive + negative cases)
 
-Expected summary:
-
-- market context tests pass (9/9)
-- opportunity radar API integration tests pass (positive + negative cases)
-
-### 3) Frontend manual checks
-
-Start frontend:
-
-```bash
-cd frontend
-npm start
-```
-
-Run frontend radar smoke tests (deterministic, non-watch mode):
-
+### Frontend radar smoke tests
 ```bash
 cd frontend
 npm run test:radar
 ```
+Covers:
+- action filter behavior
+- credibility-tier filter behavior
+- history sorting behavior
 
-Expected summary:
+---
 
-- `OpportunityRadarPage.test.js` runs and exits automatically
-- action/risk/credibility/history sorting UI assertions pass
-
-Open:
-
+## Folder Structure
 ```text
-http://localhost:3000/opportunity-radar
+ai-investor-agent/
+├── backend/
+│   ├── server.js                          # Node HTTP API routes
+│   ├── package.json
+│   ├── storage/
+│   │   └── opportunity_radar_history.json # persisted radar runs
+│   ├── tests/
+│   │   ├── marketContextService.test.js
+│   │   └── opportunityRadarApi.test.js
+│   └── engine/
+│       ├── pipeline.js                    # main analysis orchestration
+│       ├── opportunityAgent.js            # 3-step radar pipeline
+│       ├── marketContextService.js        # credibility + recency scoring
+│       ├── market_context_events.json     # context dataset
+│       ├── decisionEngine.js
+│       ├── indicatorService.js
+│       ├── portfolioService.js
+│       ├── riskService.js
+│       ├── symbolResolver.js
+│       └── yahooClient.js
+├── frontend/
+│   ├── package.json
+│   └── src/
+│       ├── App.js
+│       ├── context/PortfolioContext.js
+│       ├── pages/
+│       │   ├── DashboardPage.js
+│       │   ├── OpportunityRadarPage.js
+│       │   └── OpportunityRadarPage.test.js
+│       ├── layout/AppLayout.js
+│       └── components/
+├── ai_investor_agent/                     # Python prototype module
+├── api.py                                 # Python FastAPI prototype entry
+├── main.py                                # Python CLI prototype entry
+└── README.md
 ```
 
-Verify UI behaviors:
+---
 
-- `Run Opportunity Radar` and `Run Sample Radar` buttons trigger scans
-- `Latest Alerts` filters work for action, risk, and credibility tier
-- `Sort: Priority/Confidence/Signal Strength` updates alert ranking
-- `Recent Radar Runs` sort works for latest vs highest average priority
-- context badges display tier and recency labels (example: `[REGULATORY] [D3]`)
-
-### 4) Quick failure checks
-
-Verify these return proper errors:
-
-- invalid JSON body to radar endpoint returns HTTP 400
-- wrong payload shape returns HTTP 400
-- unknown route returns HTTP 404
+## Future Improvements
+- Add authenticated multi-user portfolios with per-user radar history
+- Replace file-based storage with PostgreSQL for durable analytics queries
+- Add scheduled intraday radar runs and webhook/notification delivery
+- Improve market context ingestion with automated feeds (filings/news APIs)
+- Add benchmark-aware scoring (sector index and market regime context)
+- Expand frontend test suite to full E2E flows
 
 ---
 
-## ⚠️ Security Best Practices
+## Contribution
+Contributions are welcome.
 
-### Environment Variables
-
-**CRITICAL**: Never commit `.env` files to version control.
-
-Environment variables are already in `.gitignore`, but ensure:
-
-```bash
-# Verify .env is ignored
-git status | grep -i ".env"  # Should return nothing
-
-# If accidentally committed, remove from history:
-git rm --cached .env
-git rm --cached .env.example
-git commit --amend --no-edit
-git push --force-with-lease
-```
-
-### API Keys
-
-If you have committed API keys:
-
-1. **Rotate immediately** at the service provider (Gemini, etc.)
-2. Remove from Git history:
-   ```bash
-   git log --all --source -- .env
-   git log --all --source -- .env.example
-   ```
-3. Use `git filter-branch` or `BFG Repo-Cleaner` to scrub history
-
-### Recommended Security Hardening
-
-- [ ] **Environment Variables**: Use `.env.example` as template only
-- [ ] **Input Validation**: Sanitize all symbol inputs (alphanumeric + `.` only)
-- [ ] **Rate Limiting**: Add API endpoint rate limiting (5-10 req/min per IP)
-- [ ] **CORS**: Restrict frontend origin in production
-- [ ] **Authentication**: Add user login for multi-user scenarios
-- [ ] **Database**: Use encrypted connection strings in `.env`
-- [ ] **Secrets Manager**: Use AWS Secrets Manager / HashiCorp Vault in prod
-- [ ] **HTTPS**: Force HTTPS in production (redirect HTTP)
-- [ ] **Logging**: Never log API keys or sensitive data
-- [ ] **Dependency Audit**: Run `npm audit` regularly
-
-### Current Status
-
-- ⚠️ **Gemini API key may be exposed** if committed to repository
-  - Rotate the key at https://aistudio.google.com/
-  - Add to `.gitignore`
-- ✅ `.env` is already in `.gitignore`
-- ✅ No database credentials currently needed
+1. Fork the repository
+2. Create a feature branch
+3. Make focused changes with tests
+4. Run checks:
+   - `cd backend && npm test`
+   - `cd frontend && npm run test:radar`
+5. Open a pull request with clear context and screenshots (if UI changes)
 
 ---
 
-## Important Behaviors
-
-- Missing or invalid Yahoo OHLC values are removed before indicator calculation
-- Historical data is processed oldest to latest
-- Indicators return `null` if history is insufficient
-- The backend does not use default `0` values for missing indicators
-- Missing key indicators trigger a safe `HOLD` decision
-- The frontend renders a TradingView-style candlestick chart with MA20/MA50 overlays
-- The frontend shows `Not enough data for chart` if there are not enough valid OHLC points
-- The frontend shows `Not enough data` for missing metrics
-- Insufficient-data cases are logged in the backend for debugging
-
----
-
-## Disclaimer
-
-This project is a rule-based prototype for demos, experimentation, and learning.
-
-It is not financial advice.
+## License
+No explicit license file is currently present in this repository.
+If you plan to open-source for broader reuse, add a `LICENSE` file (for example MIT) in the project root.
