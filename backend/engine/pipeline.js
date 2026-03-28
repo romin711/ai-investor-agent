@@ -11,6 +11,7 @@ const { evaluateDecision } = require('./decisionEngine');
 const { generateReasoning } = require('./aiService');
 const { resolveSymbol, normalizeInputSymbol } = require('./symbolResolver');
 const { fetchYahooStockData } = require('./yahooClient');
+const { analyzePatternIntelligence } = require('./patternIntelligence');
 
 function normalizePortfolioRows(inputRows) {
   const rows = Array.isArray(inputRows)
@@ -134,7 +135,8 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
 
   const momentumPercent = computeMomentumPercent(closes, 5);
   const volatilityPercent = computeVolatilityPercent(closes);
-  const breakout = detectBreakout(price, closes);
+  const patternIntelligence = analyzePatternIntelligence(historical, price);
+  const breakout = patternIntelligence?.breakoutDetected;
 
   const missingIndicators = [
     ma20 === null ? 'ma20' : null,
@@ -176,6 +178,12 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
     ma20,
     ma50,
     volatility: volatilityPercent,
+    support: patternIntelligence?.supportResistance?.support ?? null,
+    resistance: patternIntelligence?.supportResistance?.resistance ?? null,
+    support_distance_pct: patternIntelligence?.supportResistance?.supportDistancePct ?? null,
+    resistance_distance_pct: patternIntelligence?.supportResistance?.resistanceDistancePct ?? null,
+    pattern_signals: Array.isArray(patternIntelligence?.detectedPatterns) ? patternIntelligence.detectedPatterns : [],
+    pattern_backtests: Array.isArray(patternIntelligence?.patternBacktests) ? patternIntelligence.patternBacktests : [],
     data_points: closes.length,
     insufficient_data: missingIndicators.length > 0,
   };
@@ -207,6 +215,7 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
     momentum_percent: momentumPercent,
     volatility_percent: volatilityPercent,
     breakout,
+    pattern_intelligence: patternIntelligence,
     signals: signalsPayload,
     technical_score: techAnalysis.score,
     portfolio_adjustment: portfolioAdjustment,

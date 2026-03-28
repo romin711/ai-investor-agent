@@ -1,16 +1,1 @@
-{
-  "default-user": [
-    {
-      "symbol": "AAPL",
-      "weight": 40.0
-    },
-    {
-      "symbol": "MSFT",
-      "weight": 30.0
-    },
-    {
-      "symbol": "GOOGL",
-      "weight": 30.0
-    }
-  ]
-}
+{}

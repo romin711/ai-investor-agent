@@ -119,3 +119,13 @@ export function ChartIcon() {
     </svg>
   );
 }
+
+export function ChatIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={base} stroke="currentColor" strokeWidth="1.75">
+      <path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6A2.5 2.5 0 0 1 16.5 15H11l-3.5 3v-3H7.5A2.5 2.5 0 0 1 5 12.5v-6Z" />
+      <path d="M8.5 8.5h7" />
+      <path d="M8.5 11h5" />
+    </svg>
+  );
+}

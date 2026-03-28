@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ValidationDashboard from './ValidationDashboard';
 
 jest.mock('../context/PortfolioContext', () => ({
@@ -68,19 +68,21 @@ function buildValidationPayload() {
         worstDrawdown: -0.031,
       },
     },
-    equityCurve: [
-      { step: 0, strategy: 1, baseline: 1 },
-      { step: 1, strategy: 1.03, baseline: 1.01 },
-      { step: 2, strategy: 1.04, baseline: 1.01 },
-      { step: 3, strategy: 1.06, baseline: 1.02 },
-    ],
   };
 }
 
 describe('ValidationDashboard', () => {
   beforeEach(() => {
     usePortfolio.mockReturnValue({
-      opportunityRadarHistory: [],
+      opportunityRadarHistory: [
+        {
+          alerts: [
+            { action: 'HOLD' },
+            { action: 'HOLD' },
+            { action: 'BUY' },
+          ],
+        },
+      ],
     });
 
     global.fetch = jest.fn(async (url) => {
@@ -110,14 +112,16 @@ describe('ValidationDashboard', () => {
     jest.clearAllMocks();
   });
 
-  test('renders CI metrics, baseline comparison, and equity curve', async () => {
+  test('renders trust-first sections and methodology modal', async () => {
     render(<ValidationDashboard />);
 
-    expect(await screen.findByText(/Validation Dashboard/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Hit Rate CI95/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Cumulative Equity Curve/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/equity curve chart/i)).toBeInTheDocument();
-    expect(screen.getByText(/Live realized outcomes tracked:/i)).toBeInTheDocument();
+    expect(await screen.findByText(/AI Reliability Score/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Final Verdict/i })).toBeInTheDocument();
+    expect(screen.getByText(/Signal Comparison/i)).toBeInTheDocument();
+    expect(screen.getByText(/Alert Distribution Insight/i)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /View methodology/i }));
+    expect(screen.getByRole('dialog', { name: /Methodology details/i })).toBeInTheDocument();
 
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/validation/performance'));

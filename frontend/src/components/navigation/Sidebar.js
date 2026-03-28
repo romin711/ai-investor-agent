@@ -1,6 +1,7 @@
 import React from 'react';
 import SidebarItem from './SidebarItem';
 import {
+  ChatIcon,
   ChartIcon,
   CheckCircleIcon,
   DashboardIcon,
@@ -14,6 +15,7 @@ export const navItems = [
   { to: '/dashboard', label: 'Dashboard', Icon: DashboardIcon },
   { to: '/portfolio', label: 'Portfolio', Icon: PortfolioIcon },
   { to: '/charts', label: 'Charts', Icon: ChartIcon },
+  { to: '/market-chat', label: 'Market Chat', Icon: ChatIcon },
   { to: '/opportunity-radar', label: 'Opportunity Radar', Icon: RadarIcon },
   { to: '/validation-dashboard', label: 'Validation', Icon: CheckCircleIcon },
   { to: '/insights', label: 'Insights', Icon: InsightsIcon },

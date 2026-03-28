@@ -5,11 +5,9 @@ import Badge from './Badge';
  * AlphaPanel: Displays signal quality metrics and expected edge
  * Shows: hit rate, expected return, sample size, downside risk, confidence
  */
-function AlphaPanel({ signal, backtestStats, riskProfile = 'moderate' }) {
+function AlphaPanel({ backtestStats }) {
   const {
     hitRate,        // 0.0-1.0
-    avgReturn1D,    // average return % after 1 day
-    avgReturn3D,
     avgReturn5D,
     maxDrawdown,    // worst case % loss
     sampleSize,

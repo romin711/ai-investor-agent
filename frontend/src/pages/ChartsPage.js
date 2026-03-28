@@ -8,6 +8,13 @@ function toFiniteNumber(value) {
   return Number.isFinite(numeric) ? numeric : null;
 }
 
+function normalizeSymbolKey(value) {
+  return String(value || '')
+    .trim()
+    .toUpperCase()
+    .replace(/\.(NS|BO)$/, '');
+}
+
 function normalizeHistoricalSeries(item) {
   if (Array.isArray(item?.historical) && item.historical.length) {
     return item.historical
@@ -95,8 +102,61 @@ function formatOptionalPercent(value) {
   return `${numeric >= 0 ? '+' : ''}${numeric.toFixed(2)}%`;
 }
 
+function formatComputedPercent(value) {
+  const numeric = toFiniteNumber(value);
+  if (numeric === null) {
+    return 'N/A';
+  }
+  return `${numeric.toFixed(2)}%`;
+}
+
+function formatSignedComputedPercent(value) {
+  const formatted = formatComputedPercent(value);
+  return formatted === 'N/A' ? 'N/A' : `+${formatted}`;
+}
+
+function computeExecutionPlanMetrics(executionPlan, currentPrice) {
+  const entryLow = toFiniteNumber(executionPlan?.entryRangeLow);
+  const entryHigh = toFiniteNumber(executionPlan?.entryRangeHigh) ?? entryLow;
+  const stopLoss = toFiniteNumber(executionPlan?.stopLoss);
+  const target1 = toFiniteNumber(executionPlan?.targetPrice);
+  const target2 = target1 !== null ? target1 * 1.02 : null;
+  const referencePrice = toFiniteNumber(currentPrice) ?? entryLow;
+
+  const pctChange = (delta, denominator) => {
+    if (!Number.isFinite(delta) || !Number.isFinite(denominator) || denominator <= 0) {
+      return null;
+    }
+    return Math.abs((delta / denominator) * 100);
+  };
+
+  return {
+    entryLow,
+    entryHigh,
+    stopLoss,
+    target1,
+    target2,
+    entryRangePct:
+      entryLow !== null && entryHigh !== null && referencePrice !== null
+        ? pctChange(entryHigh - entryLow, referencePrice)
+        : null,
+    maxLossPct:
+      stopLoss !== null && referencePrice !== null
+        ? pctChange(referencePrice - stopLoss, referencePrice)
+        : null,
+    target1UpsidePct:
+      target1 !== null && referencePrice !== null
+        ? pctChange(target1 - referencePrice, referencePrice)
+        : null,
+    target2UpsidePct:
+      target2 !== null && referencePrice !== null
+        ? pctChange(target2 - referencePrice, referencePrice)
+        : null,
+  };
+}
+
 function ChartsPage() {
-  const { analysisData, portfolioRows, realtimeQuotes } = usePortfolio();
+  const { analysisData, opportunityRadarData, opportunityRadarHistory, portfolioRows, realtimeQuotes } = usePortfolio();
 
   const [selectedSymbol, setSelectedSymbol] = useState('');
   const [showChartSignals, setShowChartSignals] = useState(false);
@@ -156,6 +216,13 @@ function ChartsPage() {
       confidence,
       breakout: item.breakout ?? item.signals?.breakout ?? null,
       finalScore: toFiniteNumber(item.final_score ?? item.finalScore),
+      supportResistance: item.pattern_intelligence?.supportResistance || null,
+      detectedPatterns: Array.isArray(item.pattern_intelligence?.detectedPatterns)
+        ? item.pattern_intelligence.detectedPatterns
+        : [],
+      patternBacktests: Array.isArray(item.pattern_intelligence?.patternBacktests)
+        ? item.pattern_intelligence.patternBacktests
+        : [],
       weight,
       historical,
       decisionVisual: getDecisionVisual(decision, confidence),
@@ -170,6 +237,37 @@ function ChartsPage() {
     }
     return trackedStocks.find((item) => item.symbol === selectedResult?.symbol) || trackedStocks[0];
   }, [trackedStocks, selectedResult]);
+
+  const selectedExecutionPlan = useMemo(() => {
+    if (!selectedTracked?.symbol) {
+      return null;
+    }
+
+    const currentRunAlerts = Array.isArray(opportunityRadarData?.alerts) ? opportunityRadarData.alerts : [];
+    const historyLatestRun = Array.isArray(opportunityRadarHistory) ? opportunityRadarHistory[0] : null;
+    const latestHistoryAlerts = Array.isArray(historyLatestRun?.alerts) ? historyLatestRun.alerts : [];
+    const candidateAlerts = currentRunAlerts.length ? currentRunAlerts : latestHistoryAlerts;
+
+    if (!candidateAlerts.length) {
+      return null;
+    }
+
+    const selectedSymbolKey = normalizeSymbolKey(selectedTracked.symbol);
+
+    const matchingAlert = candidateAlerts.find((alert) => (
+      normalizeSymbolKey(alert?.symbol) === selectedSymbolKey
+      && alert?.executionPlan
+    ));
+
+    return matchingAlert?.executionPlan || null;
+  }, [opportunityRadarData, opportunityRadarHistory, selectedTracked]);
+
+  const selectedExecutionMetrics = useMemo(() => {
+    if (!selectedExecutionPlan || !selectedTracked) {
+      return null;
+    }
+    return computeExecutionPlanMetrics(selectedExecutionPlan, selectedTracked.priceNumeric);
+  }, [selectedExecutionPlan, selectedTracked]);
 
   const chartSeries = useMemo(() => {
     if (!selectedTracked) {
@@ -341,6 +439,132 @@ function ChartsPage() {
                         {selectedTracked.decision}
                       </p>
                     </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <h4 className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-600 dark:text-slate-300">
+                      Action Plan Metrics
+                    </h4>
+
+                    {selectedExecutionPlan && selectedExecutionMetrics ? (
+                      <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">Entry Range</p>
+                          <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                            {formatOptionalCurrency(selectedExecutionMetrics.entryLow)} - {formatOptionalCurrency(selectedExecutionMetrics.entryHigh)}
+                          </p>
+                          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                            {formatComputedPercent(selectedExecutionMetrics.entryRangePct)} range
+                          </p>
+                        </div>
+
+                        <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 dark:border-rose-900/40 dark:bg-rose-900/20">
+                          <p className="text-xs text-rose-600 dark:text-rose-400">Stop Loss</p>
+                          <p className="mt-1 text-sm font-semibold text-rose-700 dark:text-rose-300">
+                            {formatOptionalCurrency(selectedExecutionMetrics.stopLoss)}
+                          </p>
+                          <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">
+                            Max loss: {formatComputedPercent(selectedExecutionMetrics.maxLossPct)}
+                          </p>
+                        </div>
+
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-900/40 dark:bg-emerald-900/20">
+                          <p className="text-xs text-emerald-600 dark:text-emerald-400">Target 1</p>
+                          <p className="mt-1 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                            {formatOptionalCurrency(selectedExecutionMetrics.target1)}
+                          </p>
+                          <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+                            {formatSignedComputedPercent(selectedExecutionMetrics.target1UpsidePct)} upside
+                          </p>
+                        </div>
+
+                        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-900/40 dark:bg-emerald-900/20">
+                          <p className="text-xs text-emerald-600 dark:text-emerald-400">Target 2</p>
+                          <p className="mt-1 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                            {formatOptionalCurrency(selectedExecutionMetrics.target2)}
+                          </p>
+                          <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+                            {formatSignedComputedPercent(selectedExecutionMetrics.target2UpsidePct)} upside
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                        No execution plan found for this symbol. Run Opportunity Radar to populate plan metrics.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-6">
+                    <h4 className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-600 dark:text-slate-300">
+                      Pattern Intelligence
+                    </h4>
+
+                    <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Support</p>
+                        <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                          {formatOptionalCurrency(selectedTracked.supportResistance?.support)}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                          Distance: {formatComputedPercent(selectedTracked.supportResistance?.supportDistancePct)}
+                        </p>
+                      </div>
+
+                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Resistance</p>
+                        <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                          {formatOptionalCurrency(selectedTracked.supportResistance?.resistance)}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                          Distance: {formatComputedPercent(selectedTracked.supportResistance?.resistanceDistancePct)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {selectedTracked.detectedPatterns.length ? (
+                        selectedTracked.detectedPatterns.map((pattern) => (
+                          <span
+                            key={pattern.pattern}
+                            className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold capitalize ${pattern.detected
+                              ? 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800/60 dark:bg-emerald-900/25 dark:text-emerald-300'
+                              : 'border-slate-300 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'}`}
+                          >
+                            {pattern.label} {pattern.detected ? 'detected' : 'inactive'}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-sm text-slate-500 dark:text-slate-400">No pattern intelligence available.</span>
+                      )}
+                    </div>
+
+                    {selectedTracked.patternBacktests.length ? (
+                      <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+                        <table className="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-700">
+                          <thead className="bg-slate-50 dark:bg-slate-900/60">
+                            <tr>
+                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Pattern</th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Direction</th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Success</th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Samples</th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Horizon</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-700 dark:bg-slate-900/40">
+                            {selectedTracked.patternBacktests.map((item) => (
+                              <tr key={item.pattern}>
+                                <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{item.label}</td>
+                                <td className="px-3 py-2 capitalize text-slate-600 dark:text-slate-300">{item.direction}</td>
+                                <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{formatComputedPercent(item.successRate)}</td>
+                                <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{item.samples ?? 0}</td>
+                                <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{item.horizonDays ?? '--'}d</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </Card>

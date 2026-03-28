@@ -1,3 +1,10 @@
+// Signal quality thresholds for improved hit rate
+const CONFIDENCE_THRESHOLDS = {
+  BUY: 65,   // Reject BUY signals below 65% confidence
+  SELL: 65,  // Reject SELL signals below 65% confidence
+  HOLD: 40,  // HOLD can be lower confidence
+};
+
 function toFiniteNumber(value) {
   const numeric = Number(value);
   return Number.isFinite(numeric) ? numeric : null;
@@ -40,14 +47,25 @@ function evaluateDecision(input) {
 
   confidence = Math.max(10, Math.min(90, Math.round(confidence)));
 
+  // FILTER: Reject signals below confidence threshold
+  // This improves hit rate by filtering out weak signals
+  const threshold = CONFIDENCE_THRESHOLDS[decision] || 40;
+  let reason = null;
+  if (decision !== 'HOLD' && confidence < threshold) {
+    reason = `Signal confidence ${confidence}% below ${threshold}% threshold for ${decision}`;
+    decision = 'HOLD';
+    confidence = Math.min(confidence, 50); // Force to neutral confidence
+  }
+
   return {
     finalScore,
     decision,
     confidence,
-    reason: null,
+    reason,
   };
 }
 
 module.exports = {
-  evaluateDecision
+  evaluateDecision,
+  CONFIDENCE_THRESHOLDS,
 };

@@ -8,6 +8,7 @@ const routeLabelMap = {
   '/dashboard': 'Decision Engine',
   '/portfolio': 'Portfolio Workspace',
   '/charts': 'Price Charts',
+  '/market-chat': 'Market ChatGPT Next',
   '/opportunity-radar': 'Opportunity Radar',
   '/validation-dashboard': 'Validation Dashboard',
   '/insights': 'Market Insights',

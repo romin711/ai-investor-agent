@@ -174,21 +174,34 @@ function buildDecisionMarkers(candles, meta) {
 
   const decision = String(meta?.decision || '').toUpperCase();
   const confidence = toFiniteNumber(meta?.confidence);
+  const breakout = meta?.breakout === true;
 
-  if (!decision || decision === 'HOLD' || confidence === null || confidence < 60) {
+  if (!decision) {
     return [];
   }
 
   const latestCandle = candles[candles.length - 1];
-  const isBuy = decision === 'BUY';
+
+  if (decision === 'BUY' || decision === 'SELL') {
+    const isBuy = decision === 'BUY';
+    const confidenceSuffix = confidence !== null ? ` ${confidence}%` : '';
+    return [{
+      time: latestCandle.time,
+      position: isBuy ? 'belowBar' : 'aboveBar',
+      shape: isBuy ? 'arrowUp' : 'arrowDown',
+      color: isBuy ? '#22C55E' : '#EF4444',
+      text: `${decision}${confidenceSuffix}`,
+      size: 2,
+    }];
+  }
 
   return [{
     time: latestCandle.time,
-    position: isBuy ? 'belowBar' : 'aboveBar',
-    shape: isBuy ? 'arrowUp' : 'arrowDown',
-    color: isBuy ? '#22C55E' : '#EF4444',
-    text: decision,
-    size: 2,
+    position: 'aboveBar',
+    shape: 'circle',
+    color: breakout ? '#38BDF8' : '#F59E0B',
+    text: breakout ? 'HOLD | Breakout watch' : 'HOLD | Monitor',
+    size: 1,
   }];
 }
 

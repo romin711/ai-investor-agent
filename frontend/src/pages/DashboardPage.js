@@ -252,7 +252,12 @@ function DashboardPage() {
         </Card>
       </section>
 
-      {portfolioRows && portfolioRows.length > 0 && (<FinancialResearchCard symbol={portfolioRows[0]?.symbol || null} portfolioData={portfolioRows} />)}
+      {portfolioRows && portfolioRows.length > 0 && (
+        <FinancialResearchCard
+          symbols={portfolioRows.map((row) => row?.symbol)}
+          portfolioData={portfolioRows}
+        />
+      )}
 
       <section>
         <Card className="p-6" interactive={false}>

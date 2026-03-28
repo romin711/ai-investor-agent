@@ -2,6 +2,7 @@ const { analyzePortfolio, normalizePortfolioRows } = require('./pipeline');
 const fs = require('fs');
 const path = require('path');
 const { getMarketContextForSymbol } = require('./marketContextService');
+const { getNseUniverseRows, getNseUniverseSymbols } = require('./nseUniverseService');
 
 const HISTORY_FILE_PATH = path.join(__dirname, '..', 'storage', 'opportunity_radar_history.json');
 const MAX_HISTORY_ITEMS = 120;
@@ -73,13 +74,20 @@ function backtestBreakoutSuccessRate(historical, lookback = 15, horizon = 3) {
 }
 
 function buildSignalItem(result) {
-  const isBreakout = result?.breakout === true;
+  const patternSignals = Array.isArray(result?.pattern_intelligence?.detectedPatterns)
+    ? result.pattern_intelligence.detectedPatterns
+    : [];
+  const activePattern = patternSignals.find((item) => item?.detected === true);
+  const activePatternKey = String(activePattern?.pattern || '').toLowerCase();
+  const isBreakout = result?.breakout === true || activePatternKey === 'breakout';
   const rsi = toFiniteNumber(result?.rsi);
   const momentum = toFiniteNumber(result?.momentum_percent);
   const trend = String(result?.trend || 'neutral');
 
   const signalType = isBreakout
     ? 'breakout'
+    : activePatternKey
+      ? activePatternKey
     : (trend === 'uptrend' && momentum !== null && momentum > 0)
       ? 'trend-follow'
       : (rsi !== null && rsi < 30)
@@ -104,6 +112,8 @@ function buildSignalItem(result) {
     signalType,
     signalStrength,
     breakout: isBreakout,
+    patternType: activePatternKey || null,
+    patternLabel: activePattern?.label || null,
     trend,
     rsi,
     momentumPercent: momentum,
@@ -278,8 +288,20 @@ function buildExecutionPlan(action, confidence, symbolResult, enrichedSignal, ri
 }
 
 function buildActionableAlert(enrichedSignal, symbolResult, options = {}) {
-  const backtest = backtestBreakoutSuccessRate(symbolResult?.historical || []);
-  const backtestBreakoutRate = backtest.successRate;
+  const patternBacktests = Array.isArray(symbolResult?.pattern_intelligence?.patternBacktests)
+    ? symbolResult.pattern_intelligence.patternBacktests
+    : [];
+  const primaryPattern = String(enrichedSignal?.patternType || (enrichedSignal?.signalType || '')).toLowerCase();
+  const selectedPatternBacktest = patternBacktests.find((item) => String(item?.pattern || '').toLowerCase() === primaryPattern)
+    || patternBacktests.find((item) => item?.pattern === 'breakout')
+    || null;
+
+  const fallbackBreakout = backtestBreakoutSuccessRate(symbolResult?.historical || []);
+  const backtestSuccessRate = toFiniteNumber(selectedPatternBacktest?.successRate) ?? fallbackBreakout.successRate;
+  const backtestSamples = Number(selectedPatternBacktest?.samples || fallbackBreakout.breakoutSamples || 0);
+  const backtestHorizon = Number(selectedPatternBacktest?.horizonDays || fallbackBreakout.horizon || 0);
+  const backtestLookback = Number(selectedPatternBacktest?.lookbackDays || fallbackBreakout.lookback || 0);
+  const backtestPattern = String(selectedPatternBacktest?.pattern || 'breakout');
   const confidence = toFiniteNumber(symbolResult?.confidence);
   const decision = String(symbolResult?.decision || 'HOLD').toUpperCase();
 
@@ -292,14 +314,14 @@ function buildActionableAlert(enrichedSignal, symbolResult, options = {}) {
     `Signal ${enrichedSignal.signalType.replace(/-/g, ' ')} detected for ${enrichedSignal.symbol}.`,
     `Trend is ${enrichedSignal.trend}.`,
     enrichedSignal.rsi === null ? 'RSI unavailable.' : `RSI is ${enrichedSignal.rsi.toFixed(2)}.`,
-    backtestBreakoutRate === null
+    backtestSuccessRate === null
       ? 'Insufficient history to compute pattern success rate.'
-      : `Historical breakout success rate: ${backtestBreakoutRate}% over ${backtest.breakoutSamples} breakout samples.`,
+      : `Historical ${backtestPattern.replace(/-/g, ' ')} success rate: ${backtestSuccessRate}% over ${backtestSamples} samples.`,
     `Portfolio sector exposure for this symbol is ${enrichedSignal.sectorExposurePercent.toFixed(1)}%.`,
   ];
 
   const exposurePenalty = Math.min(30, Math.max(0, Math.round((enrichedSignal.sectorExposurePercent - 25) * 1.2)));
-  const breakoutBonus = backtestBreakoutRate === null ? 0 : Math.round(backtestBreakoutRate / 8);
+  const breakoutBonus = backtestSuccessRate === null ? 0 : Math.round(backtestSuccessRate / 8);
   const confidenceScore = confidence === null ? 0 : confidence;
   const contextScore = toFiniteNumber(enrichedSignal?.marketContext?.contextScore) || 0;
   const priorityScore = Math.max(
@@ -323,12 +345,16 @@ function buildActionableAlert(enrichedSignal, symbolResult, options = {}) {
     action,
     confidence: confidence === null ? null : Math.round(confidence),
     signalType: enrichedSignal.signalType,
+    patternType: enrichedSignal.patternType,
+    patternLabel: enrichedSignal.patternLabel,
     signalStrength: enrichedSignal.signalStrength,
     priorityScore,
-    backtestedSuccessRate: backtestBreakoutRate,
-    backtestBreakoutSamples: backtest.breakoutSamples,
-    backtestLookback: backtest.lookback,
-    backtestHorizon: backtest.horizon,
+    backtestedSuccessRate: backtestSuccessRate,
+    backtestPattern,
+    backtestBreakoutSamples: backtestSamples,
+    backtestLookback,
+    backtestHorizon,
+    patternBacktests,
     executionPlan,
     riskProfile: selectedRiskProfile,
     portfolioRelevance,
@@ -574,6 +600,7 @@ async function runOpportunityRadar(inputRows, options = {}) {
     portfolioInsight,
     alphaEvidence,
     generatedAt: new Date().toISOString(),
+    scanScope: options?.scanScope || 'portfolio',
     portfolioRows: normalizedRows,
     alerts,
   };
@@ -582,7 +609,34 @@ async function runOpportunityRadar(inputRows, options = {}) {
   return payload;
 }
 
+async function runOpportunityRadarForUniverse(options = {}) {
+  const limit = Number(options?.universeLimit || options?.limit || 0);
+  const universeRows = getNseUniverseRows({ limit });
+
+  if (!universeRows.length) {
+    throw {
+      statusCode: 400,
+      message: 'NSE universe is empty. Configure stocks.json or NSE_UNIVERSE_FILE with NSE symbols.',
+    };
+  }
+
+  const result = await runOpportunityRadar(universeRows, {
+    ...options,
+    scanScope: 'nse-universe',
+  });
+
+  return {
+    ...result,
+    universe: {
+      requestedLimit: Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : null,
+      symbolsScanned: universeRows.length,
+      totalConfiguredNseSymbols: getNseUniverseSymbols().length,
+    },
+  };
+}
+
 module.exports = {
   runOpportunityRadar,
+  runOpportunityRadarForUniverse,
   getOpportunityRadarHistory,
 };

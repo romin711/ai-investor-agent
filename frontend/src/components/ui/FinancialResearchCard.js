@@ -1,43 +1,71 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 /**
  * Financial Research Card
  * Displays fundamental analysis: filings, insider trading, block trades, management tone
  * Shows patterns and alpha evidence for trading decisions
  */
-export default function FinancialResearchCard({ symbol, portfolioData = {} }) {
-  const [financialData, setFinancialData] = useState(null);
+export default function FinancialResearchCard({ symbol, symbols = [], portfolioData = [] }) {
+  const [financialDataBySymbol, setFinancialDataBySymbol] = useState({});
+  const [selectedSymbol, setSelectedSymbol] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [expandedSection, setExpandedSection] = useState('patterns');
 
-  React.useEffect(() => {
-    if (!symbol) return;
+  const symbolList = useMemo(() => {
+    const fromSymbolsProp = Array.isArray(symbols)
+      ? symbols.map((item) => String(item || '').trim().toUpperCase()).filter(Boolean)
+      : [];
+
+    const fromPortfolio = Array.isArray(portfolioData)
+      ? portfolioData.map((row) => String(row?.symbol || '').trim().toUpperCase()).filter(Boolean)
+      : [];
+
+    const merged = [...fromSymbolsProp, ...fromPortfolio, String(symbol || '').trim().toUpperCase()].filter(Boolean);
+    return Array.from(new Set(merged));
+  }, [portfolioData, symbol, symbols]);
+
+  useEffect(() => {
+    if (!symbolList.length) {
+      setSelectedSymbol('');
+      return;
+    }
+    setSelectedSymbol((previous) => (symbolList.includes(previous) ? previous : symbolList[0]));
+  }, [symbolList]);
+
+  useEffect(() => {
+    if (!symbolList.length) return;
 
     const fetchFinancialData = async () => {
       setIsLoading(true);
       setError(null);
       try {
         const hosts = ['127.0.0.1', 'localhost'];
-        let lastError = null;
+        const nextData = {};
 
-        for (const host of hosts) {
-          try {
-            const response = await fetch(
-              `http://${host}:3001/api/financial/health?symbol=${symbol}`,
-              { method: 'GET', headers: { 'Content-Type': 'application/json' } }
-            );
-            if (response.ok) {
-              const data = await response.json();
-              setFinancialData(data);
-              return;
+        await Promise.all(symbolList.map(async (itemSymbol) => {
+          for (const host of hosts) {
+            try {
+              const response = await fetch(
+                `http://${host}:3001/api/financial/health?symbol=${encodeURIComponent(itemSymbol)}`,
+                { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+              );
+              if (response.ok) {
+                const data = await response.json();
+                nextData[itemSymbol] = data;
+                return;
+              }
+            } catch (_e) {
+              // Try next host alias.
             }
-          } catch (e) {
-            lastError = e;
           }
+        }));
+
+        if (!Object.keys(nextData).length) {
+          throw new Error('No financial data fetched.');
         }
 
-        if (lastError) throw lastError;
+        setFinancialDataBySymbol(nextData);
       } catch (err) {
         setError('Failed to load financial data. Check your portfolio first.');
       } finally {
@@ -46,9 +74,11 @@ export default function FinancialResearchCard({ symbol, portfolioData = {} }) {
     };
 
     fetchFinancialData();
-  }, [symbol]);
+  }, [symbolList]);
 
-  if (!symbol) return null;
+  const financialData = selectedSymbol ? financialDataBySymbol[selectedSymbol] : null;
+
+  if (!symbolList.length) return null;
 
   if (isLoading) {
     return (
@@ -127,6 +157,20 @@ export default function FinancialResearchCard({ symbol, portfolioData = {} }) {
             Filings • Insider Trading • Block Trades • Management Tone
           </p>
         </div>
+        {symbolList.length > 1 ? (
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Symbol</span>
+            <select
+              value={selectedSymbol}
+              onChange={(event) => setSelectedSymbol(event.target.value)}
+              className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-[#0F766E] dark:border-slate-600 dark:bg-slate-900"
+            >
+              {symbolList.map((itemSymbol) => (
+                <option key={itemSymbol} value={itemSymbol}>{itemSymbol}</option>
+              ))}
+            </select>
+          </div>
+        ) : null}
       </div>
 
       {/* FINANCIAL HEALTH SCORE */}

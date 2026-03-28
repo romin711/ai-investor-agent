@@ -186,8 +186,12 @@ function calculateExecutionPlan(recommendation, healthScore, currentPrice) {
     const fundaMultiplier = healthScore.aggregatedPatterns?.length > 0 ? 1.5 : 1.2;
     targetPrice = (currentPrice + riskAmount * fundaMultiplier).toFixed(2);
 
-    // Position sizing: 2-6% of portfolio based on confidence
-    positionSize = Math.round(2 + (confidence - 60) / 10); // 2-6%
+    // Position sizing: confidence-based + volatility-adjusted
+    // Higher volatility → smaller position; higher confidence → larger position
+    let baseSizePercent = 2 + (confidence - 60) / 10; // 2-6% base
+    // Adjust for volatility: if volatility is > 3%, reduce size proportionally
+    const volatilityAdjustment = Math.max(0.5, 1 - (volatilityFactor * 100 - 2) / 2); // Reduce if vol > 2%
+    positionSize = Math.round(Math.min(5, baseSizePercent * volatilityAdjustment)); // Cap at 5%
     rationale = `Entry: Wait for pull to ₹${entryRange.start} | Target: ₹${targetPrice} | Max loss: ${(((stopLoss - currentPrice) / currentPrice) * 100).toFixed(1)}%`;
 
   } else if (decision === 'SELL') {
@@ -222,17 +226,30 @@ function calculateExecutionPlan(recommendation, healthScore, currentPrice) {
     rationale = 'Hold existing positions; avoid new initiations until clarity improves';
   }
 
+  // RISK MANAGEMENT: Validate risk/reward before execution
+  const riskDistance = Math.abs(currentPrice - stopLoss);
+  const rewardDistance = Math.abs(targetPrice - currentPrice);
+  const riskRewardRatio = rewardDistance / (riskDistance || 0.01);
+  
+  // Reject BUY/SELL if risk/reward < 1.5:1 (protect capital)
+  let finalDecision = decision;
+  let executionReason = rationale;
+  if ((decision === 'BUY' || decision === 'SELL') && riskRewardRatio < 1.5) {
+    finalDecision = 'HOLD';
+    executionReason = `Risk/reward ${riskRewardRatio.toFixed(2)}:1 below 1.5:1 minimum. ${rationale}`;
+  }
+
   return {
-    decision,
+    decision: finalDecision,
     confidence,
     entryRange,
     stopLoss,
     targetPrice,
     positionSize,
     maxDrawdownPercent: Math.abs(((stopLoss - currentPrice) / currentPrice) * 100).toFixed(1),
-    riskRewardRatio: ((targetPrice - currentPrice) / (currentPrice - stopLoss)).toFixed(2),
+    riskRewardRatio: riskRewardRatio.toFixed(2),
     timeHorizon,
-    rationale,
+    rationale: executionReason,
     updatedAt: new Date().toISOString(),
   };
 }

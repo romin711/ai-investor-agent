@@ -112,6 +112,8 @@ export function PortfolioProvider({ children }) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isRefreshingQuotes, setIsRefreshingQuotes] = useState(false);
   const [isRunningOpportunityRadar, setIsRunningOpportunityRadar] = useState(false);
+  const [isAskingMarketChat, setIsAskingMarketChat] = useState(false);
+  const [isRunningUniverseRadar, setIsRunningUniverseRadar] = useState(false);
 
   const setRowsFromManual = useCallback((rows) => {
     setPortfolioRows(rows);
@@ -281,6 +283,98 @@ export function PortfolioProvider({ children }) {
     }
   }, []);
 
+  const runOpportunityRadarUniverse = useCallback(async (runOptions = {}) => {
+    setIsRunningUniverseRadar(true);
+    setApiError('');
+
+    try {
+      const payload = {
+        preferences: {
+          riskProfile: String(runOptions?.riskProfile || 'moderate').toLowerCase(),
+        },
+        universeLimit: Number(runOptions?.universeLimit || 0),
+      };
+
+      const data = await requestWithHostFallback('POST', '/api/agent/opportunity-radar/universe', payload);
+      setOpportunityRadarData(data || null);
+      setOpportunityRadarHistory((prev) => [data, ...prev].slice(0, 120));
+      setStatusMessage(`Universe radar scanned ${data?.universe?.symbolsScanned || 0} NSE symbols.`);
+      return data;
+    } catch (error) {
+      const message = toMarketErrorMessage(error, 'Failed to run NSE universe radar.');
+      setApiError(message);
+      throw error;
+    } finally {
+      setIsRunningUniverseRadar(false);
+    }
+  }, []);
+
+  const getRadarSchedulerStatus = useCallback(async () => {
+    const data = await requestWithHostFallback('GET', '/api/agent/opportunity-radar/scheduler');
+    return data;
+  }, []);
+
+  const startRadarScheduler = useCallback(async () => {
+    const data = await requestWithHostFallback('POST', '/api/agent/opportunity-radar/scheduler/start', {});
+    return data;
+  }, []);
+
+  const stopRadarScheduler = useCallback(async () => {
+    const data = await requestWithHostFallback('POST', '/api/agent/opportunity-radar/scheduler/stop', {});
+    return data;
+  }, []);
+
+  const runRadarSchedulerNow = useCallback(async () => {
+    const data = await requestWithHostFallback('POST', '/api/agent/opportunity-radar/scheduler/run-now', {});
+    return data;
+  }, []);
+
+  const askMarketChat = useCallback(async (question, rowsOverride = null, sessionId = '') => {
+    const cleanQuestion = String(question || '').trim();
+    if (!cleanQuestion) {
+      throw new Error('Please enter a market question.');
+    }
+
+    setIsAskingMarketChat(true);
+    setApiError('');
+
+    try {
+      let rows = [];
+      if (rowsOverride && rowsOverride.length) {
+        rows = normalizeRows(rowsOverride);
+      } else if (portfolioRows.length) {
+        rows = normalizeRows(portfolioRows);
+      } else if (analysisData?.results?.length) {
+        rows = normalizeRows(rowsFromResults(analysisData.results));
+      }
+
+      const data = await requestWithHostFallback('POST', '/api/agent/market-chat', {
+        question: cleanQuestion,
+        portfolio: rows,
+        sessionId: String(sessionId || '').trim(),
+      });
+
+      setStatusMessage('Market Chat completed a portfolio-aware multi-step analysis.');
+      return data;
+    } catch (error) {
+      const message = toMarketErrorMessage(error, 'Failed to run market chat analysis.');
+      setApiError(message);
+      throw error;
+    } finally {
+      setIsAskingMarketChat(false);
+    }
+  }, [analysisData, portfolioRows]);
+
+  const getMarketChatSession = useCallback(async (sessionId) => {
+    const id = String(sessionId || '').trim();
+    if (!id) {
+      throw new Error('sessionId is required');
+    }
+
+    const data = await requestWithHostFallback('GET', `/api/agent/market-chat/session?sessionId=${encodeURIComponent(id)}`);
+    return data;
+  }, []);
+
   const value = useMemo(() => ({
     apiBaseUrl: API_BASE_URL,
     portfolioRows,
@@ -294,12 +388,21 @@ export function PortfolioProvider({ children }) {
     refreshRealtimeQuotes,
     analyzePortfolio,
     runOpportunityRadar,
+    runOpportunityRadarUniverse,
     fetchOpportunityRadarHistory,
+    getRadarSchedulerStatus,
+    startRadarScheduler,
+    stopRadarScheduler,
+    runRadarSchedulerNow,
+    askMarketChat,
+    getMarketChatSession,
     apiError,
     statusMessage,
     isAnalyzing,
     isRefreshingQuotes,
     isRunningOpportunityRadar,
+    isRunningUniverseRadar,
+    isAskingMarketChat,
   }), [
     portfolioRows,
     setRowsFromManual,
@@ -312,12 +415,21 @@ export function PortfolioProvider({ children }) {
     refreshRealtimeQuotes,
     analyzePortfolio,
     runOpportunityRadar,
+    runOpportunityRadarUniverse,
     fetchOpportunityRadarHistory,
+    getRadarSchedulerStatus,
+    startRadarScheduler,
+    stopRadarScheduler,
+    runRadarSchedulerNow,
+    askMarketChat,
+    getMarketChatSession,
     apiError,
     statusMessage,
     isAnalyzing,
     isRefreshingQuotes,
     isRunningOpportunityRadar,
+    isRunningUniverseRadar,
+    isAskingMarketChat,
   ]);
 
   return (

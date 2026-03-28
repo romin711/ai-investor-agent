@@ -12,9 +12,14 @@ cp .env.example .env
 
 ```env
 GEMINI_API_KEY=your_key_optional
+OPENAI_API_KEY=your_openai_key_for_market_chat
+OPENAI_MODEL=gpt-4.1-mini
 PORT=3001
 HOST=127.0.0.1
 ```
+
+`OPENAI_API_KEY` is used by Market Chat to synthesize answers from your existing portfolio/radar modules plus live market news context.
+If OpenAI is not configured, Market Chat falls back to rule-based synthesis.
 
 3. Start backend:
 

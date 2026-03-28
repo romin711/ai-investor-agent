@@ -7,6 +7,14 @@
 const yahooClient = require('./yahooClient');
 const fetch = typeof global !== 'undefined' ? global.fetch : require('node-fetch');
 
+function envFlag(name, defaultValue = false) {
+  const raw = String(process.env[name] ?? '').trim().toLowerCase();
+  if (!raw) return defaultValue;
+  return ['1', 'true', 'yes', 'on'].includes(raw);
+}
+
+const USE_MOCK_FINANCIAL_DATA = envFlag('USE_MOCK_FINANCIAL_DATA', false);
+
 // Cache layer for API responses (avoid excessive API calls)
 const dataCache = new Map();
 const CACHE_TTL = 3600000; // 1 hour in milliseconds
@@ -871,56 +879,60 @@ async function getFinancialEventsEnhanced(symbol) {
     console.error(`[Real Data] News fetch failed:`, error.message);
   }
 
-  // Add mock filings (production: would fetch from EDGAR or BSE filings)
-  if (filingDatabase[normalizedSymbol]) {
-    filingDatabase[normalizedSymbol].forEach((filing) => {
-      events.push({
-        type: 'FILING',
-        symbol: normalizedSymbol,
-        date: filing.releaseDate,
-        title: filing.title,
-        category: filing.category,
-        credibility: filing.credibility,
-        impact: filing.impact,
-        surpriseType: filing.surpriseType || 'IN_LINE',
-        impactScore: calculateFilingImpact(filing),
-        source: 'NSE / Company Filings',
+  if (USE_MOCK_FINANCIAL_DATA) {
+    // Add mock filings (fallback/demo mode)
+    if (filingDatabase[normalizedSymbol]) {
+      filingDatabase[normalizedSymbol].forEach((filing) => {
+        events.push({
+          type: 'FILING',
+          symbol: normalizedSymbol,
+          date: filing.releaseDate,
+          title: filing.title,
+          category: filing.category,
+          credibility: filing.credibility,
+          impact: filing.impact,
+          surpriseType: filing.surpriseType || 'IN_LINE',
+          impactScore: calculateFilingImpact(filing),
+          source: 'Mock Filings Dataset',
+        });
       });
-    });
-  }
+    }
 
-  // Add mock insider data (fallback)
-  if (insiderTradingDatabase[normalizedSymbol] && events.filter(e => e.type === 'INSIDER_TRADING').length === 0) {
-    insiderTradingDatabase[normalizedSymbol].forEach((trade) => {
-      const sentiment = trade.transactionType === 'BUY' ? 'BULLISH' : 'BEARISH';
-      events.push({
-        type: 'INSIDER_TRADING',
-        symbol: normalizedSymbol,
-        date: trade.date,
-        executive: trade.name,
-        title: trade.title,
-        shares: trade.shares,
-        transactionType: trade.transactionType,
-        sentiment,
-        credibility: 'REGULATORY',
-        impactScore: calculateInsiderImpact(trade),
+    // Add mock insider data when real NSE feed has no entries
+    if (insiderTradingDatabase[normalizedSymbol] && events.filter((e) => e.type === 'INSIDER_TRADING').length === 0) {
+      insiderTradingDatabase[normalizedSymbol].forEach((trade) => {
+        const sentiment = trade.transactionType === 'BUY' ? 'BULLISH' : 'BEARISH';
+        events.push({
+          type: 'INSIDER_TRADING',
+          symbol: normalizedSymbol,
+          date: trade.date,
+          executive: trade.name,
+          title: trade.title,
+          shares: trade.shares,
+          transactionType: trade.transactionType,
+          sentiment,
+          credibility: 'REGULATORY',
+          impactScore: calculateInsiderImpact(trade),
+          source: 'Mock Insider Dataset',
+        });
       });
-    });
-  }
+    }
 
-  // Add management tone (from mock data - production: would parse earnings transcripts)
-  if (managementToneDatabase[normalizedSymbol]) {
-    const mgmt = managementToneDatabase[normalizedSymbol];
-    events.push({
-      type: 'MANAGEMENT_TONE',
-      symbol: normalizedSymbol,
-      date: mgmt.latestCall,
-      title: `Earnings Call - Tone: ${mgmt.overallTone}`,
-      sentiment: getToneSentimentLevel(mgmt.overallTone),
-      credibility: 'OFFICIAL',
-      detail: mgmt,
-      impactScore: calculateToneImpact(mgmt),
-    });
+    // Add management tone from mock transcript dataset
+    if (managementToneDatabase[normalizedSymbol]) {
+      const mgmt = managementToneDatabase[normalizedSymbol];
+      events.push({
+        type: 'MANAGEMENT_TONE',
+        symbol: normalizedSymbol,
+        date: mgmt.latestCall,
+        title: `Earnings Call - Tone: ${mgmt.overallTone}`,
+        sentiment: getToneSentimentLevel(mgmt.overallTone),
+        credibility: 'OFFICIAL',
+        detail: mgmt,
+        impactScore: calculateToneImpact(mgmt),
+        source: 'Mock Management Tone Dataset',
+      });
+    }
   }
 
   // Add real Yahoo momentum event for all symbols if available.

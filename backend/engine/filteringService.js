@@ -22,18 +22,38 @@ function passesRiskProfileFilter(alert, riskProfile) {
 }
 
 /**
- * Check sector concentration constraint
+ * Check sector concentration constraint - STRICT enforcement
+ * Hard cap: Max 20% single sector, max 10% single stock
  */
 function passesSectorFilter(alert, maxSectorCap, portfolio) {
   if (!portfolio || !portfolio.holdings) return true;
 
+  // STRICT LIMITS for better diversification
+  const MAX_SINGLE_SECTOR = 0.20; // Hard cap: 20% per sector
+  const MAX_SINGLE_STOCK = 0.10;  // Hard cap: 10% per stock
+  
   const sectorHoldings = portfolio.holdings.reduce((sum, h) => {
-    // This would need sector mapping - for now simplified
     return h.sector === alert.sector ? sum + h.weight : sum;
   }, 0);
 
+  // Check if this symbol already exists
+  const existingPosition = portfolio.holdings.find((h) => h.symbol === alert.symbol);
+  const projectedStockWeight = (existingPosition?.weight || 0) + (alert.suggestedPositionSize || 0.04);
+
   const projectedSectorWeight = sectorHoldings + (alert.suggestedPositionSize || 0.04);
-  return projectedSectorWeight <= (maxSectorCap / 100);
+  
+  // Reject if breaches hard limits
+  if (projectedSectorWeight > MAX_SINGLE_SECTOR) {
+    console.log(`[Filtering] Sector ${alert.sector} would exceed 20% cap (now: ${(sectorHoldings * 100).toFixed(1)}%)`);
+    return false;
+  }
+  
+  if (projectedStockWeight > MAX_SINGLE_STOCK) {
+    console.log(`[Filtering] Stock ${alert.symbol} would exceed 10% cap (now: ${(projectedStockWeight * 100).toFixed(1)}%)`);
+    return false;
+  }
+
+  return true;
 }
 
 /**

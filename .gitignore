@@ -48,6 +48,10 @@ htmlcov/
 # Logs
 *.log
 
+# Generated documentation artifacts
+AI_Investor_Agent_Report.docx
+*.docx
+
 # Backend runtime data
 backend/storage/opportunity_radar_history.json
 
