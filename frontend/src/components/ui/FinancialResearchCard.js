@@ -100,7 +100,7 @@ export default function FinancialResearchCard({ symbol, symbols = [], portfolioD
         <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
           Fundamental Research
         </h3>
-        <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">{error || 'No data'}</p>
+        <p className="mt-4 text-sm text-secondary">{error || 'No data'}</p>
       </section>
     );
   }
@@ -134,7 +134,7 @@ export default function FinancialResearchCard({ symbol, symbols = [], portfolioD
     if (score > 0.5) return 'text-blue-600 dark:text-blue-400';
     if (score < -1.5) return 'text-red-600 dark:text-red-400';
     if (score < -0.5) return 'text-orange-600 dark:text-orange-400';
-    return 'text-slate-600 dark:text-slate-400';
+    return 'text-secondary';
   };
 
   const getHealthBgColor = (score) => {
@@ -153,13 +153,13 @@ export default function FinancialResearchCard({ symbol, symbols = [], portfolioD
           <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             Fundamental Research
           </h3>
-          <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-secondary">
             Filings • Insider Trading • Block Trades • Management Tone
           </p>
         </div>
         {symbolList.length > 1 ? (
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">Symbol</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">Symbol</span>
             <select
               value={selectedSymbol}
               onChange={(event) => setSelectedSymbol(event.target.value)}
@@ -188,7 +188,7 @@ export default function FinancialResearchCard({ symbol, symbols = [], portfolioD
             <p className="text-xs font-semibold uppercase text-slate-600 dark:text-slate-400">
               Interpretation
             </p>
-            <p className="mt-2 text-xs leading-tight text-slate-700 dark:text-slate-300 max-w-xs">
+            <p className="mt-2 text-xs leading-tight text-primary max-w-xs">
               {interpretation}
             </p>
           </div>
@@ -205,7 +205,7 @@ export default function FinancialResearchCard({ symbol, symbols = [], portfolioD
               className={`pb-3 px-1 text-sm font-medium transition-colors ${
                 expandedSection === section
                   ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-300'
+                  : 'text-secondary hover:text-primary'
               }`}
             >
               {section === 'patterns' && 'Patterns'}
@@ -297,7 +297,7 @@ export default function FinancialResearchCard({ symbol, symbols = [], portfolioD
                             ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
                             : event.type === 'BLOCK_TRADE'
                             ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'
-                            : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
+                            : 'bg-gray-100 text-primary dark:bg-gray-900/30 dark:text-secondary'
                         }`}
                       >
                         {event.type.replace(/_/g, ' ')}

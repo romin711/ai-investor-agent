@@ -1,0 +1,385 @@
+/* ============================================
+   LIGHT MODE - Default
+   ============================================ */
+:root {
+  /* Primary Backgrounds */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F3F4F6;
+  --bg-tertiary: #E5E7EB;
+
+  /* Card & Surfaces */
+  --bg-card: #FFFFFF;
+  --bg-card-alt: #F9FAFB;
+
+  /* Text Colors - HIGH CONTRAST */
+  --text-primary: #1F2937;
+  --text-secondary: #4B5563;
+  --text-muted: #6B7280;
+  --text-inverted: #FFFFFF;
+
+  /* Borders & Dividers */
+  --border: #D1D5DB;
+  --border-light: #E5E7EB;
+
+  /* Decision Colors - Buy */
+  --color-buy: #059669;
+  --color-buy-bg: #D1FAE5;
+  --color-buy-text: #065F46;
+  --color-buy-light: #F0FDF4;
+
+  /* Decision Colors - Sell */
+  --color-sell: #DC2626;
+  --color-sell-bg: #FED7D7;
+  --color-sell-text: #7F1D1D;
+  --color-sell-light: #FEF2F2;
+
+  /* Decision Colors - Hold */
+  --color-hold: #D97706;
+  --color-hold-bg: #FED7AA;
+  --color-hold-text: #7C2D12;
+  --color-hold-light: #FFFBEB;
+
+  /* Utility Colors */
+  --color-info: #2563EB;
+  --color-info-bg: #DBEAFE;
+  --color-info-text: #1E40AF;
+
+  --color-warning: #F59E0B;
+  --color-warning-bg: #FEF3C7;
+  --color-warning-text: #92400E;
+
+  --color-success: #10B981;
+  --color-success-bg: #D1FAE5;
+  --color-success-text: #065F46;
+
+  /* Sidebar */
+  --sidebar-bg: #FFFFFF;
+  --sidebar-text: #1F2937;
+  --sidebar-border: #D1D5DB;
+  --sidebar-active-bg: #DBEAFE;
+  --sidebar-active-text: #1E40AF;
+  --sidebar-hover-bg: #F3F4F6;
+
+  /* Input Fields */
+  --input-bg: #FFFFFF;
+  --input-text: #1F2937;
+  --input-border: #D1D5DB;
+  --input-border-focus: #2563EB;
+  --input-placeholder: #9CA3AF;
+
+  /* Buttons */
+  --btn-primary-bg: #0F766E;
+  --btn-primary-text: #FFFFFF;
+  --btn-primary-hover: #0D5E57;
+
+  --btn-secondary-bg: #F3F4F6;
+  --btn-secondary-text: #1F2937;
+  --btn-secondary-border: #D1D5DB;
+  --btn-secondary-hover: #E5E7EB;
+
+  /* Allocation Colors */
+  --allocation-30: #1D4ED8;
+  --allocation-20: #2563EB;
+  --allocation-12: #0891B2;
+  --allocation-6: #059669;
+  --allocation-below: #9CA3AF;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+}
+
+/* ============================================
+   DARK MODE - Sharp, Professional Fintech UI
+   ============================================ */
+body.dark,
+[data-theme="dark"] {
+  /* BACKGROUND LAYERING (CRITICAL - 3 LEVELS) */
+  /* Level 1: Page Background */
+  --bg-primary: #0B1220;
+  /* Level 2: Card Background */
+  --bg-card: #111827;
+  /* Level 3: Inner Card / Section Background */
+  --bg-tertiary: #1F2937;
+  
+  /* Secondary/Alt variants */
+  --bg-secondary: #111827;
+  --bg-card-alt: #0F172A;
+
+  /* TEXT COLORS - STRONG CONTRAST (NO WASHED OUT TEXT) */
+  --text-primary: #E5E7EB;     /* Strong, primary text */
+  --text-secondary: #9CA3AF;   /* Secondary information */
+  --text-muted: #6B7280;       /* Use sparingly only */
+  --text-inverted: #0B1220;
+
+  /* BORDERS - HIGH VISIBILITY */
+  /* Subtle but visible border for card separation */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-light: #1F2937;
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  /* DECISION COLORS - HIGH CONTRAST, INTENTIONAL */
+  /* Buy - Green */
+  --color-buy: #10B981;
+  --color-buy-bg: #064E3B;
+  --color-buy-text: #A7F3D0;
+  --color-buy-light: #064E3B;
+
+  /* Sell - Red */
+  --color-sell: #EF4444;
+  --color-sell-bg: #7F1D1D;
+  --color-sell-text: #FECACA;
+  --color-sell-light: #7F1D1D;
+
+  /* Hold - Amber */
+  --color-hold: #F59E0B;
+  --color-hold-bg: #78350F;
+  --color-hold-text: #FCD34D;
+  --color-hold-light: #78350F;
+
+  /* UTILITY COLORS - INTENTIONAL & READABLE */
+  --color-info: #3B82F6;
+  --color-info-bg: #1E3A8A;
+  --color-info-text: #93C5FD;
+
+  --color-warning: #F59E0B;
+  --color-warning-bg: #78350F;
+  --color-warning-text: #FCD34D;
+
+  --color-success: #22C55E;
+  --color-success-bg: #064E3B;
+  --color-success-text: #86EFAC;
+
+  /* SIDEBAR - IMPROVED HIERARCHY */
+  --sidebar-bg: #0B1220;
+  --sidebar-text: #E5E7EB;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  /* Active item with blue accent */
+  --sidebar-active-bg: #1F2937;
+  --sidebar-active-text: #93C5FD;
+  --sidebar-active-border: #3B82F6;
+  --sidebar-hover-bg: #1F2937;
+
+  /* INPUT FIELDS - READABLE */
+  --input-bg: #111827;
+  --input-text: #E5E7EB;
+  --input-border: rgba(255, 255, 255, 0.08);
+  --input-border-focus: #3B82F6;
+  --input-placeholder: #9CA3AF;
+
+  /* BUTTONS - INTENTIONAL SYSTEM */
+  /* Primary: Blue fintech button */
+  --btn-primary-bg: #3B82F6;
+  --btn-primary-text: #FFFFFF;
+  --btn-primary-hover: #2563EB;
+
+  /* Success: Green for add/positive actions */
+  --btn-success-bg: #22C55E;
+  --btn-success-text: #FFFFFF;
+  --btn-success-hover: #16A34A;
+
+  /* Secondary: Outline style */
+  --btn-secondary-bg: transparent;
+  --btn-secondary-text: #E5E7EB;
+  --btn-secondary-border: rgba(255, 255, 255, 0.08);
+  --btn-secondary-hover: #1F2937;
+
+  /* ALLOCATION / PROGRESS COLORS - HIGH CONTRAST */
+  --allocation-30: #3B82F6;
+  --allocation-20: #60A5FA;
+  --allocation-12: #06B6D4;
+  --allocation-6: #10B981;
+  --allocation-below: #6B7280;
+
+  /* BANNER / HERO - SOFTER GREEN (not too flashy) */
+  --banner-bg: #065F46;
+  --banner-text: #FFFFFF;
+
+  /* SHADOW - DEEPER FOR DEPTH */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px 0 rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 24px 0 rgba(0, 0, 0, 0.5);
+
+  /* TRANSITIONS */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+}
+
+/* ============================================
+   BASE STYLES USING THEME VARIABLES
+   ============================================ */
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* Cards */
+.card,
+[class*="Card"] {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Input Fields */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+select,
+textarea {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+input[type="text"]::placeholder,
+input[type="number"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+textarea::placeholder {
+  color: var(--input-placeholder);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+}
+
+/* Buttons */
+button,
+[role="button"] {
+  transition: all var(--transition-fast);
+  font-weight: 600;
+  border-radius: 0.5rem;
+}
+
+.btn-primary,
+[class*="primary"] > button {
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: none;
+}
+
+.btn-primary:hover,
+[class*="primary"] > button:hover {
+  background-color: var(--btn-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary,
+[class*="secondary"] > button {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 1px solid var(--btn-secondary-border);
+}
+
+.btn-secondary:hover,
+[class*="secondary"] > button:hover {
+  background-color: var(--btn-secondary-hover);
+}
+
+/* Status Badges */
+.badge-buy,
+[class*="buy"] {
+  background-color: var(--color-buy-bg);
+  color: var(--color-buy-text);
+  border: 1px solid var(--color-buy);
+}
+
+.badge-sell,
+[class*="sell"] {
+  background-color: var(--color-sell-bg);
+  color: var(--color-sell-text);
+  border: 1px solid var(--color-sell);
+}
+
+.badge-hold,
+[class*="hold"] {
+  background-color: var(--color-hold-bg);
+  color: var(--color-hold-text);
+  border: 1px solid var(--color-hold);
+}
+
+/* Tables */
+table {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border-collapse: collapse;
+}
+
+th {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+tr:hover {
+  background-color: var(--bg-secondary);
+}
+
+/* Links */
+a {
+  color: var(--color-info);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-info);
+  text-decoration: underline;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}

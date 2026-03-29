@@ -13,7 +13,7 @@ jest.mock('axios', () => ({
 test('renders dashboard heading', () => {
   window.history.pushState({}, '', '/');
   render(<App />);
-  expect(screen.getByText(/ai investor dashboard/i)).toBeInTheDocument();
+  expect(screen.getByText(/arthasanket/i)).toBeInTheDocument();
 });
 
 test('renders opportunity radar route content', async () => {

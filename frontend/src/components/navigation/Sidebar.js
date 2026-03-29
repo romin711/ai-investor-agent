@@ -24,22 +24,28 @@ export const navItems = [
 
 function Sidebar() {
   return (
-    <aside className="hidden w-72 shrink-0 border-r border-slate-200/80 bg-white/75 p-6 backdrop-blur-md dark:border-slate-800 dark:bg-[#0F1D24]/70 lg:block">
-      <div className="mb-8 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white/75 px-3 py-3 dark:border-slate-700 dark:bg-slate-900/45">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F766E] text-white shadow-md">
-          <span className="text-lg font-bold">AI</span>
+    <aside className="sticky top-0 hidden h-screen w-56 shrink-0 overflow-y-auto border-r border-white/10 bg-[#0B1220] lg:block">
+      <div className="p-4">
+        <div className="mb-8 flex items-center gap-3 rounded-2xl border border-white/10 bg-[#111827] px-3 py-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F766E] text-white shadow-md">
+            <span className="text-lg font-bold">AI</span>
+          </div>
+          <div>
+            <p className="text-base font-semibold text-[#E5E7EB]">
+              Arthasanket
+            </p>
+            <p className="text-xs whitespace-nowrap text-secondary">
+              Decision Terminal
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-base font-semibold text-slate-900 dark:text-slate-100">InvestAI Cloud</p>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Decision Terminal</p>
-        </div>
-      </div>
 
-      <nav className="space-y-2">
-        {navItems.map((item) => (
-          <SidebarItem key={item.to} to={item.to} label={item.label} Icon={item.Icon} />
-        ))}
-      </nav>
+        <nav className="space-y-2">
+          {navItems.map((item) => (
+            <SidebarItem key={item.to} to={item.to} label={item.label} Icon={item.Icon} />
+          ))}
+        </nav>
+      </div>
     </aside>
   );
 }

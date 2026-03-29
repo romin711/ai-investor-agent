@@ -80,6 +80,18 @@ function getDecisionVisual(decision, confidence) {
   };
 }
 
+function getSelectedRingClass(decision) {
+  if (decision === 'BUY') {
+    return 'ring-emerald-500/70';
+  }
+
+  if (decision === 'SELL') {
+    return 'ring-rose-500/70';
+  }
+
+  return 'ring-amber-500/70';
+}
+
 function formatOptionalCurrency(value, symbol = '') {
   const numeric = toFiniteNumber(value);
   if (numeric === null) {
@@ -111,23 +123,36 @@ function formatComputedPercent(value) {
 }
 
 function formatSignedComputedPercent(value) {
-  const formatted = formatComputedPercent(value);
-  return formatted === 'N/A' ? 'N/A' : `+${formatted}`;
+  const numeric = toFiniteNumber(value);
+  if (numeric === null) {
+    return 'N/A';
+  }
+  return `${numeric >= 0 ? '+' : ''}${numeric.toFixed(2)}%`;
 }
 
-function computeExecutionPlanMetrics(executionPlan, currentPrice) {
+function computeExecutionPlanMetrics(executionPlan, currentPrice, action = 'BUY') {
   const entryLow = toFiniteNumber(executionPlan?.entryRangeLow);
   const entryHigh = toFiniteNumber(executionPlan?.entryRangeHigh) ?? entryLow;
+  const entryPrice = toFiniteNumber(executionPlan?.entryPrice);
   const stopLoss = toFiniteNumber(executionPlan?.stopLoss);
   const target1 = toFiniteNumber(executionPlan?.targetPrice);
   const target2 = target1 !== null ? target1 * 1.02 : null;
-  const referencePrice = toFiniteNumber(currentPrice) ?? entryLow;
+  const entryMid = entryLow !== null && entryHigh !== null ? (entryLow + entryHigh) / 2 : null;
+  const referencePrice = entryPrice ?? entryMid ?? entryLow ?? toFiniteNumber(currentPrice);
+  const direction = String(action || 'BUY').toUpperCase() === 'SELL' ? -1 : 1;
 
-  const pctChange = (delta, denominator) => {
+  const pctChangeAbs = (delta, denominator) => {
     if (!Number.isFinite(delta) || !Number.isFinite(denominator) || denominator <= 0) {
       return null;
     }
     return Math.abs((delta / denominator) * 100);
+  };
+
+  const pctChangeSigned = (delta, denominator) => {
+    if (!Number.isFinite(delta) || !Number.isFinite(denominator) || denominator <= 0) {
+      return null;
+    }
+    return ((delta / denominator) * 100) * direction;
   };
 
   return {
@@ -138,19 +163,19 @@ function computeExecutionPlanMetrics(executionPlan, currentPrice) {
     target2,
     entryRangePct:
       entryLow !== null && entryHigh !== null && referencePrice !== null
-        ? pctChange(entryHigh - entryLow, referencePrice)
+        ? pctChangeAbs(entryHigh - entryLow, referencePrice)
         : null,
     maxLossPct:
       stopLoss !== null && referencePrice !== null
-        ? pctChange(referencePrice - stopLoss, referencePrice)
+        ? pctChangeAbs(referencePrice - stopLoss, referencePrice)
         : null,
     target1UpsidePct:
       target1 !== null && referencePrice !== null
-        ? pctChange(target1 - referencePrice, referencePrice)
+        ? pctChangeSigned(target1 - referencePrice, referencePrice)
         : null,
     target2UpsidePct:
       target2 !== null && referencePrice !== null
-        ? pctChange(target2 - referencePrice, referencePrice)
+        ? pctChangeSigned(target2 - referencePrice, referencePrice)
         : null,
   };
 }
@@ -266,8 +291,37 @@ function ChartsPage() {
     if (!selectedExecutionPlan || !selectedTracked) {
       return null;
     }
-    return computeExecutionPlanMetrics(selectedExecutionPlan, selectedTracked.priceNumeric);
+    return computeExecutionPlanMetrics(selectedExecutionPlan, selectedTracked.priceNumeric, selectedTracked.decision);
   }, [selectedExecutionPlan, selectedTracked]);
+
+  const liveSupportResistance = useMemo(() => {
+    if (!selectedTracked) {
+      return { supportDistancePct: null, resistanceDistancePct: null };
+    }
+
+    const livePrice = toFiniteNumber(selectedTracked.priceNumeric);
+    const support = toFiniteNumber(selectedTracked.supportResistance?.support);
+    const resistance = toFiniteNumber(selectedTracked.supportResistance?.resistance);
+
+    if (livePrice === null || livePrice <= 0) {
+      return {
+        supportDistancePct: toFiniteNumber(selectedTracked.supportResistance?.supportDistancePct),
+        resistanceDistancePct: toFiniteNumber(selectedTracked.supportResistance?.resistanceDistancePct),
+      };
+    }
+
+    const pctFromPrice = (level) => {
+      if (level === null) {
+        return null;
+      }
+      return ((livePrice - level) / livePrice) * 100;
+    };
+
+    return {
+      supportDistancePct: pctFromPrice(support),
+      resistanceDistancePct: pctFromPrice(resistance),
+    };
+  }, [selectedTracked]);
 
   const chartSeries = useMemo(() => {
     if (!selectedTracked) {
@@ -297,10 +351,10 @@ function ChartsPage() {
     <div className="space-y-6">
       <section className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <h1 className="text-3xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
             Price Charts
           </h1>
-          <p className="mt-2 text-base text-slate-600 dark:text-slate-400">
+          <p className="mt-2 text-base" style={{ color: 'var(--text-muted)' }}>
             Real-time candlestick charts with technical analysis signals
           </p>
         </div>
@@ -308,7 +362,7 @@ function ChartsPage() {
         {!hasLiveData ? (
           <Card>
             <div className="py-8 text-center">
-              <p className="text-slate-600 dark:text-slate-400">
+              <p style={{ color: 'var(--text-muted)' }}>
                 No portfolio analysis available. Add stocks and run analysis to view charts.
               </p>
             </div>
@@ -318,10 +372,10 @@ function ChartsPage() {
             <Card>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
                     Select Stock for Chart
                   </h2>
-                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                  <p className="mt-1 text-sm" style={{ color: 'var(--text-muted)' }}>
                     Click a stock card to view its price action chart
                   </p>
                 </div>
@@ -330,6 +384,7 @@ function ChartsPage() {
               <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                 {trackedStocks.map((stock) => {
                   const isSelected = stock.symbol === selectedTracked?.symbol;
+                  const selectedRingClass = getSelectedRingClass(stock.decision);
 
                   return (
                     <button
@@ -338,15 +393,22 @@ function ChartsPage() {
                       onClick={() => setSelectedSymbol(stock.symbol)}
                       className={`rounded-2xl border px-4 py-3 text-left transition-all duration-200 ${
                         isSelected
-                          ? `${stock.decisionVisual.border} ring-2 ring-[#0F766E]`
-                          : `${stock.decisionVisual.stockBorder} border bg-white/80 dark:bg-slate-900/60`
+                          ? `border ${stock.decisionVisual.stockBorder} ring-2 ${selectedRingClass}`
+                          : `${stock.decisionVisual.stockBorder} border`
                       }`}
+                      style={isSelected ? {
+                        backgroundColor: 'var(--bg-card)',
+                        color: 'var(--text-primary)'
+                      } : {
+                        backgroundColor: 'var(--bg-card-alt)',
+                        color: 'var(--text-primary)'
+                      }}
                     >
-                      <p className="font-semibold text-slate-900 dark:text-slate-100">
+                      <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>
                         {stock.symbol}
                       </p>
                       <div className="mt-2 flex items-baseline justify-between gap-2">
-                        <p className="text-sm text-slate-700 dark:text-slate-300">
+                        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                           {stock.price}
                         </p>
                         <p className={`text-sm font-semibold ${
@@ -384,8 +446,13 @@ function ChartsPage() {
                     className={`rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-colors duration-200 ${
                       showChartSignals
                         ? 'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700/60 dark:bg-blue-900/25 dark:text-blue-300'
-                        : 'border-slate-300 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+                        : 'border'
                     }`}
+                    style={!showChartSignals ? {
+                      borderColor: 'var(--border)',
+                      backgroundColor: 'var(--bg-card)',
+                      color: 'var(--text-primary)'
+                    } : {}}
                   >
                     {showChartSignals ? 'Signals On' : 'Signals Off'}
                   </button>
@@ -396,36 +463,36 @@ function ChartsPage() {
             {selectedTracked && (
               <Card>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
                     Technical Metrics
                   </h3>
                   <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600 dark:text-slate-400">
+                    <div className="rounded-lg border p-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-card-alt)' }}>
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--text-muted)' }}>
                         RSI (14)
                       </p>
-                      <p className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">
+                      <p className="mt-2 text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
                         {selectedTracked.rsi !== null ? Math.round(selectedTracked.rsi) : 'N/A'}
                       </p>
                     </div>
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600 dark:text-slate-400">
+                    <div className="rounded-lg border p-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-card-alt)' }}>
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--text-muted)' }}>
                         MA20
                       </p>
-                      <p className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">
+                      <p className="mt-2 text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
                         {selectedTracked.ma20 !== null ? formatOptionalCurrency(selectedTracked.ma20) : 'N/A'}
                       </p>
                     </div>
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600 dark:text-slate-400">
+                    <div className="rounded-lg border p-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-card-alt)' }}>
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--text-muted)' }}>
                         MA50
                       </p>
-                      <p className="mt-2 text-lg font-bold text-slate-900 dark:text-slate-100">
+                      <p className="mt-2 text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
                         {selectedTracked.ma50 !== null ? formatOptionalCurrency(selectedTracked.ma50) : 'N/A'}
                       </p>
                     </div>
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-600 dark:text-slate-400">
+                    <div className="rounded-lg border p-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-card-alt)' }}>
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--text-muted)' }}>
                         Decision
                       </p>
                       <p className={`mt-2 text-lg font-bold ${
@@ -442,29 +509,29 @@ function ChartsPage() {
                   </div>
 
                   <div className="mt-6">
-                    <h4 className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-600 dark:text-slate-300">
+                    <h4 className="text-sm font-semibold uppercase tracking-[0.14em]" style={{ color: 'var(--text-muted)' }}>
                       Action Plan Metrics
                     </h4>
 
                     {selectedExecutionPlan && selectedExecutionMetrics ? (
                       <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-                        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
-                          <p className="text-xs text-slate-500 dark:text-slate-400">Entry Range</p>
-                          <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        <div className="rounded-lg border p-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-card-alt)' }}>
+                          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Entry Range</p>
+                          <p className="mt-1 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                             {formatOptionalCurrency(selectedExecutionMetrics.entryLow)} - {formatOptionalCurrency(selectedExecutionMetrics.entryHigh)}
                           </p>
-                          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                            {formatComputedPercent(selectedExecutionMetrics.entryRangePct)} range
+                          <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+                            {formatComputedPercent(selectedExecutionMetrics.entryRangePct)} range (from planned entry)
                           </p>
                         </div>
 
-                        <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 dark:border-rose-900/40 dark:bg-rose-900/20">
-                          <p className="text-xs text-rose-600 dark:text-rose-400">Stop Loss</p>
-                          <p className="mt-1 text-sm font-semibold text-rose-700 dark:text-rose-300">
+                        <div className="rounded-lg border p-3" style={{ borderColor: 'var(--color-sell-bg)', backgroundColor: 'var(--color-sell-light)' }}>
+                          <p className="text-xs" style={{ color: 'var(--color-sell-text)' }}>Stop Loss</p>
+                          <p className="mt-1 text-sm font-semibold" style={{ color: 'var(--color-sell-text)' }}>
                             {formatOptionalCurrency(selectedExecutionMetrics.stopLoss)}
                           </p>
                           <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">
-                            Max loss: {formatComputedPercent(selectedExecutionMetrics.maxLossPct)}
+                            Max loss: {formatComputedPercent(selectedExecutionMetrics.maxLossPct)} from planned entry
                           </p>
                         </div>
 
@@ -474,7 +541,7 @@ function ChartsPage() {
                             {formatOptionalCurrency(selectedExecutionMetrics.target1)}
                           </p>
                           <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
-                            {formatSignedComputedPercent(selectedExecutionMetrics.target1UpsidePct)} upside
+                            {formatSignedComputedPercent(selectedExecutionMetrics.target1UpsidePct)} {selectedTracked.decision === 'SELL' ? 'move' : 'upside'} from planned entry
                           </p>
                         </div>
 
@@ -484,40 +551,40 @@ function ChartsPage() {
                             {formatOptionalCurrency(selectedExecutionMetrics.target2)}
                           </p>
                           <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
-                            {formatSignedComputedPercent(selectedExecutionMetrics.target2UpsidePct)} upside
+                            {formatSignedComputedPercent(selectedExecutionMetrics.target2UpsidePct)} {selectedTracked.decision === 'SELL' ? 'move' : 'upside'} from planned entry
                           </p>
                         </div>
                       </div>
                     ) : (
-                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                      <p className="mt-2 text-sm text-[#9CA3AF]">
                         No execution plan found for this symbol. Run Opportunity Radar to populate plan metrics.
                       </p>
                     )}
                   </div>
 
                   <div className="mt-6">
-                    <h4 className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-600 dark:text-slate-300">
+                    <h4 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">
                       Pattern Intelligence
                     </h4>
 
                     <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Support</p>
-                        <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      <div className="rounded-lg border border-[#334155] bg-[#0F172A] p-3">
+                        <p className="text-xs text-[#9CA3AF]">Support</p>
+                        <p className="mt-1 text-sm font-semibold text-[#F3F4F6]">
                           {formatOptionalCurrency(selectedTracked.supportResistance?.support)}
                         </p>
-                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                          Distance: {formatComputedPercent(selectedTracked.supportResistance?.supportDistancePct)}
+                        <p className="mt-1 text-xs text-[#9CA3AF]">
+                          Distance: {formatComputedPercent(liveSupportResistance.supportDistancePct)}
                         </p>
                       </div>
 
-                      <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Resistance</p>
-                        <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      <div className="rounded-lg border border-[#334155] bg-[#0F172A] p-3">
+                        <p className="text-xs text-[#9CA3AF]">Resistance</p>
+                        <p className="mt-1 text-sm font-semibold text-[#F3F4F6]">
                           {formatOptionalCurrency(selectedTracked.supportResistance?.resistance)}
                         </p>
-                        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-                          Distance: {formatComputedPercent(selectedTracked.supportResistance?.resistanceDistancePct)}
+                        <p className="mt-1 text-xs text-[#9CA3AF]">
+                          Distance: {formatComputedPercent(liveSupportResistance.resistanceDistancePct)}
                         </p>
                       </div>
                     </div>
@@ -529,36 +596,36 @@ function ChartsPage() {
                             key={pattern.pattern}
                             className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold capitalize ${pattern.detected
                               ? 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800/60 dark:bg-emerald-900/25 dark:text-emerald-300'
-                              : 'border-slate-300 bg-slate-100 text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'}`}
+                              : 'border-[#334155] bg-[#111827] text-[#9CA3AF]'}`}
                           >
                             {pattern.label} {pattern.detected ? 'detected' : 'inactive'}
                           </span>
                         ))
                       ) : (
-                        <span className="text-sm text-slate-500 dark:text-slate-400">No pattern intelligence available.</span>
+                        <span className="text-sm text-[#9CA3AF]">No pattern intelligence available.</span>
                       )}
                     </div>
 
                     {selectedTracked.patternBacktests.length ? (
-                      <div className="mt-3 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
-                        <table className="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-700">
-                          <thead className="bg-slate-50 dark:bg-slate-900/60">
+                      <div className="mt-3 overflow-x-auto rounded-lg border border-[#334155]">
+                        <table className="min-w-full divide-y divide-[#334155] text-sm">
+                          <thead className="bg-[#111827]">
                             <tr>
-                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Pattern</th>
-                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Direction</th>
-                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Success</th>
-                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Samples</th>
-                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Horizon</th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">Pattern</th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">Direction</th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">Success</th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">Samples</th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">Horizon</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-700 dark:bg-slate-900/40">
+                          <tbody className="divide-y divide-[#334155] bg-[#0F172A]">
                             {selectedTracked.patternBacktests.map((item) => (
                               <tr key={item.pattern}>
-                                <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{item.label}</td>
-                                <td className="px-3 py-2 capitalize text-slate-600 dark:text-slate-300">{item.direction}</td>
-                                <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{formatComputedPercent(item.successRate)}</td>
-                                <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{item.samples ?? 0}</td>
-                                <td className="px-3 py-2 text-slate-700 dark:text-slate-200">{item.horizonDays ?? '--'}d</td>
+                                <td className="px-3 py-2 text-[#E5E7EB]">{item.label}</td>
+                                <td className="px-3 py-2 capitalize text-[#9CA3AF]">{item.direction}</td>
+                                <td className="px-3 py-2 text-[#E5E7EB]">{formatComputedPercent(item.successRate)}</td>
+                                <td className="px-3 py-2 text-[#E5E7EB]">{item.samples ?? 0}</td>
+                                <td className="px-3 py-2 text-[#E5E7EB]">{item.horizonDays ?? '--'}d</td>
                               </tr>
                             ))}
                           </tbody>

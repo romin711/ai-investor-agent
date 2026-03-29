@@ -5,6 +5,6 @@
   "description": "Node.js market data backend for AI investor dashboard",
   "scripts": {
     "start": "node server.js",
-    "test": "node tests/marketContextService.test.js && node tests/opportunityRadarApi.test.js && node tests/performanceService.test.js"
+    "test": "node tests/signalEngineModel.test.js && node tests/decisionEngineWeightedModel.test.js && node tests/marketContextService.test.js && node tests/opportunityRadarApi.test.js && node tests/performanceService.test.js && node tests/signalOutcomeService.test.js"
   }
 }

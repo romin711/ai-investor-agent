@@ -1,8 +1,11 @@
 const { analyzePortfolio, normalizePortfolioRows } = require('./pipeline');
 const fs = require('fs');
 const path = require('path');
-const { getMarketContextForSymbol } = require('./marketContextService');
+const { getMarketContextForSymbol, getMarketContextMode } = require('./marketContextService');
 const { getNseUniverseRows, getNseUniverseSymbols } = require('./nseUniverseService');
+const signalEngine = require('./signalEngine');
+
+const SIGNAL_DIVERSITY_WARN_LOGS = String(process.env.SIGNAL_DIVERSITY_WARN_LOGS || 'false').toLowerCase() === 'true';
 
 const HISTORY_FILE_PATH = path.join(__dirname, '..', 'storage', 'opportunity_radar_history.json');
 const MAX_HISTORY_ITEMS = 120;
@@ -119,6 +122,149 @@ function buildSignalItem(result) {
     momentumPercent: momentum,
   };
 }
+
+function computeVolumeSpikeStrength(historical) {
+  // FIXED: Return conservative value with warning for insufficient data (no defaults)
+  if (!Array.isArray(historical) || historical.length < 22) {
+    // Used to return 0.4; now return 0 and let caller handle
+    return 0; // Insufficient volume data; treat as zero signal
+  }
+
+  const volumes = historical
+    .map((bar) => toFiniteNumber(bar?.volume))
+    .filter((value) => value !== null && value > 0);
+
+  if (volumes.length < 22) {
+    // Used to return 0.4; now return 0 (no fabricated signal)
+    return 0;
+  }
+
+  const latest = volumes[volumes.length - 1];
+  const prior = volumes.slice(-21, -1);
+  const avg = prior.reduce((sum, value) => sum + value, 0) / prior.length;
+  if (!Number.isFinite(avg) || avg <= 0) {
+    // Used to return 0.4; now return 0 (no fabricated signal)
+    return 0;
+  }
+
+  const spikeRatio = (latest / avg) - 1;
+  return clamp(spikeRatio / 0.5, 0, 1);
+}
+
+function computeTrendStrength(symbolResult, enrichedSignal) {
+  // FIXED: Remove trend uplift bias (0.55 for trends, 0.2 for neutral was inflating confidence)
+  const trend = String(enrichedSignal?.trend || symbolResult?.trend || 'neutral').toLowerCase();
+  const price = toFiniteNumber(symbolResult?.price);
+  const ma50 = toFiniteNumber(symbolResult?.ma50);
+  const trendDistance = (Number.isFinite(price) && Number.isFinite(ma50) && ma50 > 0)
+    ? Math.abs((price - ma50) / ma50)
+    : 0;
+
+  if (trend === 'uptrend' || trend === 'downtrend') {
+    // Reduced from 0.55 baseline to 0.0 baseline; confidence should come from distance only
+    return clamp(trendDistance * 6, 0, 1);
+  }
+
+  // Neutral trend: reduced from 0.2 baseline to 0.0 baseline
+  // Confidence should come from actual data, not bias toward neutral
+  return clamp(trendDistance * 3, 0, 0.7);
+}
+
+function computeMomentumStrength(symbolResult, enrichedSignal) {
+  const momentum = toFiniteNumber(enrichedSignal?.momentumPercent ?? symbolResult?.momentum_percent) || 0;
+  return clamp(Math.abs(momentum) / 3, 0, 1);
+}
+
+function computeVolatilitySignal(symbolResult) {
+  // FIXED: Remove artificial preference for 1.2% volatility
+  // Return neutral signal based on actual volatility without bias
+  const volatility = Math.abs(toFiniteNumber(symbolResult?.volatility_percent) || 0);
+  
+  // Map volatility to signal: 
+  // Very low (<0.3%) = lower confidence, Low (0.3-2%) = good, High (>2%) = caution
+  if (volatility < 0.3) {
+    return 0.3; // Very low volatility reduces signal significance
+  }
+  if (volatility > 3) {
+    return 0.4; // Very high volatility introduces uncertainty
+  }
+  
+  // Normal range (0.3-3%) gets moderate signal; no artificial uplift
+  return clamp(volatility / 3, 0.4, 0.8);
+}
+
+function classifySignalDecision(symbolResult, enrichedSignal) {
+  const rsi = toFiniteNumber(enrichedSignal?.rsi ?? symbolResult?.rsi);
+  const trend = String(enrichedSignal?.trend || symbolResult?.trend || 'neutral').toLowerCase();
+  const trendStrength = trend === 'uptrend' ? 0.8 : trend === 'downtrend' ? -0.8 : 0;
+  const volatilityPct = Math.abs(toFiniteNumber(symbolResult?.volatility_percent) || 0);
+  const volatility = volatilityPct / 100;
+
+  const features = {
+    rsi,
+    trendStrength,
+    volatility,
+    momentum: toFiniteNumber(enrichedSignal?.momentumPercent ?? symbolResult?.momentum_percent),
+    confidence: 1,
+  };
+
+  const patterns = {
+    type: String(enrichedSignal?.patternType || enrichedSignal?.signalType || ''),
+    label: String(enrichedSignal?.patternLabel || ''),
+  };
+
+  const modelResult = signalEngine.generateRawSignal(features, [], patterns, {
+    historical: symbolResult?.historical || [],
+    dataQualityScore: 1,
+  });
+
+  const explanation = modelResult?.explanation || {};
+  const reasoning = Array.isArray(explanation?.reasoning)
+    ? explanation.reasoning.slice(0, 3)
+    : [];
+  const warnings = Array.isArray(explanation?.warnings)
+    ? explanation.warnings.slice(0, 2)
+    : [];
+
+  return {
+    type: modelResult.rawSignal || 'HOLD',
+    confidence: modelResult.confidence,
+    reasons: reasoning,
+    label: modelResult.label || 'No Edge',
+    summary: String(modelResult?.summary || explanation?.summary || modelResult.reason || 'No trade edge identified'),
+    factors: Array.isArray(modelResult?.factorsStructured)
+      ? modelResult.factorsStructured.slice(0, 3)
+      : [],
+    reasoning,
+    interpretation: String(modelResult?.interpretation || explanation?.interpretation || 'No trade setup — waiting for confirmation'),
+    action: String(modelResult?.action || explanation?.action || 'No trade — wait for breakout or reversal confirmation'),
+    warnings,
+    score: modelResult.score,
+    probability: modelResult.probability,
+    hasConflict: modelResult.hasConflict,
+    factorScores: modelResult.factors,
+  };
+}
+
+function buildSignalStats(alerts = []) {
+  const safeAlerts = Array.isArray(alerts) ? alerts : [];
+  const buyCount = safeAlerts.filter((alert) => String(alert?.action || '') === 'BUY').length;
+  const sellCount = safeAlerts.filter((alert) => String(alert?.action || '') === 'SELL').length;
+  const holdCount = safeAlerts.filter((alert) => String(alert?.action || '') === 'HOLD').length;
+  const totalSignals = safeAlerts.length;
+  const holdRatio = totalSignals > 0 ? holdCount / totalSignals : 0;
+  return {
+    totalSignals,
+    buyCount,
+    sellCount,
+    holdCount,
+    holdRatio: Number(holdRatio.toFixed(4)),
+  };
+}
+
+// NOTE: rebalanceDirectionalQuota removed (Phase 2 refactoring).
+// Quota logic was forcing action conversions post-signal (ANTIPATTERN).
+// Action decisions now come from pure technical signals + execution policies only.
 
 function enrichWithPortfolioContext(signal, portfolioAnalysis) {
   const overexposedSectors = Array.isArray(portfolioAnalysis?.overexposedSectors)
@@ -297,28 +443,19 @@ function buildActionableAlert(enrichedSignal, symbolResult, options = {}) {
     || null;
 
   const fallbackBreakout = backtestBreakoutSuccessRate(symbolResult?.historical || []);
-  const backtestSuccessRate = toFiniteNumber(selectedPatternBacktest?.successRate) ?? fallbackBreakout.successRate;
+  const backtestSuccessRateRaw = toFiniteNumber(selectedPatternBacktest?.successRate) ?? fallbackBreakout.successRate;
   const backtestSamples = Number(selectedPatternBacktest?.samples || fallbackBreakout.breakoutSamples || 0);
   const backtestHorizon = Number(selectedPatternBacktest?.horizonDays || fallbackBreakout.horizon || 0);
   const backtestLookback = Number(selectedPatternBacktest?.lookbackDays || fallbackBreakout.lookback || 0);
   const backtestPattern = String(selectedPatternBacktest?.pattern || 'breakout');
-  const confidence = toFiniteNumber(symbolResult?.confidence);
-  const decision = String(symbolResult?.decision || 'HOLD').toUpperCase();
+  const hasMeaningfulBacktestSample = backtestSamples >= 30;
+  const backtestSuccessRate = hasMeaningfulBacktestSample ? backtestSuccessRateRaw : null;
+  const signalDecision = options?.signalDecision || classifySignalDecision(symbolResult, enrichedSignal);
+  const action = String(signalDecision?.type || 'HOLD').toUpperCase();
+  const confidence01 = toFiniteNumber(signalDecision?.confidence);
+  const confidence = confidence01 === null ? null : confidence01 * 100;
 
-  let action = decision;
-  if (enrichedSignal.signalType === 'no-clear-signal' && confidence !== null && confidence < 30) {
-    action = 'HOLD';
-  }
-
-  const explanationParts = [
-    `Signal ${enrichedSignal.signalType.replace(/-/g, ' ')} detected for ${enrichedSignal.symbol}.`,
-    `Trend is ${enrichedSignal.trend}.`,
-    enrichedSignal.rsi === null ? 'RSI unavailable.' : `RSI is ${enrichedSignal.rsi.toFixed(2)}.`,
-    backtestSuccessRate === null
-      ? 'Insufficient history to compute pattern success rate.'
-      : `Historical ${backtestPattern.replace(/-/g, ' ')} success rate: ${backtestSuccessRate}% over ${backtestSamples} samples.`,
-    `Portfolio sector exposure for this symbol is ${enrichedSignal.sectorExposurePercent.toFixed(1)}%.`,
-  ];
+  const summary = String(signalDecision?.summary || 'No trade edge identified');
 
   const exposurePenalty = Math.min(30, Math.max(0, Math.round((enrichedSignal.sectorExposurePercent - 25) * 1.2)));
   const breakoutBonus = backtestSuccessRate === null ? 0 : Math.round(backtestSuccessRate / 8);
@@ -336,14 +473,48 @@ function buildActionableAlert(enrichedSignal, symbolResult, options = {}) {
         ? 'Moderate concentration: use staged entries and tight risk controls.'
         : 'Low concentration: portfolio has room for measured exposure.';
 
-        const selectedRiskProfile = normalizeRiskProfile(options?.riskProfile);
-        const executionPlan = buildExecutionPlan(action, confidence, symbolResult, enrichedSignal, selectedRiskProfile);
+  const selectedRiskProfile = normalizeRiskProfile(options?.riskProfile);
+  const executionPlan = action === 'HOLD'
+    ? null
+    : buildExecutionPlan(action, confidence, symbolResult, enrichedSignal, selectedRiskProfile);
+
+  const contextMode = String(enrichedSignal?.marketContext?.provenance?.mode || getMarketContextMode());
+  const contextSource = String(enrichedSignal?.marketContext?.provenance?.source || 'none');
 
   return {
     symbol: enrichedSignal.symbol,
     resolvedSymbol: enrichedSignal.resolvedSymbol,
     action,
     confidence: confidence === null ? null : Math.round(confidence),
+    signalDecision: {
+      type: action,
+      confidence: confidence01 === null ? null : Number(confidence01.toFixed(4)),
+      reasons: Array.isArray(signalDecision?.reasons) ? signalDecision.reasons : [],
+      label: signalDecision?.label || null,
+      summary,
+      factors: Array.isArray(signalDecision?.factors) ? signalDecision.factors.slice(0, 3) : [],
+      reasoning: Array.isArray(signalDecision?.reasoning) ? signalDecision.reasoning.slice(0, 3) : [],
+      interpretation: String(signalDecision?.interpretation || 'No trade setup — waiting for confirmation'),
+      action: String(signalDecision?.action || (action === 'HOLD' ? 'No trade — wait for breakout or reversal confirmation' : 'Await confirmation before execution')),
+      warnings: Array.isArray(signalDecision?.warnings) ? signalDecision.warnings.slice(0, 2) : [],
+      score: Number.isFinite(signalDecision?.score) ? Number(signalDecision.score.toFixed(4)) : null,
+      probability: Number.isFinite(signalDecision?.probability) ? Number(signalDecision.probability.toFixed(4)) : null,
+      hasConflict: Boolean(signalDecision?.hasConflict),
+      explanation: {
+        signal: action,
+        confidence: confidence01 === null ? null : Number(confidence01.toFixed(4)),
+        label: signalDecision?.label || null,
+        score: Number.isFinite(signalDecision?.score) ? Number(signalDecision.score.toFixed(4)) : null,
+        probability: Number.isFinite(signalDecision?.probability) ? Number(signalDecision.probability.toFixed(4)) : null,
+        summary,
+        factors: Array.isArray(signalDecision?.factors) ? signalDecision.factors.slice(0, 3) : [],
+        drivers: Array.isArray(signalDecision?.reasons) ? signalDecision.reasons.slice(0, 3) : [],
+        reasoning: Array.isArray(signalDecision?.reasoning) ? signalDecision.reasoning.slice(0, 3) : [],
+        warnings: Array.isArray(signalDecision?.warnings) ? signalDecision.warnings.slice(0, 2) : [],
+        interpretation: String(signalDecision?.interpretation || 'No trade setup — waiting for confirmation'),
+        action: String(signalDecision?.action || (action === 'HOLD' ? 'No trade — wait for breakout or reversal confirmation' : 'Await confirmation before execution')),
+      },
+    },
     signalType: enrichedSignal.signalType,
     patternType: enrichedSignal.patternType,
     patternLabel: enrichedSignal.patternLabel,
@@ -359,7 +530,11 @@ function buildActionableAlert(enrichedSignal, symbolResult, options = {}) {
     riskProfile: selectedRiskProfile,
     portfolioRelevance,
     contextSignals: Array.isArray(enrichedSignal?.marketContext?.events) ? enrichedSignal.marketContext.events : [],
-    explanation: explanationParts.join(' '),
+    marketContextProvenance: {
+      mode: contextMode,
+      source: contextSource,
+    },
+    explanation: summary,
     riskFlags: [
       enrichedSignal.sectorExposurePercent >= 35 ? 'high-sector-concentration' : null,
       enrichedSignal.rsi !== null && enrichedSignal.rsi > 75 ? 'overbought' : null,
@@ -369,7 +544,9 @@ function buildActionableAlert(enrichedSignal, symbolResult, options = {}) {
       'Yahoo Finance chart API',
       'In-house indicator pipeline (MA/RSI/momentum)',
       'Portfolio exposure engine',
-      'Market context events (filings/results/deals)',
+      contextMode === 'static-context-events'
+        ? 'Static market context events (local file)'
+        : 'No static market context enrichment',
     ],
   };
 }
@@ -566,6 +743,8 @@ function buildAlphaEvidence(alerts, portfolioAnalysis) {
 async function runOpportunityRadar(inputRows, options = {}) {
   const normalizedRows = normalizePortfolioRows(inputRows);
   const selectedRiskProfile = normalizeRiskProfile(options?.riskProfile);
+  const scanScope = options?.scanScope || 'portfolio';
+  const isScannerMode = scanScope === 'nse-universe' || scanScope === 'scanner';
 
   // Step 1: detect signals from current market + indicators.
   const portfolioAnalysis = await analyzePortfolio(normalizedRows, {
@@ -574,33 +753,81 @@ async function runOpportunityRadar(inputRows, options = {}) {
 
   const signalList = (portfolioAnalysis.results || []).map((result) => buildSignalItem(result));
 
-  // Step 2: enrich each signal with portfolio context.
-  const enrichedSignals = signalList.map((signal) => enrichWithPortfolioContext(signal, portfolioAnalysis));
+  // Step 2: enrich each signal with portfolio context (only in portfolio mode).
+  // FIXED: Scanner mode should not apply sector exposure penalties
+  const enrichedSignals = isScannerMode
+    ? signalList.map((signal) => ({
+      ...signal,
+      sectorExposurePercent: 0, // Scanner mode: no portfolio context, use zero exposure
+      overexposedSectors: [],
+      portfolioInsight: 'Scanner mode: no portfolio context',
+      sectorAllocation: {},
+      marketContext: getMarketContextForSymbol(signal.resolvedSymbol),
+    }))
+    : signalList.map((signal) => enrichWithPortfolioContext(signal, portfolioAnalysis));
 
-  // Step 3: generate actionable alerts with explainability + sources.
-  const alerts = enrichedSignals.map((signal) => {
-    const symbolResult = (portfolioAnalysis.results || []).find((item) => item.symbol === signal.symbol);
-    return buildActionableAlert(signal, symbolResult || {}, {
-      riskProfile: selectedRiskProfile,
-    });
+  // Step 3: generate confidence-scored directional decisions.
+  const signalContexts = enrichedSignals.map((signal) => {
+    const symbolResult = (portfolioAnalysis.results || []).find((item) => item.symbol === signal.symbol) || {};
+    const signalDecision = classifySignalDecision(symbolResult, signal);
+    return {
+      enrichedSignal: signal,
+      symbolResult,
+      signalDecision,
+    };
   });
 
-  // Generate AI-powered portfolio insights
-  const portfolioInsight = generatePortfolioInsights(portfolioAnalysis, alerts, normalizedRows);
-  const alphaEvidence = buildAlphaEvidence(alerts, portfolioAnalysis);
+  // NOTE: Quota rebalancing removed (Phase 2 refactoring).
+  // Action decisions now reflect pure technical signals + execution policies.
+  const balancedContexts = signalContexts;
+
+  // Step 5: generate actionable alerts with explainability + sources.
+  const alerts = balancedContexts.map((context) => buildActionableAlert(
+    context.enrichedSignal,
+    context.symbolResult,
+    {
+      riskProfile: selectedRiskProfile,
+      signalDecision: context.signalDecision,
+    }
+  ));
+
+  // Mandatory diversity check for demo reliability.
+  const buyCount = alerts.filter((alert) => alert?.action === 'BUY').length;
+  const sellCount = alerts.filter((alert) => alert?.action === 'SELL').length;
+  const holdCount = alerts.filter((alert) => alert?.action === 'HOLD').length;
+  if (SIGNAL_DIVERSITY_WARN_LOGS && (buyCount === 0 || sellCount === 0 || holdCount === 0)) {
+    // eslint-disable-next-line no-console
+    console.warn('NO SIGNAL DIVERSITY — CHECK INPUT DISTRIBUTION');
+  }
+
+  const signalStats = buildSignalStats(alerts);
+
+  // Generate portfolio insights (only in portfolio mode)
+  // FIXED: Scanner mode should not generate portfolio-level insights
+  const portfolioInsight = isScannerMode
+    ? { mode: 'scanner', message: 'Portfolio insights N/A in scanner mode' }
+    : generatePortfolioInsights(portfolioAnalysis, alerts, normalizedRows);
+  const alphaEvidence = isScannerMode ? [] : buildAlphaEvidence(alerts, portfolioAnalysis);
 
   const payload = {
     workflow: [
       'detect_signal',
-      'enrich_with_portfolio_context',
+      isScannerMode ? 'skip_portfolio_enrichment' : 'enrich_with_portfolio_context',
       'generate_actionable_alert',
     ],
     autonomous: true,
     riskProfile: selectedRiskProfile,
     portfolioInsight,
     alphaEvidence,
+    signalStats,
     generatedAt: new Date().toISOString(),
-    scanScope: options?.scanScope || 'portfolio',
+    scanScope,
+    analysisMode: isScannerMode ? 'scanner' : 'portfolio',
+    dataProvenance: {
+      priceData: 'Yahoo Finance chart API + NSE quote (when available)',
+      indicatorData: 'computed from live historical candles',
+      marketContext: getMarketContextMode(),
+    },
     portfolioRows: normalizedRows,
     alerts,
   };

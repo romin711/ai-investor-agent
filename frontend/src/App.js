@@ -9,6 +9,7 @@ import OpportunityRadarPage from './pages/OpportunityRadarPage';
 import PortfolioPage from './pages/PortfolioPage';
 import SettingsPage from './pages/SettingsPage';
 import ValidationDashboard from './pages/ValidationDashboard';
+import './theme.css';
 
 function App() {
   return (

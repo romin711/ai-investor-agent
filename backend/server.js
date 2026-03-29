@@ -6,10 +6,16 @@ const { analyzeSingleSymbol, analyzePortfolio, normalizePortfolioRows } = requir
 const { runOpportunityRadar, runOpportunityRadarForUniverse, getOpportunityRadarHistory } = require('./engine/opportunityAgent');
 const { createRadarScheduler } = require('./engine/radarScheduler');
 const { runMarketChatAgent } = require('./engine/marketChatAgent');
-const { getSession: getMarketChatSession, upsertTurn: upsertMarketChatTurn } = require('./engine/marketChatMemoryStore');
+const {
+  getSession: getMarketChatSession,
+  getSessionContext: getMarketChatSessionContext,
+  upsertTurn: upsertMarketChatTurn,
+} = require('./engine/marketChatMemoryStore');
+const { recordPredictions, evaluatePendingPredictions } = require('./engine/marketChatOutcomeTracker');
 const { getValidationMetrics, getStrategyPerformance } = require('./engine/performanceService');
 const { synchronizeSignalOutcomes } = require('./engine/signalOutcomeService');
 const { getMarketSummary, fetchFinancialNews } = require('./engine/marketIntelService');
+const { getMarketContextMode } = require('./engine/marketContextService');
 const {
   getFinancialHealthScore,
   getFinancialEvents,
@@ -17,6 +23,7 @@ const {
   fetchNSEInsiderData,
   fetchNewsData,
   aggregateFinancialSignals,
+  getFinancialDataMode,
 } = require('./engine/financialDataService');
 const { analyzeFinancialSignal, updateAlertLifecycle } = require('./engine/financialAnalyzer');
 
@@ -61,12 +68,24 @@ const PORT = Number(process.env.PORT || 3001);
 const HOST = process.env.HOST || '127.0.0.1';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
-const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
 const RADAR_AUTORUN_ENABLED = String(process.env.RADAR_AUTORUN_ENABLED || 'false').toLowerCase() === 'true';
 const RADAR_AUTORUN_INTERVAL_MINUTES = Number(process.env.RADAR_AUTORUN_INTERVAL_MINUTES || 720);
 const RADAR_AUTORUN_RISK_PROFILE = String(process.env.RADAR_AUTORUN_RISK_PROFILE || 'moderate').toLowerCase();
 const RADAR_AUTORUN_UNIVERSE_LIMIT = Number(process.env.RADAR_AUTORUN_UNIVERSE_LIMIT || 0);
+const MARKET_CHAT_LOG_LEVEL = String(process.env.MARKET_CHAT_LOG_LEVEL || 'error').toLowerCase();
+
+const MARKET_CHAT_LOG_RANK = {
+  silent: 0,
+  error: 1,
+  warn: 2,
+  info: 3,
+};
+
+function shouldLogMarketChat(level) {
+  const configuredRank = MARKET_CHAT_LOG_RANK[MARKET_CHAT_LOG_LEVEL] ?? MARKET_CHAT_LOG_RANK.error;
+  const eventRank = MARKET_CHAT_LOG_RANK[String(level || '').toLowerCase()] ?? MARKET_CHAT_LOG_RANK.info;
+  return eventRank <= configuredRank;
+}
 
 function withCorsHeaders(headers = {}) {
   return {
@@ -80,6 +99,33 @@ function withCorsHeaders(headers = {}) {
 function sendJson(res, statusCode, payload) {
   res.writeHead(statusCode, withCorsHeaders({ 'Content-Type': 'application/json' }));
   res.end(JSON.stringify(payload));
+}
+
+function createRequestId() {
+  return `mc_req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function logMarketChatEvent(level, payload) {
+  if (!shouldLogMarketChat(level)) {
+    return;
+  }
+
+  const line = JSON.stringify({
+    event: 'market_chat',
+    level,
+    timestamp: new Date().toISOString(),
+    ...payload,
+  });
+
+  if (level === 'error') {
+    console.error(line);
+    return;
+  }
+  if (level === 'warn') {
+    console.warn(line);
+    return;
+  }
+  console.log(line);
 }
 
 function normalizeSymbol(rawSymbol) {
@@ -184,7 +230,11 @@ const server = http.createServer(async (req, res) => {
     const pathname = url.pathname || '/';
 
     if (req.method === 'GET' && pathname === '/health') {
-      sendJson(res, 200, { ok: true, service: 'indian-investor-decision-engine' });
+      sendJson(res, 200, {
+        ok: true,
+        service: 'indian-investor-decision-engine',
+        marketContextMode: getMarketContextMode(),
+      });
       return;
     }
 
@@ -297,7 +347,42 @@ const server = http.createServer(async (req, res) => {
 
       const liveOutcomes = await synchronizeSignalOutcomes(history);
       const metrics = getValidationMetrics(alerts, liveOutcomes);
-      sendJson(res, 200, metrics);
+      sendJson(res, 200, {
+        ...metrics,
+        apiDataMode: {
+          validationMetrics: 'strict-live-outcomes-only',
+        },
+      });
+      return;
+    }
+
+    if (req.method === 'GET' && pathname === '/api/validation/readiness') {
+      const alerts = [];
+      const history = getOpportunityRadarHistory(100);
+      history.forEach((run) => {
+        if (Array.isArray(run.alerts)) {
+          alerts.push(...run.alerts);
+        }
+      });
+
+      const liveOutcomes = await synchronizeSignalOutcomes(history);
+      const metrics = getValidationMetrics(alerts, liveOutcomes);
+
+      sendJson(res, 200, {
+        generatedAt: metrics.generatedAt,
+        dataProvenance: metrics.dataProvenance,
+        reliability: metrics.reliability,
+        tradingReadiness: metrics.tradingReadiness,
+        snapshot: {
+          signalCount: metrics.signalCount,
+          liveOutcomeCount: metrics.liveOutcomeCount,
+          hitRate: metrics.hitRate,
+          hitRateCI95: metrics.hitRateCI95,
+          sharpeRatio: metrics.sharpeRatio,
+          maxDrawdown: metrics.maxDrawdown,
+          outperformancePct: metrics?.baselineComparison?.outperformancePct,
+        },
+      });
       return;
     }
 
@@ -337,6 +422,8 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && pathname === '/api/agent/market-chat') {
+      const requestStartedAt = Date.now();
+      const requestId = createRequestId();
       const payload = await readJsonBody(req);
       const question = String(payload?.question || '').trim();
       const sessionId = String(payload?.sessionId || '').trim();
@@ -360,16 +447,26 @@ const server = http.createServer(async (req, res) => {
       const latestRun = history?.[0] || null;
       const latestAlerts = Array.isArray(latestRun?.alerts) ? latestRun.alerts : [];
       const session = sessionId ? getMarketChatSession(sessionId) : null;
+      const sessionContext = sessionId ? getMarketChatSessionContext(sessionId, question) : null;
+
+      const agentLogger = (level, detail) => {
+        logMarketChatEvent(level, {
+          requestId,
+          sessionId,
+          detail,
+        });
+      };
 
       const result = await runMarketChatAgent(question, {
         geminiApiKey: GEMINI_API_KEY,
         geminiModel: GEMINI_MODEL,
-        openaiApiKey: OPENAI_API_KEY,
-        openaiModel: OPENAI_MODEL,
         portfolioRows: rows,
         latestAlerts,
         latestScan: latestRun,
-        sessionTurns: Array.isArray(session?.turns) ? session.turns : [],
+        sessionTurns: Array.isArray(sessionContext?.turns) ? sessionContext.turns : (Array.isArray(session?.turns) ? session.turns.slice(-3) : []),
+        conversationSummary: String(sessionContext?.summarizedHistory || '').trim(),
+        requestId,
+        logger: agentLogger,
       });
 
       const saved = upsertMarketChatTurn(sessionId, {
@@ -382,12 +479,49 @@ const server = http.createServer(async (req, res) => {
         model: result.model,
         aiErrorCode: result.aiErrorCode,
         decisionIntel: result.decisionIntel,
+        scoreBreakdown: result.scoreBreakdown,
+        confidenceReasoning: result.confidenceReasoning,
+        riskFactors: result.riskFactors,
+        fallbackUsed: result.fallbackUsed,
+        errorCode: result.errorCode,
+      });
+
+      const predictionRecord = recordPredictions({
+        requestId,
+        sessionId: saved.sessionId,
+        generatedAt: result.generatedAt,
+        predictionSignals: result.predictionSignals,
+      });
+
+      let evaluation = { evaluatedCount: 0, performance: predictionRecord.performance };
+      try {
+        evaluation = await evaluatePendingPredictions();
+      } catch (error) {
+        logMarketChatEvent('warn', {
+          requestId,
+          sessionId: saved.sessionId,
+          message: 'outcome_evaluation_failed',
+          error: error?.message || 'unknown_error',
+        });
+      }
+
+      const latencyMs = Date.now() - requestStartedAt;
+      logMarketChatEvent('info', {
+        requestId,
+        sessionId: saved.sessionId,
+        latencyMs,
+        stepTimings: result?.telemetry?.stepTimings || {},
+        geminiStatus: result?.telemetry?.geminiStatus || 'unknown',
+        fallbackUsed: Boolean(result?.fallbackUsed),
+        errorCode: result?.errorCode || null,
       });
 
       sendJson(res, 200, {
         ...result,
+        requestId,
         sessionId: saved.sessionId,
         turnCount: Array.isArray(saved.session?.turns) ? saved.session.turns.length : 0,
+        evaluation,
       });
       return;
     }
@@ -417,6 +551,7 @@ const server = http.createServer(async (req, res) => {
       }
       try {
         const events = await getFinancialEventsEnhanced(symbol);
+        const financialDataMode = getFinancialDataMode();
         const credibilityWeights = {
           REGULATORY: 1.0,
           OFFICIAL: 0.85,
@@ -445,7 +580,10 @@ const server = http.createServer(async (req, res) => {
           recentEventCount: events.length,
           topEvents: events.slice(0, 5),
           aggregatedPatterns,
-          dataSource: 'Enhanced Real Data (NSE + News + Filings)',
+          dataSource: financialDataMode.includeMockData
+            ? 'Enhanced Data (NSE + News + Demo Fallbacks)'
+            : 'Enhanced Real Data (NSE + News + Filings)',
+          dataMode: financialDataMode,
           generatedAt: new Date().toISOString(),
         });
       } catch (error) {
@@ -464,11 +602,15 @@ const server = http.createServer(async (req, res) => {
       try {
         // Use enhanced version that includes real API data
         const events = await getFinancialEventsEnhanced(symbol);
+        const financialDataMode = getFinancialDataMode();
         sendJson(res, 200, {
           symbol,
           events,
           count: events.length,
-          dataSource: 'Enhanced Real Data (NSE + News + Filings)',
+          dataSource: financialDataMode.includeMockData
+            ? 'Enhanced Data (NSE + News + Demo Fallbacks)'
+            : 'Enhanced Real Data (NSE + News + Filings)',
+          dataMode: financialDataMode,
           generatedAt: new Date().toISOString(),
         });
       } catch (error) {
@@ -536,8 +678,15 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    // NEW: Backtest runner for sample size building (Week 4)
+    // Synthetic backtest runner (disabled by default in real-data mode).
     if (req.method === 'POST' && pathname === '/api/backtest/run') {
+      if (String(process.env.ENABLE_SYNTHETIC_BACKTEST || '').toLowerCase() !== 'true') {
+        sendJson(res, 403, {
+          error: 'Synthetic backtest generation is disabled. Set ENABLE_SYNTHETIC_BACKTEST=true only for demo/testing environments.',
+        });
+        return;
+      }
+
       try {
         let body = '';
         req.on('data', chunk => { body += chunk.toString(); });
@@ -581,6 +730,7 @@ const server = http.createServer(async (req, res) => {
               const outcome = {
                 signalId: `${symbol}-${i}-${Date.now()}`,
                 symbol,
+                synthetic: true,
                 action: ['BUY', 'SELL', 'HOLD'][Math.floor(Math.random() * 3)],
                 entryPrice: (Math.random() * 1000 + 100),
                 exitPrice: null, // Will be filled on exit

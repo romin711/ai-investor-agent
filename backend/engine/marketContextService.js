@@ -2,6 +2,9 @@ const fs = require('fs');
 const path = require('path');
 
 const MARKET_CONTEXT_PATH = path.join(__dirname, 'market_context_events.json');
+const USE_STATIC_MARKET_CONTEXT = ['1', 'true', 'yes', 'on'].includes(
+  String(process.env.USE_STATIC_MARKET_CONTEXT || '').trim().toLowerCase()
+);
 
 let cachedContext = null;
 
@@ -103,6 +106,17 @@ function recencyWeight(ageDays) {
 }
 
 function getMarketContextForSymbol(symbol) {
+  if (!USE_STATIC_MARKET_CONTEXT) {
+    return {
+      events: [],
+      contextScore: 0,
+      provenance: {
+        mode: 'strict-real-only',
+        source: 'none',
+      },
+    };
+  }
+
   const map = loadContextMap();
   const key = String(symbol || '').toUpperCase();
   const events = Array.isArray(map[key]) ? map[key] : [];
@@ -139,9 +153,18 @@ function getMarketContextForSymbol(symbol) {
   return {
     events: normalizedEvents,
     contextScore: Number(contextScore.toFixed(2)),
+    provenance: {
+      mode: 'static-context-events',
+      source: 'market_context_events.json',
+    },
   };
+}
+
+function getMarketContextMode() {
+  return USE_STATIC_MARKET_CONTEXT ? 'static-context-events' : 'strict-real-only';
 }
 
 module.exports = {
   getMarketContextForSymbol,
+  getMarketContextMode,
 };

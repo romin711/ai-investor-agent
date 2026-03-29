@@ -14,6 +14,14 @@ function envFlag(name, defaultValue = false) {
 }
 
 const USE_MOCK_FINANCIAL_DATA = envFlag('USE_MOCK_FINANCIAL_DATA', false);
+const FINANCIAL_DATA_TRACE_LOGS = envFlag('FINANCIAL_DATA_TRACE_LOGS', false);
+
+function getFinancialDataMode() {
+  return {
+    includeMockData: USE_MOCK_FINANCIAL_DATA,
+    mode: USE_MOCK_FINANCIAL_DATA ? 'real-plus-mock-demo' : 'strict-real-only',
+  };
+}
 
 // Cache layer for API responses (avoid excessive API calls)
 const dataCache = new Map();
@@ -671,7 +679,9 @@ async function fetchNSEInsiderData(symbol) {
     const cacheKey = `nse-insider-${symbol}`;
     
     return getCachedOrFetch(cacheKey, async () => {
-      console.log(`[NSE API] Fetching insider trades for ${symbol}...`);
+      if (FINANCIAL_DATA_TRACE_LOGS) {
+        console.log(`[NSE API] Fetching insider trades for ${symbol}...`);
+      }
       
       // Placeholder for real NSE API call
       // Future: Use NSE REST API or web scraping from bulk deals report
@@ -698,13 +708,17 @@ async function fetchNewsData(symbol, newsApiKey = null) {
   try {
     // If no API key, skip news fetching
     if (!newsApiKey) {
-      console.log(`[NewsAPI] Skipping - no API key provided. Set NEWSAPI_KEY env variable.`);
+      if (FINANCIAL_DATA_TRACE_LOGS) {
+        console.log(`[NewsAPI] Skipping - no API key provided. Set NEWSAPI_KEY env variable.`);
+      }
       return { symbol, articles: [], note: 'NewsAPI disabled without key' };
     }
 
     const cacheKey = `news-${symbol}`;
     return getCachedOrFetch(cacheKey, async () => {
-      console.log(`[NewsAPI] Fetching news for ${symbol}...`);
+      if (FINANCIAL_DATA_TRACE_LOGS) {
+        console.log(`[NewsAPI] Fetching news for ${symbol}...`);
+      }
       
       // Parse symbol (e.g., "TCS.NS" -> "TCS")
       const cleanSymbol = symbol.split('.')[0];
@@ -715,7 +729,9 @@ async function fetchNewsData(symbol, newsApiKey = null) {
       const response = await fetch(newsUrl, { headers });
       
       if (!response.ok) {
-        console.warn(`[NewsAPI] Status ${response.status} for ${symbol}`);
+        if (FINANCIAL_DATA_TRACE_LOGS) {
+          console.warn(`[NewsAPI] Status ${response.status} for ${symbol}`);
+        }
         return { symbol, articles: [], news_error: true };
       }
 
@@ -964,4 +980,5 @@ module.exports = {
   fetchNewsData,
   fetchSECFilings,
   getFinancialEventsEnhanced,
+  getFinancialDataMode,
 };

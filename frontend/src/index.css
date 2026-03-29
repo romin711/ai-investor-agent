@@ -6,12 +6,20 @@
 
 @layer base {
   :root {
-    --app-bg: #f2f6f5;
-    --app-surface: #ffffff;
-    --app-text: #14202a;
-    --app-muted: #4a5a67;
-    --app-accent: #0f766e;
-    --app-accent-2: #ea580c;
+    /* Dark mode colors (only mode) */
+    --app-bg: #0B1220;
+    --app-surface: #111827;
+    --app-text: #E5E7EB;
+    --app-muted: #9CA3AF;
+    --app-accent: #3B82F6;
+    --app-buy: #22C55E;
+    --app-sell: #EF4444;
+    --app-hold: #F59E0B;
+    
+    /* Strict text color system - Dark Mode */
+    --text-primary: #E5E7EB;
+    --text-secondary: #9CA3AF;
+    --text-muted: #6B7280;
   }
 
   * {
@@ -40,17 +48,25 @@
     transition: background-color 200ms ease-in-out, color 200ms ease-in-out;
   }
 
-  .dark body {
-    background: #0b1418;
-    color: #d9e4ea;
-  }
-
   #root {
     min-height: 100vh;
   }
 }
 
 @layer components {
+  /* Strict text color utilities */
+  .text-primary {
+    color: var(--text-primary);
+  }
+
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+
+  .text-muted {
+    color: var(--text-muted);
+  }
+
   .ripple-btn {
     position: relative;
     overflow: hidden;
@@ -79,16 +95,6 @@
   }
 
   .app-atmosphere {
-    background-image:
-      radial-gradient(circle at 10% -10%, rgba(15, 118, 110, 0.2), transparent 42%),
-      radial-gradient(circle at 85% 5%, rgba(234, 88, 12, 0.16), transparent 34%),
-      linear-gradient(160deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.35));
-  }
-
-  .dark .app-atmosphere {
-    background-image:
-      radial-gradient(circle at 10% -10%, rgba(13, 148, 136, 0.2), transparent 45%),
-      radial-gradient(circle at 85% 0%, rgba(249, 115, 22, 0.14), transparent 38%),
-      linear-gradient(160deg, rgba(11, 20, 24, 0.65), rgba(11, 20, 24, 0.55));
+    background-color: var(--app-bg);
   }
 }

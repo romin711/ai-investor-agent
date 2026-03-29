@@ -9,55 +9,79 @@ venv/
 env/
 ENV/
 
-# Environment and local config
-.env
-.env.*
-
-# Build and packaging artifacts
+# Python tooling/build artifacts
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.tox/
+.nox/
+.pyre/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
 build/
 dist/
 *.egg-info/
 .eggs/
+pip-wheel-metadata/
 
-# Frontend dependencies and build output
-frontend/node_modules/
+# Environment and local config
+.env
+.env.*
+!.env.example
+!**/.env.example
+!.env.sample
+!**/.env.sample
+.envrc
+
+# Node dependencies and build output
+**/node_modules/
 frontend/build/
+backend/dist/
+frontend/dist/
 
-# Backend dependencies
-backend/node_modules/
+# Node/framework caches
+**/.cache/
+**/.parcel-cache/
+**/.next/
+**/.nuxt/
+**/.svelte-kit/
+**/.vite/
 
 # Node/Jest runtime artifacts
 npm-debug.log*
+yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 .eslintcache
-frontend/.cache/
-frontend/coverage/
-backend/coverage/
-
-# Tooling caches
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-coverage.xml
-htmlcov/
+**/coverage/
+*.tsbuildinfo
 
 # Notebook checkpoints
 .ipynb_checkpoints/
 
 # Logs
 *.log
+*.pid
 
 # Generated documentation artifacts
 AI_Investor_Agent_Report.docx
 *.docx
 
-# Backend runtime data
+# Runtime/generated storage data
+ai_investor_agent/storage/portfolio_store.json
 backend/storage/opportunity_radar_history.json
+backend/storage/market_chat_outcomes.json
+backend/storage/market_chat_sessions.json
+backend/storage/signal_outcomes.json
 
 # IDE/editor files
 .vscode/
 .idea/
+.codex
+.codex/
 
 # OS files
 .DS_Store

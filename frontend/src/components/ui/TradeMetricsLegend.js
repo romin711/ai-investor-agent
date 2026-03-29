@@ -47,7 +47,7 @@ function TradeMetricsLegend() {
                 <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                   {metric.label}
                 </p>
-                <p className="mt-1 text-xs text-gray-600 dark:text-slate-400">
+                <p className="mt-1 text-xs text-secondary">
                   {metric.description}
                 </p>
                 <p className="mt-1 text-xs font-mono text-slate-700 dark:text-slate-300">

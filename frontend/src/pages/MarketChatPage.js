@@ -156,7 +156,7 @@ function riskToneClass(level) {
   if (safe === 'high') return 'text-rose-700 dark:text-rose-300';
   if (safe === 'moderate' || safe === 'medium') return 'text-amber-700 dark:text-amber-300';
   if (safe === 'low') return 'text-emerald-700 dark:text-emerald-300';
-  return 'text-slate-600 dark:text-slate-300';
+  return 'text-[#9CA3AF]';
 }
 
 function MarketChatPage() {
@@ -168,11 +168,6 @@ function MarketChatPage() {
 
   const promptIdeas = useMemo(() => examplePrompts(), []);
   const totalTurns = Math.max(0, Math.floor(sessionTurns.length / 2));
-
-  const latestAssistantMessage = useMemo(() => {
-    const reversed = [...sessionTurns].reverse();
-    return reversed.find((item) => item?.role === 'assistant') || null;
-  }, [sessionTurns]);
 
   const handleAsk = async (event) => {
     event.preventDefault();
@@ -261,21 +256,21 @@ function MarketChatPage() {
     <div className="space-y-5">
       <Card className="relative overflow-hidden p-0" interactive={false}>
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_8%_8%,rgba(15,118,110,0.18),transparent_40%),radial-gradient(circle_at_88%_16%,rgba(30,64,175,0.14),transparent_38%)]" />
-        <div className="relative border-b border-slate-200/80 px-5 py-4 dark:border-slate-700/70">
+        <div className="relative border-b border-[#334155] px-5 py-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">AI Advisor</p>
-              <h2 className="mt-1 text-xl font-bold text-slate-900 dark:text-slate-100">Portfolio Decision Assistant</h2>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#9CA3AF]">AI Advisor</p>
+              <h2 className="mt-1 text-xl font-bold text-[#F3F4F6]">Portfolio Decision Assistant</h2>
             </div>
             <div className="text-right">
-              <p className="text-xs text-slate-500 dark:text-slate-400">{summarizeProvider(response)}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Turns: {totalTurns}</p>
+              <p className="text-xs text-[#9CA3AF]">{summarizeProvider(response)}</p>
+              <p className="text-xs text-[#9CA3AF]">Turns: {totalTurns}</p>
             </div>
           </div>
         </div>
 
         <div className="grid gap-0 lg:grid-cols-10">
-          <section className="lg:col-span-7 border-b border-slate-200/80 p-5 dark:border-slate-700/70 lg:border-b-0 lg:border-r">
+          <section className="lg:col-span-7 border-b border-[#334155] p-5 lg:border-b-0 lg:border-r">
             <form onSubmit={handleAsk} className="space-y-3">
               <div className="flex gap-2">
                 <input
@@ -283,12 +278,12 @@ function MarketChatPage() {
                   value={question}
                   onChange={(event) => setQuestion(event.target.value)}
                   placeholder="Ask for a decision, risk adjustment, or symbol priority"
-                  className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-800 outline-none transition-all duration-200 focus:border-[#0F766E] focus:shadow-[0_0_0_3px_rgba(15,118,110,0.15)] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                  className="h-11 w-full rounded-xl border border-[#334155] bg-[#0B1220] px-3 text-sm text-[#E5E7EB] outline-none transition-all duration-200 focus:border-[#3B82F6] focus:shadow-[0_0_0_3px_rgba(59,130,246,0.18)]"
                 />
                 <button
                   type="submit"
                   disabled={isAskingMarketChat}
-                  className="h-11 rounded-xl bg-[#0F766E] px-4 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-65"
+                  className="h-11 rounded-xl bg-[#3B82F6] px-4 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#2563EB] hover:shadow-lg disabled:opacity-65"
                 >
                   {isAskingMarketChat ? 'Asking...' : 'Ask'}
                 </button>
@@ -300,7 +295,7 @@ function MarketChatPage() {
                     key={item}
                     type="button"
                     onClick={() => setQuestion(item)}
-                    className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#0F766E] hover:text-[#0F766E] dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                    className="rounded-full border border-[#334155] bg-[#111827] px-3 py-1 text-xs font-medium text-[#CBD5E1] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#3B82F6] hover:text-[#E5E7EB]"
                   >
                     {item}
                   </button>
@@ -312,20 +307,20 @@ function MarketChatPage() {
                   value={sessionId}
                   onChange={(event) => setSessionId(event.target.value)}
                   placeholder="Session ID"
-                  className="h-9 w-52 rounded-lg border border-slate-300 bg-white px-3 text-xs outline-none dark:border-slate-700 dark:bg-slate-900"
+                  className="h-9 w-52 rounded-lg border border-[#334155] bg-[#0B1220] px-3 text-xs text-[#E5E7EB] outline-none"
                 />
                 <button
                   type="button"
                   onClick={handleLoadSession}
                   disabled={!sessionId}
-                  className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                  className="h-9 rounded-lg border border-[#334155] bg-[#111827] px-3 text-xs font-semibold text-[#CBD5E1] transition-all duration-200 hover:-translate-y-0.5 disabled:opacity-60"
                 >
                   Load
                 </button>
                 <button
                   type="button"
                   onClick={handleNewSession}
-                  className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs font-semibold text-slate-700 transition-all duration-200 hover:-translate-y-0.5 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                  className="h-9 rounded-lg border border-[#334155] bg-[#111827] px-3 text-xs font-semibold text-[#CBD5E1] transition-all duration-200 hover:-translate-y-0.5"
                 >
                   New
                 </button>
@@ -346,29 +341,29 @@ function MarketChatPage() {
                   <article
                     key={`${turn.role}-${index}`}
                     className={`rounded-2xl border p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${isAssistant
-                      ? 'border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/40 dark:bg-emerald-900/15'
-                      : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/50'}`}
+                      ? 'border-emerald-500/30 bg-emerald-900/12'
+                      : 'border-[#334155] bg-[#0F172A]'}`}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">
                         {isAssistant ? 'AI Advisor' : 'You'}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{formatTime(turn.createdAt)}</p>
+                      <p className="text-xs text-[#9CA3AF]">{formatTime(turn.createdAt)}</p>
                     </div>
 
                     {isAssistant ? (
                       <div className="mt-3 space-y-3">
                         <div>
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Primary Signal</p>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">Primary Signal</p>
                           <p className="mt-1 text-sm font-semibold text-emerald-700 dark:text-emerald-300">{structured.primarySignal}</p>
                         </div>
                         <div>
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Answer</p>
-                          <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-slate-100">{structured.answer}</p>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">Answer</p>
+                          <p className="mt-1 text-sm font-semibold text-[#E5E7EB]">{structured.answer}</p>
                         </div>
                         {structured.why.length ? (
                           <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Why</p>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">Why</p>
                             <ul className="mt-1 space-y-1 text-sm text-slate-700 dark:text-slate-200">
                               {structured.why.map((item, whyIndex) => (
                                 <li key={`why-${whyIndex}`} className="leading-6">• {item}</li>
@@ -378,7 +373,7 @@ function MarketChatPage() {
                         ) : null}
                         {structured.action.length ? (
                           <div>
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Action</p>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">Action</p>
                             <ul className="mt-1 space-y-1 text-sm text-slate-700 dark:text-slate-200">
                               {structured.action.map((item, actionIndex) => (
                                 <li key={`action-${actionIndex}`} className="leading-6">• {item}</li>
@@ -388,29 +383,29 @@ function MarketChatPage() {
                         ) : null}
                       </div>
                     ) : (
-                      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-700 dark:text-slate-200">{turn.content}</p>
+                      <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#E5E7EB]">{turn.content}</p>
                     )}
                   </article>
                 );
               }) : (
-                <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-900/40">
-                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Ask one focused question to get a direct portfolio decision.</p>
+                <div className="rounded-2xl border border-dashed border-[#334155] bg-[#0F172A] p-8 text-center">
+                  <p className="text-sm font-semibold text-[#E5E7EB]">Ask one focused question to get a direct portfolio decision.</p>
                 </div>
               )}
             </div>
           </section>
 
           <aside className="lg:col-span-3 p-5">
-            <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Decision Intelligence</h3>
+            <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">Decision Intelligence</h3>
 
             <div className="mt-3 space-y-3">
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900/60">
-                <p className="text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Overall Decision</p>
+              <div className="rounded-2xl border border-[#334155] bg-[#0F172A] p-4">
+                <p className="text-xs uppercase tracking-[0.14em] text-[#9CA3AF]">Overall Decision</p>
                 <div className="mt-2 flex items-center justify-between">
                   <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${decisionToneClass(decisionIntel?.overallDecision)}`}>
                     {String(decisionIntel?.overallDecision || 'HOLD').toUpperCase()}
                   </span>
-                  <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  <span className="text-sm font-semibold text-[#F3F4F6]">
                     {decisionIntel?.confidencePercent === null || decisionIntel?.confidencePercent === undefined
                       ? 'N/A'
                       : `${decisionIntel.confidencePercent}%`}
@@ -418,51 +413,51 @@ function MarketChatPage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900/60">
-                <p className="text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Key Signals</p>
+              <div className="rounded-2xl border border-[#334155] bg-[#0F172A] p-4">
+                <p className="text-xs uppercase tracking-[0.14em] text-[#9CA3AF]">Key Signals</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {(Array.isArray(decisionIntel?.keySignals) ? decisionIntel.keySignals : []).length
                     ? decisionIntel.keySignals.map((signal) => (
-                      <span key={signal} className="rounded-full border border-slate-300 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
+                      <span key={signal} className="rounded-full border border-[#334155] bg-[#111827] px-2.5 py-1 text-[11px] font-semibold text-[#CBD5E1]">
                         {signal}
                       </span>
                     ))
-                    : <span className="text-xs text-slate-500 dark:text-slate-400">No key signals yet.</span>}
+                    : <span className="text-xs text-[#9CA3AF]">No key signals yet.</span>}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900/60">
-                <p className="text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Portfolio Risk</p>
+              <div className="rounded-2xl border border-[#334155] bg-[#0F172A] p-4">
+                <p className="text-xs uppercase tracking-[0.14em] text-[#9CA3AF]">Portfolio Risk</p>
                 <p className={`mt-2 text-sm font-semibold ${riskToneClass(decisionIntel?.portfolioRisk?.riskLevel)}`}>
                   Sector risk: {String(decisionIntel?.portfolioRisk?.riskLevel || 'unknown').toUpperCase()}
                 </p>
-                <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                <p className="mt-1 text-xs text-[#9CA3AF]">
                   Max sector exposure: {decisionIntel?.portfolioRisk?.sectorExposurePercent === null || decisionIntel?.portfolioRisk?.sectorExposurePercent === undefined
                     ? 'N/A'
                     : `${Number(decisionIntel.portfolioRisk.sectorExposurePercent).toFixed(1)}%`}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900/60">
-                <p className="text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Next Best Action</p>
-                <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-200">{String(decisionIntel?.nextBestAction || 'No action recommendation yet.')}</p>
+              <div className="rounded-2xl border border-[#334155] bg-[#0F172A] p-4">
+                <p className="text-xs uppercase tracking-[0.14em] text-[#9CA3AF]">Next Best Action</p>
+                <p className="mt-2 text-sm leading-6 text-[#E5E7EB]">{String(decisionIntel?.nextBestAction || 'No action recommendation yet.')}</p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900/60">
-                <p className="text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Risk Level</p>
+              <div className="rounded-2xl border border-[#334155] bg-[#0F172A] p-4">
+                <p className="text-xs uppercase tracking-[0.14em] text-[#9CA3AF]">Risk Level</p>
                 <p className={`mt-2 text-sm font-semibold ${riskToneClass(String(decisionIntel?.riskLevel || '').toLowerCase())}`}>
                   {String(decisionIntel?.riskLevel || 'Medium')}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900/60">
-                <p className="text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Alternative Strategy</p>
-                <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-200">{String(decisionIntel?.alternativeStrategy || 'No alternative strategy yet.')}</p>
+              <div className="rounded-2xl border border-[#334155] bg-[#0F172A] p-4">
+                <p className="text-xs uppercase tracking-[0.14em] text-[#9CA3AF]">Alternative Strategy</p>
+                <p className="mt-2 text-sm leading-6 text-[#E5E7EB]">{String(decisionIntel?.alternativeStrategy || 'No alternative strategy yet.')}</p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900/60">
-                <p className="text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Market Sentiment</p>
-                <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
+              <div className="rounded-2xl border border-[#334155] bg-[#0F172A] p-4">
+                <p className="text-xs uppercase tracking-[0.14em] text-[#9CA3AF]">Market Sentiment</p>
+                <p className="mt-2 text-sm leading-6 text-[#E5E7EB]">
                   {String(decisionIntel?.marketSentiment || 'Market sentiment unavailable.')}
                 </p>
               </div>

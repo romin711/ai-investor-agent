@@ -49,7 +49,22 @@ function formatPct(value, digits = 2, withSign = false) {
   return `${prefix}${numeric.toFixed(digits)}%`;
 }
 
+function formatPctOrDash(value, digits = 2, withSign = false, showDash = false) {
+  if (showDash) return '—';
+  return formatPct(value, digits, withSign);
+}
+
 function computeReliabilityScore(metrics) {
+  const backendScore = Number(metrics?.reliabilityScore);
+  if (Number.isFinite(backendScore)) {
+    return Math.round(clamp(backendScore, 0, 100));
+  }
+
+  const predictiveScore = Number(metrics?.predictiveScore);
+  if (Number.isFinite(predictiveScore)) {
+    return Math.round(clamp(predictiveScore, 0, 100));
+  }
+
   const sharpe = Number(metrics?.sharpeRatio) || 0;
   const hitRate = Number(metrics?.hitRate) || 0;
   const maxDrawdown = Math.abs(Number(metrics?.maxDrawdown) || 0);
@@ -99,25 +114,44 @@ function summarizeBias(decisionBreakdown, totalCount) {
 }
 
 function buildVerdict(reliabilityScore, metrics) {
-  const hitRate = Number(metrics?.hitRate) || 0;
-  const sharpe = Number(metrics?.sharpeRatio) || 0;
+  const earlyStage = String(metrics?.mode || '').toLowerCase() === 'early-stage'
+    || metrics?.reliabilityScore === null;
+  if (earlyStage) {
+    return {
+      reliable: false,
+      tradable: false,
+      riskLevel: 'High',
+      message: 'System is collecting live outcome data. Early confidence is based on signal quality, not realized performance.',
+    };
+  }
+
+  const hitRateLowerBound = Number(metrics?.reliability?.hitRateLowerBound) || 0;
+  const deflatedSharpe = Number(metrics?.reliability?.deflatedSharpe) || 0;
   const drawdown = Math.abs(Number(metrics?.maxDrawdown) || 0);
   const sampleSize = Number(metrics?.signalCount) || 0;
+  const outperformance = Number(metrics?.baselineComparison?.outperformancePct || 0);
 
-  const reliable = reliabilityScore >= 60 && hitRate >= 0.55 && sharpe >= 1;
-  const tradable = reliable && sampleSize >= 25 && drawdown <= 0.15;
+  const backendReadiness = metrics?.tradingReadiness?.gates;
+
+  const reliable = reliabilityScore >= 70
+    && hitRateLowerBound >= 0.52
+    && deflatedSharpe >= 0.6;
+
+  const tradable = backendReadiness
+    ? Boolean(metrics?.tradingReadiness?.tradable)
+    : (reliable && sampleSize >= 150 && drawdown <= 0.12 && outperformance > 0);
 
   let riskLevel = 'High';
-  if (drawdown <= 0.08 && sharpe >= 1.2) riskLevel = 'Low';
-  else if (drawdown <= 0.14 && sharpe >= 0.9) riskLevel = 'Moderate';
+  if (drawdown <= 0.08 && reliabilityScore >= 75) riskLevel = 'Low';
+  else if (drawdown <= 0.14 && reliabilityScore >= 55) riskLevel = 'Moderate';
 
   return {
     reliable,
     tradable,
     riskLevel,
     message: reliable
-      ? 'Model quality is acceptable, but execution discipline still matters.'
-      : 'Model quality is not yet strong enough for high-conviction capital deployment.',
+      ? 'Model quality is statistically acceptable, but position sizing and execution controls remain mandatory.'
+      : 'Model quality is still statistically fragile. Keep this in paper/small-size mode until sample depth and robustness improve.',
   };
 }
 
@@ -204,11 +238,15 @@ function ValidationDashboard() {
       .filter((signalType) => performanceByDecision?.[signalType])
       .map((signalType) => {
         const row = performanceByDecision[signalType] || {};
+        const evaluationHorizon = String(row.evaluationHorizon || '5D');
+        const sampleSize = Number(row?.returnAttribution?.[evaluationHorizon]?.sampleSize) || 0;
         return {
           signalType,
           hitRate: Number(row.hitRate) || 0,
-          return5D: Number(row?.returnAttribution?.['5D']?.mean) || 0,
-          drawdown: Math.abs(Number(row.worstDrawdown) || 0) * 100,
+          evaluationHorizon,
+          returnValue: Number(row?.returnAttribution?.[evaluationHorizon]?.mean) || 0,
+          drawdown: sampleSize > 0 ? Math.abs(Number(row.worstDrawdown) || 0) * 100 : null,
+          sampleSize,
           confidence: String(row.confidence || 'low'),
         };
       });
@@ -221,6 +259,12 @@ function ValidationDashboard() {
 
   const reliabilityLabel = reliabilityBand(reliabilityScore);
   const reliabilityTheme = reliabilityTone(reliabilityLabel);
+  const reliabilityDetails = validationMetrics?.reliability || null;
+  const scoringMode = String(validationMetrics?.mode || validationMetrics?.dataProvenance?.scoringMode || 'live');
+  const isEarlyStage = scoringMode === 'early-stage' || validationMetrics?.reliabilityScore === null;
+  const dataProvenance = validationMetrics?.dataProvenance || null;
+  const isStrictLiveOnly = Boolean(dataProvenance?.strictLiveOnly);
+  const hasSufficientLiveOutcomes = Boolean(dataProvenance?.hasSufficientLiveOutcomes);
 
   const verdict = useMemo(
     () => buildVerdict(reliabilityScore, validationMetrics || {}),
@@ -254,7 +298,19 @@ function ValidationDashboard() {
   const sharpeRatio = Number(validationMetrics?.sharpeRatio || 0);
   const maxDrawdown = Math.abs(Number(validationMetrics?.maxDrawdown || 0) * 100);
   const signalCount = Number(validationMetrics?.signalCount || 0);
+  const evaluationHorizon = String(validationMetrics?.evaluationHorizon || '5D');
   const liveOutcomeCount = Number(validationMetrics?.liveOutcomeCount || 0);
+  const trackedOutcomeCount = Number(
+    validationMetrics?.trackedOutcomeCount
+      || validationMetrics?.dataProvenance?.trackedOutcomeCount
+      || liveOutcomeCount
+      || 0
+  );
+  const realized5DOutcomeCount = Number(
+    validationMetrics?.realized5DOutcomeCount
+      || validationMetrics?.dataProvenance?.realized5DOutcomeCount
+      || 0
+  );
 
   const baseline = validationMetrics?.baselineComparison || {
     outperformancePct: 0,
@@ -263,101 +319,134 @@ function ValidationDashboard() {
   };
 
   const outperformancePct = Number(baseline.outperformancePct || 0);
+  const hasValidatedSample = signalCount > 0;
+
+  const reliabilityHeadline = isEarlyStage ? 'Not yet validated' : `${reliabilityLabel} reliability`;
+  const reliabilityTitle = isEarlyStage ? 'Predictive Confidence Score' : 'AI Reliability Score';
 
   return (
     <div className="space-y-6">
       <Card interactive={false} className={`p-6 ${reliabilityTheme.border} ${reliabilityTheme.bg}`}>
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Validation Dashboard</h1>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+            <h1 className="text-3xl font-bold tracking-tight text-[#F3F4F6]">Validation Dashboard</h1>
+            <p className="mt-2 text-sm text-[#9CA3AF]">
               Fast answer to one question: can this AI be trusted with real money today?
+            </p>
+            <p className="mt-2 text-xs text-[#9CA3AF]">
+              Data mode: {isStrictLiveOnly ? 'Strict live outcomes only' : 'Legacy mixed mode'}
+              {dataProvenance?.mode ? ` (${typeof dataProvenance.mode === 'string' ? dataProvenance.mode : 'legacy'})` : ''}
+            </p>
+            {!hasSufficientLiveOutcomes ? (
+              <p className="mt-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
+                Insufficient live outcomes: metrics shown with zero-sample reliability state until more realized trades are collected.
+              </p>
+            ) : null}
+            <p className="mt-1 text-xs text-[#9CA3AF]">
+              Data maturity: Tracked signals {trackedOutcomeCount} | Realized outcomes {liveOutcomeCount} | Minimum for validation 10 realized and 5 at 5D.
             </p>
           </div>
           <button
             type="button"
             onClick={() => setIsMethodologyOpen(true)}
-            className="self-start rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            className="self-start rounded-md border border-[#334155] bg-[#111827] px-3 py-1.5 text-xs font-semibold text-[#CBD5E1] hover:bg-[#0F172A]"
           >
             View methodology
           </button>
         </div>
 
         <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="rounded-lg border border-white/60 bg-white/80 p-4 dark:border-slate-800 dark:bg-slate-950/40 md:col-span-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">AI Reliability Score</p>
+          <div className="rounded-lg border border-[#334155] bg-[#0F172A] p-4 md:col-span-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">{reliabilityTitle}</p>
             <div className="mt-2 flex items-end gap-3">
-              <p className="text-5xl font-black leading-none text-slate-900 dark:text-slate-100">{reliabilityScore}</p>
-              <p className="pb-1 text-lg font-semibold text-slate-500 dark:text-slate-400">/ 100</p>
+              <p className="text-5xl font-black leading-none text-[#F3F4F6]">{reliabilityScore}</p>
+              <p className="pb-1 text-lg font-semibold text-[#9CA3AF]">/ 100</p>
             </div>
-            <p className={`mt-2 text-sm font-semibold ${reliabilityTheme.text}`}>{reliabilityLabel} reliability</p>
-            <p className="mt-3 text-xs text-slate-600 dark:text-slate-400">
-              Built from hit rate, Sharpe, drawdown, and sample size for decision confidence.
+            <p className={`mt-2 text-sm font-semibold ${reliabilityTheme.text}`}>{reliabilityHeadline}</p>
+            <p className="mt-3 text-xs text-[#9CA3AF]">
+              {isEarlyStage
+                ? 'Early-stage confidence from signal quality and distribution. Realized-performance reliability activates after minimum sample thresholds.'
+                : 'Built from lower-bound hit rate, deflated Sharpe, drawdown quality, and sample adequacy.'}
             </p>
+            {reliabilityDetails ? (
+              <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] text-[#9CA3AF]">
+                <p>Hit-rate lower bound: {hasValidatedSample ? `${(Number(reliabilityDetails.hitRateLowerBound || 0) * 100).toFixed(1)}%` : '—'}</p>
+                <p>Deflated Sharpe: {hasValidatedSample ? Number(reliabilityDetails.deflatedSharpe || 0).toFixed(2) : '—'}</p>
+                <p>Sample adequacy: {hasValidatedSample ? `${(Number(reliabilityDetails.components?.sampleAdequacy || 0) * 100).toFixed(1)}%` : '—'}</p>
+                <p>Drawdown quality: {hasValidatedSample ? `${(Number(reliabilityDetails.components?.drawdownQuality || 0) * 100).toFixed(1)}%` : '—'}</p>
+              </div>
+            ) : null}
           </div>
 
-          <div className="rounded-lg border border-white/60 bg-white/80 p-4 dark:border-slate-800 dark:bg-slate-950/40">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Final Verdict</p>
+          <div className="rounded-lg border border-[#334155] bg-[#0F172A] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#9CA3AF]">Final Verdict</p>
             <p className={`mt-2 text-base font-semibold ${verdict.reliable ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-700 dark:text-rose-300'}`}>
-              {verdict.reliable ? 'Model appears reliable' : 'Model reliability is weak'}
+              {isEarlyStage ? 'Model is in early-stage validation' : verdict.reliable ? 'Model appears reliable' : 'Model reliability is weak'}
             </p>
-            <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
+            <p className="mt-2 text-sm text-[#E5E7EB]">
               Tradable: <span className="font-semibold">{verdict.tradable ? 'Yes, with risk controls' : 'Not ready for full-size trading'}</span>
             </p>
-            <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">
+            <p className="mt-1 text-sm text-[#E5E7EB]">
               Risk level: <span className="font-semibold">{verdict.riskLevel}</span>
             </p>
+            {validationMetrics?.tradingReadiness?.gates ? (
+              <p className="mt-2 text-xs text-[#9CA3AF]">
+                Gates passed: {Number(validationMetrics.tradingReadiness.passedCount || 0)} / {Number(validationMetrics.tradingReadiness.totalGates || 0)}
+              </p>
+            ) : null}
           </div>
         </div>
       </Card>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card interactive={false} className="p-5">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Performance</h2>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Returns vs baseline</p>
+          <h2 className="text-lg font-bold text-[#F3F4F6]">Performance</h2>
+          <p className="mt-1 text-xs text-[#9CA3AF]">Returns vs baseline</p>
           <p className={`mt-4 text-3xl font-bold ${outperformancePct >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-            {formatPct(outperformancePct, 2, true)}
+            {formatPctOrDash(outperformancePct, 2, true, !hasValidatedSample)}
           </p>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Outperformance</p>
-          <div className="mt-3 space-y-1 text-xs text-slate-600 dark:text-slate-400">
-            <p>Strategy: {formatPct(Number(baseline.strategyCompoundedReturnPct || 0), 2, true)}</p>
-            <p>Baseline: {formatPct(Number(baseline.baselineCompoundedReturnPct || 0), 2, true)}</p>
+          <p className="mt-1 text-sm text-[#9CA3AF]">Outperformance</p>
+          <div className="mt-3 space-y-1 text-xs text-[#9CA3AF]">
+            <p>Strategy: {formatPctOrDash(Number(baseline.strategyCompoundedReturnPct || 0), 2, true, !hasValidatedSample)}</p>
+            <p>Baseline: {formatPctOrDash(Number(baseline.baselineCompoundedReturnPct || 0), 2, true, !hasValidatedSample)}</p>
           </div>
         </Card>
 
         <Card interactive={false} className="p-5">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Risk</h2>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Volatility and downside</p>
+          <h2 className="text-lg font-bold text-[#F3F4F6]">Risk</h2>
+          <p className="mt-1 text-xs text-[#9CA3AF]">Volatility and downside</p>
           <div className="mt-4 grid grid-cols-2 gap-3">
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Sharpe</p>
-              <p className={`text-2xl font-bold ${sharpeRatio >= 1 ? 'text-emerald-600' : 'text-amber-600'}`}>{sharpeRatio.toFixed(2)}</p>
+              <p className="text-xs text-[#9CA3AF]">Sharpe</p>
+              <p className={`text-2xl font-bold ${sharpeRatio >= 1 ? 'text-emerald-600' : 'text-amber-600'}`}>{hasValidatedSample ? sharpeRatio.toFixed(2) : '—'}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Max drawdown</p>
+              <p className="text-xs text-[#9CA3AF]">Max drawdown</p>
               <p className={`text-2xl font-bold ${maxDrawdown <= 10 ? 'text-emerald-600' : maxDrawdown <= 16 ? 'text-amber-600' : 'text-rose-600'}`}>
-                {maxDrawdown.toFixed(2)}%
+                {hasValidatedSample ? `${maxDrawdown.toFixed(2)}%` : '—'}
               </p>
             </div>
           </div>
         </Card>
 
         <Card interactive={false} className="p-5">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Accuracy</h2>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">How often signals are correct</p>
+          <h2 className="text-lg font-bold text-[#F3F4F6]">Accuracy</h2>
+          <p className="mt-1 text-xs text-[#9CA3AF]">How often signals are correct</p>
           <p className={`mt-4 text-3xl font-bold ${hitRate >= 55 ? 'text-emerald-600' : hitRate >= 50 ? 'text-amber-600' : 'text-rose-600'}`}>
-            {hitRate.toFixed(1)}%
+            {hasValidatedSample ? `${hitRate.toFixed(1)}%` : '—'}
           </p>
-          <div className="mt-2 space-y-1 text-xs text-slate-600 dark:text-slate-400">
-            <p>Validated signals: {signalCount}</p>
-            <p>Live outcomes: {liveOutcomeCount}</p>
+          <div className="mt-2 space-y-1 text-xs text-[#9CA3AF]">
+            <p>Validated signals ({evaluationHorizon}): {signalCount}</p>
+            <p>Realized outcomes (>=1D): {liveOutcomeCount}</p>
+            <p>Realized outcomes (5D): {realized5DOutcomeCount}</p>
+            <p>Tracked outcome records: {trackedOutcomeCount}</p>
           </div>
         </Card>
       </div>
 
       <Card interactive={false} className="p-6">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Signal Comparison</h2>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+        <h2 className="text-xl font-bold text-[#F3F4F6]">Signal Comparison</h2>
+        <p className="mt-1 text-sm text-[#9CA3AF]">
           Which signal types deserve more trust and capital.
         </p>
 
@@ -367,7 +456,7 @@ function ValidationDashboard() {
               <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-[0.12em] text-slate-500 dark:border-slate-700 dark:text-slate-400">
                 <th className="px-3 py-2">Signal Type</th>
                 <th className="px-3 py-2">Hit Rate</th>
-                <th className="px-3 py-2">Return (5D)</th>
+                <th className="px-3 py-2">Return ({evaluationHorizon})</th>
                 <th className="px-3 py-2">Drawdown</th>
                 <th className="px-3 py-2">Confidence</th>
               </tr>
@@ -375,13 +464,13 @@ function ValidationDashboard() {
             <tbody>
               {decisionRows.map((row) => (
                 <tr key={row.signalType} className="border-b border-slate-100 dark:border-slate-800">
-                  <td className="px-3 py-3 font-semibold text-slate-900 dark:text-slate-100">{row.signalType}</td>
-                  <td className="px-3 py-3 text-slate-700 dark:text-slate-300">{(row.hitRate * 100).toFixed(1)}%</td>
-                  <td className={`px-3 py-3 font-semibold ${row.return5D >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                    {formatPct(row.return5D, 2, true)}
+                  <td className="px-3 py-3 font-semibold text-[#F3F4F6]">{row.signalType}</td>
+                  <td className="px-3 py-3 text-[#E5E7EB]">{row.sampleSize > 0 ? `${(row.hitRate * 100).toFixed(1)}%` : '—'}</td>
+                  <td className={`px-3 py-3 font-semibold ${row.returnValue >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    {row.sampleSize > 0 ? formatPct(row.returnValue, 2, true) : '—'}
                   </td>
-                  <td className={`px-3 py-3 font-semibold ${row.drawdown <= 8 ? 'text-emerald-600' : row.drawdown <= 14 ? 'text-amber-600' : 'text-rose-600'}`}>
-                    {row.drawdown.toFixed(2)}%
+                  <td className={`px-3 py-3 font-semibold ${row.drawdown !== null && row.drawdown <= 8 ? 'text-emerald-600' : row.drawdown !== null && row.drawdown <= 14 ? 'text-amber-600' : 'text-rose-600'}`}>
+                    {row.sampleSize > 0 && row.drawdown !== null ? `${row.drawdown.toFixed(2)}%` : '—'}
                   </td>
                   <td className="px-3 py-3">
                     <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-semibold capitalize ${confidenceTone(row.confidence)}`}>
@@ -396,30 +485,30 @@ function ValidationDashboard() {
       </Card>
 
       <Card interactive={false} className="p-6">
-        <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Alert Distribution Insight</h2>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">What your signal mix implies for trading behavior.</p>
+        <h2 className="text-xl font-bold text-[#F3F4F6]">Alert Distribution Insight</h2>
+        <p className="mt-1 text-sm text-[#9CA3AF]">What your signal mix implies for trading behavior.</p>
 
         <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
           {Object.entries(decisionBreakdown).map(([signalType, count]) => {
             const share = totalDecisionCount > 0 ? (count / totalDecisionCount) * 100 : 0;
             return (
-              <div key={signalType} className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40">
-                <p className="text-xs uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">{signalType}</p>
-                <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">{count}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{share.toFixed(1)}%</p>
+              <div key={signalType} className="rounded-lg border border-[#334155] bg-[#0F172A] p-3">
+                <p className="text-xs uppercase tracking-[0.12em] text-[#9CA3AF]">{signalType}</p>
+                <p className="mt-1 text-2xl font-bold text-[#F3F4F6]">{count}</p>
+                <p className="text-xs text-[#9CA3AF]">{share.toFixed(1)}%</p>
               </div>
             );
           })}
         </div>
 
-        <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-300">
+        <div className="mt-4 rounded-lg border border-[#334155] bg-[#0F172A] p-4 text-sm text-[#E5E7EB]">
           {biasInsight}
         </div>
       </Card>
 
       <Card interactive={false} className="p-6">
-        <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Final Verdict</h2>
-        <p className="mt-2 text-base text-slate-700 dark:text-slate-300">{verdict.message}</p>
+        <h2 className="text-2xl font-extrabold tracking-tight text-[#F3F4F6]">Final Verdict</h2>
+        <p className="mt-2 text-base text-[#E5E7EB]">{verdict.message}</p>
 
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
           <div className={`rounded-lg border p-3 ${verdict.reliable ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-300' : 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-900/20 dark:text-rose-300'}`}>
@@ -441,22 +530,23 @@ function ValidationDashboard() {
 
       {isMethodologyOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4" role="dialog" aria-modal="true" aria-label="Methodology details">
-          <div className="w-full max-w-xl rounded-xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-900">
+          <div className="w-full max-w-xl rounded-xl border border-[#334155] bg-[#111827] p-6 shadow-xl">
             <div className="flex items-start justify-between gap-3">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Methodology</h3>
+              <h3 className="text-lg font-bold text-[#F3F4F6]">Methodology</h3>
               <button
                 type="button"
                 onClick={() => setIsMethodologyOpen(false)}
-                className="rounded-md border border-slate-300 px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300"
+                className="rounded-md border border-[#334155] px-2 py-1 text-xs font-semibold text-[#9CA3AF] hover:bg-[#0F172A]"
               >
                 Close
               </button>
             </div>
 
-            <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-              Reliability score combines Sharpe, hit rate, drawdown, and sample size. Signal success is direction-aware:
-              BUY wins on positive return, SELL wins on negative return, HOLD wins in low-volatility ranges. Baseline uses
-              buy-and-hold compounding assumptions from backend metrics.
+            <p className="mt-3 text-sm leading-relaxed text-[#E5E7EB]">
+              Reliability score combines lower-bound hit rate confidence, deflated Sharpe, drawdown quality, and sample adequacy.
+              Signal success is direction-aware: BUY wins on positive return, SELL wins on negative return, HOLD wins in low-volatility
+              ranges. Trading readiness requires all backend gates to pass (sample depth, reliability threshold, robust Sharpe,
+              drawdown budget, and positive outperformance versus baseline).
             </p>
           </div>
         </div>

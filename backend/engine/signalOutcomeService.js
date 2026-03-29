@@ -4,6 +4,8 @@ const { fetchYahooStockData } = require('./yahooClient');
 
 const OUTCOMES_FILE_PATH = path.join(__dirname, '..', 'storage', 'signal_outcomes.json');
 const HORIZON_DAYS = [1, 3, 5];
+const MAX_STORED_OUTCOMES = 2500;
+const MAX_SYNC_HISTORY_RUNS = 180;
 
 function ensureOutcomesDir() {
   const dir = path.dirname(OUTCOMES_FILE_PATH);
@@ -52,6 +54,90 @@ function buildOutcomeKey(run, alert, index) {
     String(alert?.action || ''),
     String(index),
   ].join('|');
+}
+
+function getCanonicalOutcomeSignature(record) {
+  const symbol = String(record?.symbol || '').toUpperCase();
+  const action = String(record?.action || '').toUpperCase();
+  const runDate = String(record?.runDate || '').slice(0, 10);
+  const entryDate = String(
+    record?.horizons?.['1D']?.entryDate
+    || record?.horizons?.['3D']?.entryDate
+    || record?.horizons?.['5D']?.entryDate
+    || ''
+  ).slice(0, 10);
+  const entryPrice = toFiniteNumber(record?.entryPrice);
+  const roundedEntryPrice = entryPrice === null ? 'na' : entryPrice.toFixed(2);
+
+  if (!symbol || !action || !runDate) {
+    return null;
+  }
+
+  // Canonical grouping avoids overweighting repeated scans for the same setup.
+  return `${runDate}|${symbol}|${action}|${entryDate || 'na'}|${roundedEntryPrice}`;
+}
+
+function compactOutcomeRecords(items = [], maxItems = MAX_STORED_OUTCOMES) {
+  const rows = Array.isArray(items) ? items : [];
+  const dedupeByKey = new Map();
+
+  rows.forEach((record) => {
+    const key = String(record?.key || '').trim();
+    const action = String(record?.action || '').toUpperCase();
+    const symbol = String(record?.symbol || '').toUpperCase();
+    if (!key || !symbol || !['BUY', 'SELL', 'HOLD'].includes(action)) {
+      return;
+    }
+
+    dedupeByKey.set(key, {
+      ...record,
+      symbol,
+      action,
+    });
+  });
+
+  const sorted = Array.from(dedupeByKey.values()).sort((left, right) => {
+    const runDateCmp = String(right?.runGeneratedAt || '').localeCompare(String(left?.runGeneratedAt || ''));
+    if (runDateCmp !== 0) return runDateCmp;
+    return String(right?.updatedAt || '').localeCompare(String(left?.updatedAt || ''));
+  });
+
+  const canonicalMap = new Map();
+  const canonicalOrdered = [];
+
+  sorted.forEach((record) => {
+    const signature = getCanonicalOutcomeSignature(record);
+    if (!signature) {
+      return;
+    }
+
+    if (!canonicalMap.has(signature)) {
+      canonicalMap.set(signature, record);
+      canonicalOrdered.push(record);
+    }
+  });
+
+  const requestedLimit = Number(maxItems);
+  const safeLimit = Number.isFinite(requestedLimit) && requestedLimit > 0
+    ? Math.floor(requestedLimit)
+    : MAX_STORED_OUTCOMES;
+  return canonicalOrdered.slice(0, safeLimit);
+}
+
+function compactAndPersistOutcomes(items = [], maxItems = MAX_STORED_OUTCOMES) {
+  const original = Array.isArray(items) ? items : [];
+  const compacted = compactOutcomeRecords(original, maxItems);
+
+  const isSameLength = original.length === compacted.length;
+  const hasSameOrder = isSameLength && original.every((item, index) => (
+    String(item?.key || '') === String(compacted[index]?.key || '')
+  ));
+
+  if (!hasSameOrder) {
+    writeOutcomesFile(compacted);
+  }
+
+  return compacted;
 }
 
 function findEntryIndex(historical, runDate) {
@@ -198,12 +284,13 @@ function computeOutcomeForAlert(run, alert, index, yahooData) {
 }
 
 async function synchronizeSignalOutcomes(historyRuns = []) {
-  const existing = readOutcomesFile();
+  const existing = compactAndPersistOutcomes(readOutcomesFile(), MAX_STORED_OUTCOMES);
   const existingMap = new Map(existing.map((record) => [record.key, record]));
 
   const symbolDataCache = new Map();
+  const runs = Array.isArray(historyRuns) ? historyRuns.slice(0, MAX_SYNC_HISTORY_RUNS) : [];
 
-  for (const run of Array.isArray(historyRuns) ? historyRuns : []) {
+  for (const run of runs) {
     const alerts = Array.isArray(run?.alerts) ? run.alerts : [];
 
     for (let index = 0; index < alerts.length; index += 1) {
@@ -234,18 +321,16 @@ async function synchronizeSignalOutcomes(historyRuns = []) {
     }
   }
 
-  const merged = Array.from(existingMap.values())
-    .sort((a, b) => String(b.runGeneratedAt || '').localeCompare(String(a.runGeneratedAt || '')));
-
-  writeOutcomesFile(merged);
+  const merged = compactAndPersistOutcomes(Array.from(existingMap.values()), MAX_STORED_OUTCOMES);
   return merged;
 }
 
 function getStoredSignalOutcomes() {
-  return readOutcomesFile();
+  return compactAndPersistOutcomes(readOutcomesFile(), MAX_STORED_OUTCOMES);
 }
 
 module.exports = {
   synchronizeSignalOutcomes,
   getStoredSignalOutcomes,
+  compactOutcomeRecords,
 };

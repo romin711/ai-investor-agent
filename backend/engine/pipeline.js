@@ -1,17 +1,17 @@
 const { movingAverage, calculateRsi } = require('./indicators');
-const { calculateTechnicalScore } = require('./indicatorService');
 const {
   analyzePortfolioExposure,
-  calculatePortfolioAdjustment,
   detectSector,
-  getSectorExposure,
 } = require('./portfolioService');
 const { calculateRiskScore } = require('./riskService');
-const { evaluateDecision } = require('./decisionEngine');
+const { makeDecision } = require('./decisionEngine');
 const { generateReasoning } = require('./aiService');
 const { resolveSymbol, normalizeInputSymbol } = require('./symbolResolver');
 const { fetchYahooStockData } = require('./yahooClient');
 const { analyzePatternIntelligence } = require('./patternIntelligence');
+const { generateMockSignal, buildMockMarketData } = require('./mockSignalGenerator');
+
+const USE_MOCK_SIGNALS = String(process.env.USE_MOCK_SIGNALS || 'true').toLowerCase() === 'true';
 
 function normalizePortfolioRows(inputRows) {
   const rows = Array.isArray(inputRows)
@@ -111,9 +111,11 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
     portfolioContext = null,
     geminiApiKey = '',
     resolvedSymbol = '',
+    policyContext = null,
   } = options;
 
   const inputSymbol = normalizeInputSymbol(rawSymbol);
+  const useMockSignals = options?.useMockSignals ?? USE_MOCK_SIGNALS;
 
   const resolved = resolvedSymbol
     ? {
@@ -123,7 +125,9 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
     }
     : await resolveSymbol(rawSymbol, { geminiApiKey });
 
-  const marketData = await fetchYahooStockData(resolved.resolvedSymbol);
+  const marketData = useMockSignals
+    ? buildMockMarketData(resolved.resolvedSymbol, generateMockSignal(inputSymbol))
+    : await fetchYahooStockData(resolved.resolvedSymbol);
 
   const price = marketData.price;
   const closes = marketData.closes;
@@ -155,23 +159,55 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
     );
   }
 
-  const techAnalysis = calculateTechnicalScore(price, ma50, rsi, momentumPercent, breakout);
+  const derivedTrend = Number.isFinite(price) && Number.isFinite(ma50) && ma50 > 0
+    ? (price > ma50 ? 'uptrend' : price < ma50 ? 'downtrend' : 'neutral')
+    : 'neutral';
   const sector = detectSector(resolved.resolvedSymbol);
 
-  const sectorExposure = getSectorExposure(sector, portfolioContext);
-  const portfolioAdjustment = calculatePortfolioAdjustment(techAnalysis.score, sectorExposure);
+  const sectorExposure = Number(portfolioContext?.sectorAllocation?.[sector] || 0);
   const riskScore = calculateRiskScore(rsi, volatilityPercent, sectorExposure);
 
-  const decisionResult = evaluateDecision({
-    technicalScore: techAnalysis.score,
-    portfolioAdjustment,
-    rsi,
-    price,
-    ma50,
-  });
+  const portfolioWeights = policyContext?.portfolio || {};
+  const sectorMap = policyContext?.sectorMap || {};
+  const decisionModel = useMockSignals
+    ? await makeDecision(inputSymbol, {
+      useMockSignals: true,
+      portfolio: portfolioWeights,
+      sectorMap,
+      riskMetrics: {
+        currentDrawdown: 0,
+        maxDrawdown: 0.15,
+        volatility: Math.abs((volatilityPercent || 0) / 100),
+      },
+    })
+    : await makeDecision(resolved.resolvedSymbol, {
+      marketData: {
+        symbol: resolved.resolvedSymbol,
+        closes,
+        historical,
+        latestPrice: price,
+        latestTimestamp: historical?.length ? historical[historical.length - 1]?.date : null,
+        dataPoints: closes.length,
+      },
+      portfolio: portfolioWeights,
+      sectorMap,
+      riskMetrics: {
+        currentDrawdown: 0,
+        maxDrawdown: 0.15,
+        volatility: Math.abs((volatilityPercent || 0) / 100),
+      },
+    });
+
+  const decision = String(decisionModel?.finalAction || decisionModel?.rawSignal || 'HOLD').toUpperCase();
+  const confidencePct = Number.isFinite(decisionModel?.confidence)
+    ? Math.round(decisionModel.confidence * 100)
+    : null;
+  const technicalScore = Number.isFinite(decisionModel?.weightedModel?.score)
+    ? decisionModel.weightedModel.score
+    : 0;
 
   const signalsPayload = {
-    trend: techAnalysis.trend,
+    trend: derivedTrend,
     rsi,
     momentum: momentumPercent,
     breakout,
@@ -188,9 +224,9 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
     insufficient_data: missingIndicators.length > 0,
   };
 
-  const aiResult = decisionResult.reason
+  const aiResult = decisionModel?.rawReason
     ? {
-      reason: decisionResult.reason,
+      reason: decisionModel.rawReason,
       next_action: 'Wait for more market data before making a new decision.',
     }
     : await generateReasoning(
@@ -198,8 +234,8 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
       sector,
       sectorExposure,
       riskScore,
-      decisionResult.finalScore,
-      decisionResult.decision,
+      technicalScore,
+      decision,
       geminiApiKey
     );
 
@@ -208,7 +244,7 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
     resolvedSymbol: resolved.resolvedSymbol,
     price,
     historical,
-    trend: techAnalysis.trend,
+    trend: derivedTrend,
     rsi,
     ma20,
     ma50,
@@ -217,13 +253,14 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
     breakout,
     pattern_intelligence: patternIntelligence,
     signals: signalsPayload,
-    technical_score: techAnalysis.score,
-    portfolio_adjustment: portfolioAdjustment,
+    technical_score: technicalScore,
+    portfolio_adjustment: 0,
     risk_score: riskScore,
-    final_score: decisionResult.finalScore,
-    decision: decisionResult.decision,
-    confidence: decisionResult.confidence,
+    final_score: technicalScore,
+    decision,
+    confidence: confidencePct,
     data_warning: missingIndicators.length ? 'Insufficient data' : null,
+    decision_model: decisionModel,
     reason: aiResult.reason,
     next_action: aiResult.next_action,
   };
@@ -245,13 +282,31 @@ async function analyzePortfolio(rows, options = {}) {
   );
 
   const portfolioContext = analyzePortfolioExposure(resolvedRows);
+  const totalWeight = resolvedRows.reduce((sum, row) => sum + Number(row.weight || 0), 0);
+  const policyContext = {
+    portfolio: resolvedRows.reduce((acc, row) => {
+      const key = String(row.resolvedSymbol || row.symbol || '').toUpperCase();
+      if (!key) return acc;
+      const normalizedWeight = totalWeight > 0 ? Number(row.weight) / totalWeight : 0;
+      acc[key] = normalizedWeight;
+      return acc;
+    }, {}),
+    sectorMap: resolvedRows.reduce((acc, row) => {
+      const key = String(row.resolvedSymbol || row.symbol || '').toUpperCase();
+      if (!key) return acc;
+      acc[key] = detectSector(key);
+      return acc;
+    }, {}),
+  };
 
   const results = await Promise.all(
     resolvedRows.map(async (row) => {
       const result = await analyzeSingleSymbol(row.symbol, {
         portfolioContext,
+        policyContext,
         geminiApiKey,
         resolvedSymbol: row.resolvedSymbol,
+        useMockSignals: options?.useMockSignals,
       });
 
       const sector = detectSector(row.resolvedSymbol);

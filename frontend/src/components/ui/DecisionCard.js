@@ -17,7 +17,7 @@ function DecisionCard({ decision, probabilityRange, entryRange, stopLoss, target
         <p className="text-xs font-bold uppercase tracking-[0.3em] text-gray-500 dark:text-slate-400">
           AI Recommendation
         </p>
-        <span className="text-xs font-semibold text-gray-500 dark:text-slate-400">
+        <span className="text-xs font-semibold text-muted">
           Confidence: {confidence}
         </span>
       </div>
@@ -29,13 +29,13 @@ function DecisionCard({ decision, probabilityRange, entryRange, stopLoss, target
 
       {/* Probability Range */}
       <div className="mb-6 space-y-2">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-gray-600 dark:text-slate-300">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">
           Probability Range
         </p>
         <p className={`text-2xl font-bold ${colors.text}`}>
           {probabilityRange}
         </p>
-        <p className="text-xs text-gray-500 dark:text-slate-400">
+        <p className="text-xs text-muted">
           Estimated likelihood of target achievement
         </p>
       </div>
@@ -43,15 +43,15 @@ function DecisionCard({ decision, probabilityRange, entryRange, stopLoss, target
       {/* Trading Metrics Grid */}
       <div className="grid grid-cols-2 gap-4 rounded-xl bg-white/40 p-4 dark:bg-slate-900/30">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-500 dark:text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted">
             Entry Range
           </p>
-          <p className="mt-1 text-lg font-bold text-slate-900 dark:text-slate-100">
+          <p className="mt-1 text-lg font-bold text-primary">
             {entryRange}
           </p>
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-500 dark:text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted">
             Stop Loss
           </p>
           <p className="mt-1 text-lg font-bold text-rose-600 dark:text-rose-400">
@@ -59,7 +59,7 @@ function DecisionCard({ decision, probabilityRange, entryRange, stopLoss, target
           </p>
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-500 dark:text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted">
             Target
           </p>
           <p className="mt-1 text-lg font-bold text-emerald-600 dark:text-emerald-400">
@@ -67,10 +67,10 @@ function DecisionCard({ decision, probabilityRange, entryRange, stopLoss, target
           </p>
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-500 dark:text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted">
             Risk:Reward
           </p>
-          <p className="mt-1 text-lg font-bold text-slate-900 dark:text-slate-100">
+          <p className="mt-1 text-lg font-bold text-primary">
             {riskRewardRatio}
           </p>
         </div>
@@ -80,16 +80,16 @@ function DecisionCard({ decision, probabilityRange, entryRange, stopLoss, target
       <div className="mt-6 grid grid-cols-2 gap-3">
         <button
           type="button"
-          className="ripple-btn rounded-lg bg-slate-200 px-4 py-3 text-sm font-semibold text-slate-900 transition-all duration-200 ease-in-out hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
+          className="ripple-btn rounded-lg bg-[#1F2937] px-4 py-3 text-sm font-semibold text-primary transition-all duration-200 ease-in-out hover:bg-[#2A3A52]"
         >
           View Details
         </button>
         <button
           type="button"
           className={`ripple-btn rounded-lg px-4 py-3 text-sm font-semibold text-white transition-all duration-200 ease-in-out
-            ${decision === 'BUY' ? 'bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700' : ''}
-            ${decision === 'SELL' ? 'bg-rose-600 hover:bg-rose-700 dark:bg-rose-600 dark:hover:bg-rose-700' : ''}
-            ${decision === 'HOLD' ? 'bg-amber-600 hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700' : ''}
+            ${decision === 'BUY' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+            ${decision === 'SELL' ? 'bg-rose-600 hover:bg-rose-700' : ''}
+            ${decision === 'HOLD' ? 'bg-amber-600 hover:bg-amber-700' : ''}
           `}
         >
           Execute (Simulated)

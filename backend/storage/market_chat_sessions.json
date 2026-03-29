@@ -1,3 +1,979 @@
 {
-  "sessions": {}
+  "sessions": {
+    "mc_1774776876506_bfbdq8": {
+      "id": "mc_1774776876506_bfbdq8",
+      "createdAt": "2026-03-29T09:34:36.506Z",
+      "updatedAt": "2026-03-29T09:34:57.706Z",
+      "turns": [
+        {
+          "question": "Should I buy INFY?",
+          "answer": "PRIMARY SIGNAL: INFY: HOLD\nAnswer: Do not buy INFY at this time.\nWhy:\n- Our analysis indicates a 'HOLD' signal for INFY with 59% confidence.\n- Financial health data for INFY is currently unavailable.\n- Pattern backtest success rate for INFY is currently unavailable.\nAction:\n- Maintain your current position in INFY if you hold it.\n- Monitor",
+          "symbolsAnalyzed": [
+            "INFY"
+          ],
+          "citations": [
+            {
+              "source": "Portfolio analysis engine",
+              "endpoint": "/api/portfolio/analyze"
+            },
+            {
+              "source": "Opportunity Radar alerts",
+              "endpoint": "/api/agent/opportunity-radar"
+            },
+            {
+              "source": "Financial health engine",
+              "endpoint": "/api/financial/health"
+            },
+            {
+              "source": "Market summary engine",
+              "endpoint": "/api/market/summary"
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "INFY",
+              "title": "Yahoo momentum: 20D -11.1%, 60D -28.9%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Histalk2.com",
+              "symbol": "INFY",
+              "title": "News 3/27/26",
+              "date": "2026-03-26",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Unity Software (U) Soars 13.6% on Higher Revenue Outlook",
+              "date": "2026-03-28T04:34:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/unity-software-u-soars-13-043433039.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "ADMA Biologics (ADMA) Soars 11.6% as Firm Denies Short Seller Allegations",
+              "date": "2026-03-28T04:27:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/adma-biologics-adma-soars-11-042733181.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "First Majestic (AG) Climbs 7% on Silver Rush",
+              "date": "2026-03-28T04:21:41Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/first-majestic-ag-climbs-7-042141683.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "3 Technology Stocks That Belong in Every Long-Term Portfolio",
+              "date": "2026-03-28T04:20:00Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/3-technology-stocks-belong-every-042000060.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Entergy (ETR) Rallies 6.8% on Meta Deal",
+              "date": "2026-03-28T04:18:28Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/entergy-etr-rallies-6-8-041828890.html"
+            }
+          ],
+          "workflow": [
+            "parse_intent_and_symbols",
+            "fetch_portfolio_and_fundamental_context",
+            "synthesize_with_gemini_and_market_news"
+          ],
+          "aiProvider": "gemini",
+          "model": "gemini-2.5-flash",
+          "aiErrorCode": null,
+          "decisionIntel": {
+            "overallDecision": "HOLD",
+            "confidencePercent": 54,
+            "keySignals": [
+              "INFY HOLD",
+              "Confidence 59%",
+              "Pattern backtest 0.0%"
+            ],
+            "portfolioRisk": {
+              "sectorExposurePercent": null,
+              "riskLevel": "unknown"
+            },
+            "riskLevel": "Medium",
+            "nextBestAction": "HOLD INFY with strict stop discipline and reduced size if volatility expands.",
+            "alternativeStrategy": "If INFY loses support on close, switch to defensive rotation and protect capital over upside capture.",
+            "marketSentiment": "Risk-off session with broad weakness. Sector rotation mixed with no dominant theme."
+          },
+          "scoreBreakdown": {
+            "symbol": "ICICIBANK",
+            "raw": {
+              "momentum": 0.2,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.2
+            },
+            "weights": {
+              "momentum": 0.35,
+              "fundamentals": 0.3,
+              "newsSentiment": 0.2,
+              "risk": 0.15
+            },
+            "weighted": {
+              "momentum": 0.07,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.03
+            },
+            "totalScore": 0.1,
+            "derivedConfidencePercent": 54
+          },
+          "confidenceReasoning": "Confidence 54% derived from weighted momentum (0.35), fundamentals (0.3), news (0.2), and risk (0.15).",
+          "riskFactors": [
+            "No outsized risk flags detected beyond normal market volatility."
+          ],
+          "fallbackUsed": false,
+          "errorCode": null,
+          "createdAt": "2026-03-29T09:34:36.506Z"
+        },
+        {
+          "question": "what about risk?",
+          "answer": "PRIMARY SIGNAL: Market: RISK-OFF\nAnswer: The current market sentiment indicates a risk-off environment.\nWhy:\n- The broader market is experiencing weakness.\n- Your portfolio scan shows a mixed outlook with 3 BUY, 4 HOLD, and 3 SELL signals.\n- Our previous INFY analysis indicated a 'HOLD' signal, suggesting caution.\nAction:\n- Exercise caution in new investments.\n- Review your existing portfolio for potential downside.",
+          "symbolsAnalyzed": [
+            "INFY"
+          ],
+          "citations": [
+            {
+              "source": "Portfolio analysis engine",
+              "endpoint": "/api/portfolio/analyze"
+            },
+            {
+              "source": "Opportunity Radar alerts",
+              "endpoint": "/api/agent/opportunity-radar"
+            },
+            {
+              "source": "Financial health engine",
+              "endpoint": "/api/financial/health"
+            },
+            {
+              "source": "Market summary engine",
+              "endpoint": "/api/market/summary"
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "INFY",
+              "title": "Yahoo momentum: 20D -11.1%, 60D -28.9%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Histalk2.com",
+              "symbol": "INFY",
+              "title": "News 3/27/26",
+              "date": "2026-03-26",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Unity Software (U) Soars 13.6% on Higher Revenue Outlook",
+              "date": "2026-03-28T04:34:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/unity-software-u-soars-13-043433039.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "ADMA Biologics (ADMA) Soars 11.6% as Firm Denies Short Seller Allegations",
+              "date": "2026-03-28T04:27:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/adma-biologics-adma-soars-11-042733181.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "First Majestic (AG) Climbs 7% on Silver Rush",
+              "date": "2026-03-28T04:21:41Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/first-majestic-ag-climbs-7-042141683.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "3 Technology Stocks That Belong in Every Long-Term Portfolio",
+              "date": "2026-03-28T04:20:00Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/3-technology-stocks-belong-every-042000060.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Entergy (ETR) Rallies 6.8% on Meta Deal",
+              "date": "2026-03-28T04:18:28Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/entergy-etr-rallies-6-8-041828890.html"
+            }
+          ],
+          "workflow": [
+            "parse_intent_and_symbols",
+            "fetch_portfolio_and_fundamental_context",
+            "synthesize_with_gemini_and_market_news"
+          ],
+          "aiProvider": "gemini",
+          "model": "gemini-2.5-flash",
+          "aiErrorCode": null,
+          "decisionIntel": {
+            "overallDecision": "HOLD",
+            "confidencePercent": 54,
+            "keySignals": [
+              "INFY HOLD",
+              "Confidence 59%",
+              "Pattern backtest 0.0%"
+            ],
+            "portfolioRisk": {
+              "sectorExposurePercent": null,
+              "riskLevel": "unknown"
+            },
+            "riskLevel": "Medium",
+            "nextBestAction": "HOLD INFY with strict stop discipline and reduced size if volatility expands.",
+            "alternativeStrategy": "If INFY loses support on close, switch to defensive rotation and protect capital over upside capture.",
+            "marketSentiment": "Risk-off session with broad weakness. Sector rotation mixed with no dominant theme."
+          },
+          "scoreBreakdown": {
+            "symbol": "ICICIBANK",
+            "raw": {
+              "momentum": 0.2,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.2
+            },
+            "weights": {
+              "momentum": 0.35,
+              "fundamentals": 0.3,
+              "newsSentiment": 0.2,
+              "risk": 0.15
+            },
+            "weighted": {
+              "momentum": 0.07,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.03
+            },
+            "totalScore": 0.1,
+            "derivedConfidencePercent": 54
+          },
+          "confidenceReasoning": "Confidence 54% derived from weighted momentum (0.35), fundamentals (0.3), news (0.2), and risk (0.15).",
+          "riskFactors": [
+            "No outsized risk flags detected beyond normal market volatility."
+          ],
+          "fallbackUsed": false,
+          "errorCode": null,
+          "createdAt": "2026-03-29T09:34:57.706Z"
+        }
+      ]
+    },
+    "mc_1774777305112_e1kbfr": {
+      "id": "mc_1774777305112_e1kbfr",
+      "createdAt": "2026-03-29T09:41:45.112Z",
+      "updatedAt": "2026-03-29T09:41:45.112Z",
+      "turns": [
+        {
+          "question": "What should I reduce to control risk now?",
+          "answer": "PRIMARY SIGNAL: High-conviction setups are limited, so trade selectively with strict risk control.\nAnswer: PRIMARY SIGNAL: Address risk in RELIANCE.\nWhy:\n- Answer: RELIANCE shows low downside risk, but its momentum remains\n- Momentum and trend alignment are not yet strong enough for aggressive positioning.\n- Catalyst strength is moderate, so execution quality matters more than broad exposure.\nAction:\n- Wait for price to break and hold above resistance before taking fresh long exposure.\n- Use only partial size until portfolio risk drops below Medium.",
+          "symbolsAnalyzed": [
+            "RELIANCE",
+            "TCS",
+            "INFY",
+            "HDFCBANK"
+          ],
+          "citations": [
+            {
+              "source": "Portfolio analysis engine",
+              "endpoint": "/api/portfolio/analyze"
+            },
+            {
+              "source": "Opportunity Radar alerts",
+              "endpoint": "/api/agent/opportunity-radar"
+            },
+            {
+              "source": "Financial health engine",
+              "endpoint": "/api/financial/health"
+            },
+            {
+              "source": "Market summary engine",
+              "endpoint": "/api/market/summary"
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "RELIANCE",
+              "title": "Yahoo momentum: 20D -3.6%, 60D -12.4%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Business Insider",
+              "symbol": "RELIANCE",
+              "title": "Inside NATO's 'Sentry' missions and the urgent drive to ready for new threats",
+              "date": "2026-03-28",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "TCS",
+              "title": "Yahoo momentum: 20D -9.1%, 60D -26.4%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Livemint",
+              "symbol": "TCS",
+              "title": "In a fresh H-1B salvo for IT firms, US moots 11% higher pay for new hires",
+              "date": "2026-03-28",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "INFY",
+              "title": "Yahoo momentum: 20D -11.1%, 60D -28.9%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Histalk2.com",
+              "symbol": "INFY",
+              "title": "News 3/27/26",
+              "date": "2026-03-26",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "HDFCBANK",
+              "title": "Yahoo momentum: 20D -16.7%, 60D -23.7%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Ibtimes.com.au",
+              "symbol": "HDFCBANK",
+              "title": "Indian Stocks for Australian Investors: 10 Picks Poised for Growth in 2026",
+              "date": "2026-03-26",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Unity Software (U) Soars 13.6% on Higher Revenue Outlook",
+              "date": "2026-03-28T04:34:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/unity-software-u-soars-13-043433039.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "ADMA Biologics (ADMA) Soars 11.6% as Firm Denies Short Seller Allegations",
+              "date": "2026-03-28T04:27:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/adma-biologics-adma-soars-11-042733181.html"
+            }
+          ],
+          "workflow": [
+            "parse_intent_and_symbols",
+            "fetch_portfolio_and_fundamental_context",
+            "synthesize_with_gemini_and_market_news"
+          ],
+          "aiProvider": "gemini",
+          "model": "gemini-2.5-flash",
+          "aiErrorCode": null,
+          "decisionIntel": {
+            "overallDecision": "HOLD",
+            "confidencePercent": 60,
+            "keySignals": [
+              "INFY HOLD",
+              "Confidence 59%",
+              "Pattern backtest 0.0%"
+            ],
+            "portfolioRisk": {
+              "sectorExposurePercent": null,
+              "riskLevel": "unknown"
+            },
+            "riskLevel": "Medium",
+            "nextBestAction": "HOLD INFY with strict stop discipline and reduced size if volatility expands.",
+            "alternativeStrategy": "If INFY loses support on close, switch to defensive rotation and protect capital over upside capture.",
+            "marketSentiment": "Risk-off session with broad weakness. Sector rotation mixed with no dominant theme."
+          },
+          "scoreBreakdown": {
+            "symbol": "ICICIBANK",
+            "raw": {
+              "momentum": 0.2,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.2
+            },
+            "weights": {
+              "momentum": 0.35,
+              "fundamentals": 0.3,
+              "newsSentiment": 0.2,
+              "risk": 0.15
+            },
+            "weighted": {
+              "momentum": 0.07,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.03
+            },
+            "totalScore": 0.1,
+            "derivedConfidencePercent": 54
+          },
+          "confidenceReasoning": "Confidence 60% reflects evidence coverage 100% with no major conflict penalty. Weighted contributors: momentum 0.35, fundamentals 0.3, news 0.2, risk 0.15.",
+          "riskFactors": [
+            "No outsized risk flags detected beyond normal market volatility."
+          ],
+          "fallbackUsed": false,
+          "errorCode": null,
+          "createdAt": "2026-03-29T09:41:45.112Z"
+        }
+      ]
+    },
+    "mc_1774777533528_0rt937": {
+      "id": "mc_1774777533528_0rt937",
+      "createdAt": "2026-03-29T09:45:33.528Z",
+      "updatedAt": "2026-03-29T09:45:50.616Z",
+      "turns": [
+        {
+          "question": "Should I buy INFY?",
+          "answer": "PRIMARY SIGNAL: High-conviction setups are limited, so trade selectively with strict risk control.\nAnswer: Do not buy INFY at this time; the current signal is to\nWhy:\n- Portfolio scan across broad coverage: 3 BUY, 4 HOLD, 3 SELL.\n- Momentum and trend alignment are not yet strong enough for aggressive positioning.\n- Catalyst strength is moderate, so execution quality matters more than broad exposure.\nAction:\n- Wait for price to break and hold above resistance before taking fresh long exposure.\n- Use only partial size until portfolio risk drops below Medium.",
+          "symbolsAnalyzed": [
+            "INFY"
+          ],
+          "citations": [
+            {
+              "source": "Portfolio analysis engine",
+              "endpoint": "/api/portfolio/analyze"
+            },
+            {
+              "source": "Opportunity Radar alerts",
+              "endpoint": "/api/agent/opportunity-radar"
+            },
+            {
+              "source": "Financial health engine",
+              "endpoint": "/api/financial/health"
+            },
+            {
+              "source": "Market summary engine",
+              "endpoint": "/api/market/summary"
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "INFY",
+              "title": "Yahoo momentum: 20D -11.1%, 60D -28.9%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Histalk2.com",
+              "symbol": "INFY",
+              "title": "News 3/27/26",
+              "date": "2026-03-26",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Unity Software (U) Soars 13.6% on Higher Revenue Outlook",
+              "date": "2026-03-28T04:34:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/unity-software-u-soars-13-043433039.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "ADMA Biologics (ADMA) Soars 11.6% as Firm Denies Short Seller Allegations",
+              "date": "2026-03-28T04:27:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/adma-biologics-adma-soars-11-042733181.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "VCX Fund Crashes over 30% — 3 Risks Every Investor Should Know",
+              "date": "2026-03-28T05:50:26Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/vcx-fund-crashes-over-30-055026369.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "First Majestic (AG) Climbs 7% on Silver Rush",
+              "date": "2026-03-28T04:21:41Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/first-majestic-ag-climbs-7-042141683.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Entergy (ETR) Rallies 6.8% on Meta Deal",
+              "date": "2026-03-28T04:18:28Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/entergy-etr-rallies-6-8-041828890.html"
+            }
+          ],
+          "workflow": [
+            "parse_intent_and_symbols",
+            "fetch_portfolio_and_fundamental_context",
+            "synthesize_with_gemini_and_market_news"
+          ],
+          "aiProvider": "gemini",
+          "model": "gemini-2.5-flash",
+          "aiErrorCode": null,
+          "decisionIntel": {
+            "overallDecision": "HOLD",
+            "confidencePercent": 43,
+            "keySignals": [
+              "INFY HOLD",
+              "Confidence 59%",
+              "Pattern backtest 0.0%"
+            ],
+            "portfolioRisk": {
+              "sectorExposurePercent": null,
+              "riskLevel": "unknown"
+            },
+            "riskLevel": "Medium",
+            "nextBestAction": "HOLD INFY with strict stop discipline and reduced size if volatility expands.",
+            "alternativeStrategy": "If INFY loses support on close, switch to defensive rotation and protect capital over upside capture.",
+            "marketSentiment": "Risk-off session with broad weakness. Sector rotation mixed with no dominant theme."
+          },
+          "scoreBreakdown": {
+            "symbol": "TATASTEEL",
+            "raw": {
+              "momentum": 0.2,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.2
+            },
+            "weights": {
+              "momentum": 0.35,
+              "fundamentals": 0.3,
+              "newsSentiment": 0.2,
+              "risk": 0.15
+            },
+            "weighted": {
+              "momentum": 0.07,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.03
+            },
+            "totalScore": 0.1,
+            "derivedConfidencePercent": 54
+          },
+          "confidenceReasoning": "Confidence 43% reflects evidence coverage 100% with signal conflict penalty applied. Weighted contributors: momentum 0.35, fundamentals 0.3, news 0.2, risk 0.15.",
+          "riskFactors": [
+            "No outsized risk flags detected beyond normal market volatility."
+          ],
+          "fallbackUsed": false,
+          "errorCode": null,
+          "createdAt": "2026-03-29T09:45:33.528Z"
+        },
+        {
+          "question": "what about risk?",
+          "answer": "PRIMARY SIGNAL: High-conviction setups are limited, so trade selectively with strict risk control.\nAnswer: PRIMARY SIGNAL: INFY shows low downside risk, but maintain a cautious HOLD.\nWhy:\n- Answer: While INFY's specific downside\n- Momentum and trend alignment are not yet strong enough for aggressive positioning.\n- Catalyst strength is moderate, so execution quality matters more than broad exposure.\nAction:\n- Wait for price to break and hold above resistance before taking fresh long exposure.\n- Use only partial size until portfolio risk drops below Medium.",
+          "symbolsAnalyzed": [
+            "INFY"
+          ],
+          "citations": [
+            {
+              "source": "Portfolio analysis engine",
+              "endpoint": "/api/portfolio/analyze"
+            },
+            {
+              "source": "Opportunity Radar alerts",
+              "endpoint": "/api/agent/opportunity-radar"
+            },
+            {
+              "source": "Financial health engine",
+              "endpoint": "/api/financial/health"
+            },
+            {
+              "source": "Market summary engine",
+              "endpoint": "/api/market/summary"
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "INFY",
+              "title": "Yahoo momentum: 20D -11.1%, 60D -28.9%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Histalk2.com",
+              "symbol": "INFY",
+              "title": "News 3/27/26",
+              "date": "2026-03-26",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Unity Software (U) Soars 13.6% on Higher Revenue Outlook",
+              "date": "2026-03-28T04:34:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/unity-software-u-soars-13-043433039.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "ADMA Biologics (ADMA) Soars 11.6% as Firm Denies Short Seller Allegations",
+              "date": "2026-03-28T04:27:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/adma-biologics-adma-soars-11-042733181.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "VCX Fund Crashes over 30% — 3 Risks Every Investor Should Know",
+              "date": "2026-03-28T05:50:26Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/vcx-fund-crashes-over-30-055026369.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "First Majestic (AG) Climbs 7% on Silver Rush",
+              "date": "2026-03-28T04:21:41Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/first-majestic-ag-climbs-7-042141683.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Entergy (ETR) Rallies 6.8% on Meta Deal",
+              "date": "2026-03-28T04:18:28Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/entergy-etr-rallies-6-8-041828890.html"
+            }
+          ],
+          "workflow": [
+            "parse_intent_and_symbols",
+            "fetch_portfolio_and_fundamental_context",
+            "synthesize_with_gemini_and_market_news"
+          ],
+          "aiProvider": "gemini",
+          "model": "gemini-2.5-flash",
+          "aiErrorCode": null,
+          "decisionIntel": {
+            "overallDecision": "HOLD",
+            "confidencePercent": 43,
+            "keySignals": [
+              "INFY HOLD",
+              "Confidence 59%",
+              "Pattern backtest 0.0%"
+            ],
+            "portfolioRisk": {
+              "sectorExposurePercent": null,
+              "riskLevel": "unknown"
+            },
+            "riskLevel": "Medium",
+            "nextBestAction": "HOLD INFY with strict stop discipline and reduced size if volatility expands.",
+            "alternativeStrategy": "If INFY loses support on close, switch to defensive rotation and protect capital over upside capture.",
+            "marketSentiment": "Risk-off session with broad weakness. Sector rotation mixed with no dominant theme."
+          },
+          "scoreBreakdown": {
+            "symbol": "TATASTEEL",
+            "raw": {
+              "momentum": 0.2,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.2
+            },
+            "weights": {
+              "momentum": 0.35,
+              "fundamentals": 0.3,
+              "newsSentiment": 0.2,
+              "risk": 0.15
+            },
+            "weighted": {
+              "momentum": 0.07,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.03
+            },
+            "totalScore": 0.1,
+            "derivedConfidencePercent": 54
+          },
+          "confidenceReasoning": "Confidence 43% reflects evidence coverage 100% with signal conflict penalty applied. Weighted contributors: momentum 0.35, fundamentals 0.3, news 0.2, risk 0.15.",
+          "riskFactors": [
+            "No outsized risk flags detected beyond normal market volatility."
+          ],
+          "fallbackUsed": false,
+          "errorCode": null,
+          "createdAt": "2026-03-29T09:45:50.616Z"
+        }
+      ]
+    },
+    "mc_1774778392515_2msqra": {
+      "id": "mc_1774778392515_2msqra",
+      "createdAt": "2026-03-29T09:59:52.515Z",
+      "updatedAt": "2026-03-29T10:00:05.294Z",
+      "turns": [
+        {
+          "question": "Should I buy INFY?",
+          "answer": "PRIMARY SIGNAL: INFY: HOLD (Low Conviction)\nAnswer: Infosys (INFY) is currently a HOLD.\nWhy:\n- PORTFOLIO structure is sideways trend with momentum at 0.00%.\n- PORTFOLIO has low downside probability due to trend is sideways without strong momentum, momentum is positive (0.00%), volatility is contained (0.00%).\n- INFY structure is sideways trend with momentum at 0.86%.\nAction:\n- Hold PORTFOLIO and wait for a valid breakout or reversal confirmation before adding.\n- If price closes below 0.00, reduce exposure and re-evaluate structure.\n- Wait for a breakout trigger before buying INFY; current setup does not justify immediate entry.",
+          "symbolsAnalyzed": [
+            "INFY"
+          ],
+          "citations": [
+            {
+              "source": "Portfolio analysis engine",
+              "endpoint": "/api/portfolio/analyze"
+            },
+            {
+              "source": "Opportunity Radar alerts",
+              "endpoint": "/api/agent/opportunity-radar"
+            },
+            {
+              "source": "Financial health engine",
+              "endpoint": "/api/financial/health"
+            },
+            {
+              "source": "Market summary engine",
+              "endpoint": "/api/market/summary"
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "INFY",
+              "title": "Yahoo momentum: 20D -11.1%, 60D -28.9%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Histalk2.com",
+              "symbol": "INFY",
+              "title": "News 3/27/26",
+              "date": "2026-03-26",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Is a Reverse Stock Split Coming for Beyond Meat?",
+              "date": "2026-03-28T05:50:00Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/reverse-stock-split-coming-beyond-055000244.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Unity Software (U) Soars 13.6% on Higher Revenue Outlook",
+              "date": "2026-03-28T04:34:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/unity-software-u-soars-13-043433039.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "ADMA Biologics (ADMA) Soars 11.6% as Firm Denies Short Seller Allegations",
+              "date": "2026-03-28T04:27:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/adma-biologics-adma-soars-11-042733181.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "First Majestic (AG) Climbs 7% on Silver Rush",
+              "date": "2026-03-28T04:21:41Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/first-majestic-ag-climbs-7-042141683.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Entergy (ETR) Rallies 6.8% on Meta Deal",
+              "date": "2026-03-28T04:18:28Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/entergy-etr-rallies-6-8-041828890.html"
+            }
+          ],
+          "workflow": [
+            "parse_intent_and_symbols",
+            "fetch_portfolio_and_fundamental_context",
+            "synthesize_with_gemini_and_market_news"
+          ],
+          "aiProvider": "gemini",
+          "model": "gemini-2.5-flash",
+          "aiErrorCode": null,
+          "decisionIntel": {
+            "overallDecision": "HOLD",
+            "confidencePercent": 43,
+            "keySignals": [
+              "INFY HOLD",
+              "Confidence 59%",
+              "Pattern backtest 0.0%"
+            ],
+            "portfolioRisk": {
+              "sectorExposurePercent": null,
+              "riskLevel": "unknown"
+            },
+            "riskLevel": "Medium",
+            "nextBestAction": "HOLD INFY with strict stop discipline and reduced size if volatility expands.",
+            "alternativeStrategy": "If INFY loses support on close, switch to defensive rotation and protect capital over upside capture.",
+            "marketSentiment": "Risk-off session with broad weakness. Sector rotation mixed with no dominant theme."
+          },
+          "scoreBreakdown": {
+            "symbol": "TATASTEEL",
+            "raw": {
+              "momentum": 0.2,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.2
+            },
+            "weights": {
+              "momentum": 0.35,
+              "fundamentals": 0.3,
+              "newsSentiment": 0.2,
+              "risk": 0.15
+            },
+            "weighted": {
+              "momentum": 0.07,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.03
+            },
+            "totalScore": 0.1,
+            "derivedConfidencePercent": 54
+          },
+          "confidenceReasoning": "Confidence 43% reflects evidence coverage 100% with signal conflict penalty applied. Weighted contributors: momentum 0.35, fundamentals 0.3, news 0.2, risk 0.15.",
+          "riskFactors": [
+            "No outsized risk flags detected beyond normal market volatility."
+          ],
+          "fallbackUsed": false,
+          "errorCode": null,
+          "createdAt": "2026-03-29T09:59:52.515Z"
+        },
+        {
+          "question": "what about risk?",
+          "answer": "PRIMARY SIGNAL: INFY: HOLD (Low Conviction)\nAnswer: Infosys (INFY) currently presents low downside risk.\nWhy:\n- INFY's trend is sideways without strong momentum, indicating limited immediate downside pressure.\n- Momentum for INFY is positive at 0.86%, suggesting no strong bearish impulse.\n- INFY structure is sideways trend with momentum at 0.86%.\nAction:\n- Maintain current exposure to INFY, as downside risk is low.\n- Avoid adding new positions until a strong upside catalyst or confirmed breakout emerges.\n- Size INFY conservatively and keep loss limits predefined before entry.",
+          "symbolsAnalyzed": [
+            "INFY"
+          ],
+          "citations": [
+            {
+              "source": "Portfolio analysis engine",
+              "endpoint": "/api/portfolio/analyze"
+            },
+            {
+              "source": "Opportunity Radar alerts",
+              "endpoint": "/api/agent/opportunity-radar"
+            },
+            {
+              "source": "Financial health engine",
+              "endpoint": "/api/financial/health"
+            },
+            {
+              "source": "Market summary engine",
+              "endpoint": "/api/market/summary"
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "INFY",
+              "title": "Yahoo momentum: 20D -11.1%, 60D -28.9%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Histalk2.com",
+              "symbol": "INFY",
+              "title": "News 3/27/26",
+              "date": "2026-03-26",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Is a Reverse Stock Split Coming for Beyond Meat?",
+              "date": "2026-03-28T05:50:00Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/reverse-stock-split-coming-beyond-055000244.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Unity Software (U) Soars 13.6% on Higher Revenue Outlook",
+              "date": "2026-03-28T04:34:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/unity-software-u-soars-13-043433039.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "ADMA Biologics (ADMA) Soars 11.6% as Firm Denies Short Seller Allegations",
+              "date": "2026-03-28T04:27:33Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/adma-biologics-adma-soars-11-042733181.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Morgan Stanley Raises East West Bancorp (EWBC) Price Target to $141",
+              "date": "2026-03-28T07:18:05Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/morgan-stanley-raises-east-west-071805681.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Fastenal (FAST) Plans New Georgia Distribution Center",
+              "date": "2026-03-28T07:17:55Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/fastenal-fast-plans-georgia-distribution-071755112.html"
+            }
+          ],
+          "workflow": [
+            "parse_intent_and_symbols",
+            "fetch_portfolio_and_fundamental_context",
+            "synthesize_with_gemini_and_market_news"
+          ],
+          "aiProvider": "gemini",
+          "model": "gemini-2.5-flash",
+          "aiErrorCode": null,
+          "decisionIntel": {
+            "overallDecision": "HOLD",
+            "confidencePercent": 43,
+            "keySignals": [
+              "INFY HOLD",
+              "Confidence 59%",
+              "Pattern backtest 0.0%"
+            ],
+            "portfolioRisk": {
+              "sectorExposurePercent": null,
+              "riskLevel": "unknown"
+            },
+            "riskLevel": "Medium",
+            "nextBestAction": "HOLD INFY with strict stop discipline and reduced size if volatility expands.",
+            "alternativeStrategy": "If INFY loses support on close, switch to defensive rotation and protect capital over upside capture.",
+            "marketSentiment": "Risk-off session with broad weakness. Sector rotation mixed with no dominant theme."
+          },
+          "scoreBreakdown": {
+            "symbol": "TATASTEEL",
+            "raw": {
+              "momentum": 0.2,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.2
+            },
+            "weights": {
+              "momentum": 0.35,
+              "fundamentals": 0.3,
+              "newsSentiment": 0.2,
+              "risk": 0.15
+            },
+            "weighted": {
+              "momentum": 0.07,
+              "fundamentals": 0,
+              "newsSentiment": 0,
+              "risk": 0.03
+            },
+            "totalScore": 0.1,
+            "derivedConfidencePercent": 54
+          },
+          "confidenceReasoning": "Confidence 43% reflects evidence coverage 100% with signal conflict penalty applied. Weighted contributors: momentum 0.35, fundamentals 0.3, news 0.2, risk 0.15.",
+          "riskFactors": [
+            "No outsized risk flags detected beyond normal market volatility."
+          ],
+          "fallbackUsed": false,
+          "errorCode": null,
+          "createdAt": "2026-03-29T10:00:05.294Z"
+        }
+      ]
+    }
+  }
 }

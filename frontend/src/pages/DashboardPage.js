@@ -31,9 +31,9 @@ function toAction(decision) {
 }
 
 function decisionTone(action) {
-  if (action === 'BUY') return 'text-emerald-600 dark:text-emerald-400';
-  if (action === 'SELL') return 'text-rose-600 dark:text-rose-400';
-  return 'text-amber-600 dark:text-amber-400';
+  if (action === 'BUY') return 'text-[#059669]';
+  if (action === 'SELL') return 'text-[#DC2626]';
+  return 'text-[#D97706]';
 }
 
 function fallbackActionLine(action) {
@@ -50,15 +50,15 @@ function compactSignalType(alert) {
   return 'Weak Trend';
 }
 
-function biasTone(bias) {
+function getBiasBgColor(bias) {
   const normalized = String(bias || 'Neutral').toLowerCase();
   if (normalized === 'bullish') {
-    return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300';
+    return 'var(--color-buy)';
   }
   if (normalized === 'bearish') {
-    return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300';
+    return 'var(--color-sell)';
   }
-  return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+  return 'var(--text-muted)';
 }
 
 function shortenHeadline(headline, maxLength = 110) {
@@ -178,25 +178,25 @@ function DashboardPage() {
   }, [apiBaseUrl]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" style={{ color: 'var(--text-primary)' }}>
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="p-6 lg:col-span-2" interactive={false}>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Decision</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>Decision</p>
           <div className="mt-3 flex items-end justify-between gap-6">
             <p className={`text-5xl font-black ${decisionTone(selectedAction)}`}>{selectedAction}</p>
             <div className="text-right">
-              <p className="text-xs uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Confidence</p>
-              <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">{formatConfidence(primaryResult?.confidence)}</p>
+              <p className="text-xs uppercase tracking-[0.16em]" style={{ color: 'var(--text-muted)' }}>Confidence</p>
+              <p className="mt-1 text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{formatConfidence(primaryResult?.confidence)}</p>
             </div>
           </div>
-          <p className="mt-4 text-sm text-slate-700 dark:text-slate-200">{decisionLine}</p>
+          <p className="mt-4 text-sm leading-6" style={{ color: 'var(--text-muted)' }}>{decisionLine}</p>
         </Card>
 
         <Card className="p-6" interactive={false}>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Action</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>Action</p>
           <div className="mt-3 space-y-2">
             {nextSteps.map((step) => (
-              <p key={step} className="text-sm text-slate-700 dark:text-slate-200">• {step}</p>
+              <p key={step} className="text-sm leading-6" style={{ color: 'var(--text-primary)' }}>• {step}</p>
             ))}
           </div>
         </Card>
@@ -204,50 +204,57 @@ function DashboardPage() {
 
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="p-6" interactive={false}>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Market Summary</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>Market Summary</p>
           {isLoadingMarket ? (
-            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Loading market context...</p>
+            <p className="mt-3 text-sm" style={{ color: 'var(--text-muted)' }}>Loading market context...</p>
           ) : (
             <>
               <div className="mt-3 grid grid-cols-2 gap-4">
-                <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">NIFTY 50</p>
-                  <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">{marketSummary?.nifty?.movement || '--'}</p>
+                <div className="rounded-xl border p-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-card-alt)' }}>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>NIFTY 50</p>
+                  <p className="mt-1 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{marketSummary?.nifty?.movement || '--'}</p>
                 </div>
-                <div className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">SENSEX</p>
-                  <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">{marketSummary?.sensex?.movement || '--'}</p>
+                <div className="rounded-xl border p-3" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-card-alt)' }}>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>SENSEX</p>
+                  <p className="mt-1 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{marketSummary?.sensex?.movement || '--'}</p>
                 </div>
               </div>
-              <p className="mt-3 text-sm font-medium text-slate-700 dark:text-slate-200">{marketSummary?.sectorTrend?.summary || 'Sector trend data unavailable.'}</p>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{marketSummary?.summaryLine || 'No market-wide summary available yet.'}</p>
+              <p className="mt-3 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{marketSummary?.sectorTrend?.summary || 'Sector trend data unavailable.'}</p>
+              <p className="mt-2 text-sm leading-6" style={{ color: 'var(--text-muted)' }}>{marketSummary?.summaryLine || 'No market-wide summary available yet.'}</p>
             </>
           )}
         </Card>
 
         <Card className="p-6" interactive={false}>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Financial News</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>Financial News</p>
           {isLoadingNews ? (
-            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">Loading live headlines...</p>
+            <p className="mt-3 text-sm" style={{ color: 'var(--text-muted)' }}>Loading live headlines...</p>
           ) : newsItems.length ? (
             <ul className="mt-3 space-y-2">
               {newsItems.map((item) => (
-                <li key={`${item.headline}-${item.publishedAt || ''}`} className="flex items-start justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2 dark:bg-slate-800">
+                <li key={`${item.headline}-${item.publishedAt || ''}`} className="flex items-start justify-between gap-3 rounded-lg border p-2" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--bg-card-alt)' }}>
                   <a
                     href={item.url || '#'}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-sm text-slate-700 hover:underline dark:text-slate-200"
+                    className="text-sm leading-6 hover:underline"
                     title={item.headline}
+                    style={{ color: 'var(--text-secondary)' }}
                   >
                     • {shortenHeadline(item.headline)}
                   </a>
-                  <span className={`rounded-full px-2 py-1 text-xs font-semibold ${biasTone(item.bias)}`}>{item.bias || 'Neutral'}</span>
+                  <span
+                    className="rounded-full px-2 py-1 text-xs font-semibold whitespace-nowrap"
+                    style={{
+                      backgroundColor: getBiasBgColor(item.bias),
+                      color: 'white'
+                    }}
+                  >{item.bias || 'Neutral'}</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">No live headlines available.</p>
+            <p className="mt-3 text-sm" style={{ color: 'var(--text-muted)' }}>No live headlines available.</p>
           )}
         </Card>
       </section>
@@ -262,11 +269,12 @@ function DashboardPage() {
       <section>
         <Card className="p-6" interactive={false}>
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Opportunity Alerts</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>Opportunity Alerts</p>
             <button
               type="button"
               onClick={() => navigate('/opportunity-radar')}
-              className="text-sm font-semibold text-[#0F766E] hover:underline"
+              className="text-sm font-semibold hover:underline"
+              style={{ color: 'var(--color-info)' }}
             >
               View Detailed Analysis
             </button>
@@ -279,28 +287,40 @@ function DashboardPage() {
                   type="button"
                   key={`${alert.symbol}-${alert.signalType}`}
                   onClick={() => navigate('/opportunity-radar')}
-                  className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  className="flex items-center justify-between rounded-lg border px-3 py-2 text-left transition-colors"
+                  style={{
+                    borderColor: 'var(--border)',
+                    backgroundColor: 'var(--bg-card-alt)',
+                    color: 'var(--text-primary)'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-card-alt)'}
                 >
-                  <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{alert.symbol}</span>
-                  <span className="text-xs text-slate-600 dark:text-slate-300">{alert.signalType}</span>
+                  <span className="text-sm font-semibold">{alert.symbol}</span>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{alert.signalType}</span>
                 </button>
               ))}
             </div>
           ) : (
-            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">No compact alerts available. Run Opportunity Radar for live signals.</p>
+            <p className="mt-3 text-sm" style={{ color: 'var(--text-muted)' }}>No compact alerts available. Run Opportunity Radar for live signals.</p>
           )}
         </Card>
       </section>
 
       {!liveResults.length ? (
         <Card className="p-6" interactive={false}>
-          <p className="text-sm text-slate-600 dark:text-slate-300">
+          <p className="text-sm leading-6 text-[#9CA3AF]">
             No portfolio analysis available yet. Upload symbols in Portfolio Workspace and run analysis.
           </p>
           <button
             type="button"
             onClick={() => navigate('/portfolio')}
-            className="ripple-btn mt-4 inline-flex items-center gap-2 rounded-xl bg-[#0F766E] px-4 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-lg"
+            className="ripple-btn mt-4 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-lg"
+            style={{
+              backgroundColor: 'var(--btn-primary-bg)',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--btn-primary-hover)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--btn-primary-bg)'}
           >
             <SparkIcon />
             Open Portfolio Workspace

@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar, { navItems } from '../components/navigation/Sidebar';
-import { MoonIcon, SparkIcon, SunIcon } from '../components/icons/AppIcons';
+import { SparkIcon } from '../components/icons/AppIcons';
 import { usePortfolio } from '../context/PortfolioContext';
 
 const routeLabelMap = {
@@ -25,28 +25,6 @@ function AppLayout() {
     isRunningOpportunityRadar,
     statusMessage,
   } = usePortfolio();
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const savedTheme = window.localStorage.getItem('investai-theme');
-    if (savedTheme === 'dark') {
-      setIsDark(true);
-      return;
-    }
-
-    if (savedTheme === 'light') {
-      setIsDark(false);
-      return;
-    }
-
-    // Default theme for first-time users.
-    setIsDark(true);
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDark);
-    window.localStorage.setItem('investai-theme', isDark ? 'dark' : 'light');
-  }, [isDark]);
 
   const sectionLabel = useMemo(
     () => routeLabelMap[location.pathname] || 'Decision Engine',
@@ -68,33 +46,28 @@ function AppLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F2F6F5] text-slate-900 dark:bg-[#0B1418] dark:text-slate-100">
-      <div className="app-atmosphere relative flex min-h-screen overflow-hidden">
-
+    <div className="h-screen overflow-hidden flex flex-col bg-[#0B1220] text-[#E5E7EB]">
+      <div className="app-atmosphere relative flex h-full overflow-hidden">
         <Sidebar />
 
-        <div className="relative z-10 flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/80 px-6 py-4 backdrop-blur-xl dark:border-slate-800 dark:bg-[#0F1D24]/80">
+        <div className="relative z-10 flex min-w-0 flex-1 flex-col overflow-hidden">
+          <header className="z-20 border-b border-white/10 px-6 py-2 backdrop-blur-xl bg-[#111827]">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold tracking-tight">AI Investor Dashboard</h1>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-300">{sectionLabel}</p>
+                <h1 className="text-xl font-bold tracking-tight text-[#E5E7EB]">
+                  Arthasanket
+                </h1>
+                <p className="text-sm font-medium mt-1 text-secondary">
+                  {sectionLabel}
+                </p>
               </div>
 
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setIsDark((prev) => !prev)}
-                  className="ripple-btn rounded-xl border border-slate-300 bg-white p-2 text-slate-700 transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-                  aria-label="Toggle dark mode"
-                >
-                  {isDark ? <SunIcon /> : <MoonIcon />}
-                </button>
-                <button
-                  type="button"
                   onClick={handleRunScan}
                   disabled={isAnalyzing || isRunningOpportunityRadar}
-                  className="ripple-btn inline-flex items-center gap-2 rounded-xl bg-[#0F766E] px-4 py-2 text-sm font-semibold text-white shadow-md transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70"
+                  className="ripple-btn inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold shadow-md transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70 bg-[#3B82F6] text-white hover:bg-[#2563EB]"
                 >
                   <SparkIcon />
                   {isAnalyzing || isRunningOpportunityRadar ? 'Running Scan...' : 'Run AI Scan'}
@@ -102,10 +75,12 @@ function AppLayout() {
               </div>
             </div>
             {statusMessage ? (
-              <p className="mt-2 text-xs text-gray-500 dark:text-slate-400">{statusMessage}</p>
+              <p className="mt-2 text-xs text-secondary">
+                {statusMessage}
+              </p>
             ) : null}
 
-            <nav className="mt-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+            <nav className="mt-2 flex gap-2 overflow-x-auto pb-1 lg:hidden">
               {navItems.map((item) => (
                 <NavLink
                   key={item.to}
@@ -113,8 +88,8 @@ function AppLayout() {
                   className={({ isActive }) =>
                     `rounded-xl border px-4 py-2 text-sm font-semibold transition-all duration-200 ease-in-out ${
                       isActive
-                        ? 'border-emerald-200 bg-emerald-50 text-[#0F766E] dark:border-emerald-800/50 dark:bg-emerald-900/30 dark:text-emerald-200'
-                        : 'border-slate-200 bg-white text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300'
+                        ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
+                        : 'bg-[#1F2937] border-white/10 text-secondary'
                     }`
                   }
                 >
@@ -124,7 +99,7 @@ function AppLayout() {
             </nav>
           </header>
 
-          <main className="relative z-10 flex-1 p-6">
+          <main className="relative z-10 flex-1 overflow-y-auto p-6 bg-[#0B1220]">
             <Outlet />
           </main>
         </div>

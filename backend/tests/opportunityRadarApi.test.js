@@ -188,25 +188,103 @@ async function run() {
         true,
         'Alert should include integer backtestHorizon'
       );
+      if (first.action === 'HOLD') {
+        assert.strictEqual(
+          first.executionPlan,
+          null,
+          'HOLD alerts should not include an execution plan'
+        );
+      } else {
+        assert.strictEqual(
+          typeof first.executionPlan,
+          'object',
+          'Directional alerts should include executionPlan object'
+        );
+        assert.strictEqual(
+          Number.isFinite(Number(first.executionPlan?.suggestedPositionSizePct)),
+          true,
+          'Execution plan should include numeric suggestedPositionSizePct'
+        );
+        assert.strictEqual(
+          Number.isInteger(first.executionPlan?.timeHorizonDays),
+          true,
+          'Execution plan should include integer timeHorizonDays'
+        );
+        assert.strictEqual(
+          first.executionPlan?.riskProfile,
+          'aggressive',
+          'Execution plan should include selected risk profile'
+        );
+      }
+      assert.strictEqual(typeof first.signalDecision, 'object', 'Alert should include signalDecision object');
       assert.strictEqual(
-        typeof first.executionPlan,
+        typeof first.signalDecision?.type,
+        'string',
+        'signalDecision should include type'
+      );
+      assert.strictEqual(
+        Number.isFinite(Number(first.signalDecision?.confidence)) || first.signalDecision?.confidence === null,
+        true,
+        'signalDecision should include numeric/null confidence'
+      );
+      assert.strictEqual(
+        typeof first.signalDecision?.label === 'string' || first.signalDecision?.label === null,
+        true,
+        'signalDecision should include label string or null'
+      );
+      assert.strictEqual(
+        typeof first.signalDecision?.hasConflict,
+        'boolean',
+        'signalDecision should include hasConflict boolean'
+      );
+      assert.strictEqual(
+        typeof first.signalDecision?.explanation,
         'object',
-        'Alert should include executionPlan object'
+        'signalDecision should include explanation object'
       );
       assert.strictEqual(
-        Number.isFinite(Number(first.executionPlan?.suggestedPositionSizePct)),
+        typeof first.signalDecision?.explanation?.signal,
+        'string',
+        'signalDecision.explanation should include signal'
+      );
+      assert.strictEqual(
+        Number.isFinite(Number(first.signalDecision?.explanation?.confidence))
+          || first.signalDecision?.explanation?.confidence === null,
         true,
-        'Execution plan should include numeric suggestedPositionSizePct'
+        'signalDecision.explanation should include numeric/null confidence'
       );
       assert.strictEqual(
-        Number.isInteger(first.executionPlan?.timeHorizonDays),
+        typeof first.signalDecision?.explanation?.label === 'string'
+          || first.signalDecision?.explanation?.label === null,
         true,
-        'Execution plan should include integer timeHorizonDays'
+        'signalDecision.explanation should include label string/null'
       );
       assert.strictEqual(
-        first.executionPlan?.riskProfile,
-        'aggressive',
-        'Execution plan should include selected risk profile'
+        Number.isFinite(Number(first.signalDecision?.explanation?.score))
+          || first.signalDecision?.explanation?.score === null,
+        true,
+        'signalDecision.explanation should include numeric/null score'
+      );
+      assert.strictEqual(
+        Number.isFinite(Number(first.signalDecision?.explanation?.probability))
+          || first.signalDecision?.explanation?.probability === null,
+        true,
+        'signalDecision.explanation should include numeric/null probability'
+      );
+      assert.strictEqual(
+        Array.isArray(first.signalDecision?.explanation?.drivers),
+        true,
+        'signalDecision.explanation should include drivers array'
+      );
+      assert.strictEqual(
+        Array.isArray(first.signalDecision?.explanation?.warnings),
+        true,
+        'signalDecision.explanation should include warnings array'
+      );
+      assert.strictEqual(
+        typeof first.signalDecision?.explanation?.interpretation,
+        'string',
+        'signalDecision.explanation should include interpretation string'
       );
 
       if (first.contextSignals.length > 0) {

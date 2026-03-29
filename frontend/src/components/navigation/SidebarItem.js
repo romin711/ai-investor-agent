@@ -6,23 +6,27 @@ function SidebarItem({ to, label, Icon }) {
     <NavLink to={to} end className="group relative block">
       {({ isActive }) => (
         <div
-          className={`relative flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200 ease-in-out ${
-            isActive
-              ? 'text-[#0F766E] dark:text-emerald-300'
-              : 'text-slate-500 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
-          }`}
+          className="relative flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200 ease-in-out"
+          style={{
+            color: isActive ? '#93C5FD' : '#9CA3AF',
+            opacity: isActive ? 1 : 0.7,
+          }}
         >
           <span
-            className={`pointer-events-none absolute inset-0 rounded-2xl transition-all duration-200 ease-in-out ${
-              isActive
-                ? 'scale-100 bg-emerald-50 opacity-100 dark:bg-emerald-500/20'
-                : 'scale-95 bg-emerald-50 opacity-0 dark:bg-emerald-500/0'
-            }`}
+            className="pointer-events-none absolute inset-0 rounded-2xl transition-all duration-200 ease-in-out"
+            style={{
+              backgroundColor: isActive ? '#1F2937' : 'transparent',
+              transform: isActive ? 'scale(1)' : 'scale(0.95)',
+              opacity: isActive ? 1 : 0,
+            }}
           />
           <span
-            className={`pointer-events-none absolute bottom-2 left-0 top-2 w-1 rounded-r-full bg-[#0F766E] transition-all duration-200 ease-in-out ${
-              isActive ? 'translate-x-0 opacity-100' : '-translate-x-2 opacity-0'
-            }`}
+            className="pointer-events-none absolute bottom-2 left-0 top-2 w-1 rounded-r-full transition-all duration-200 ease-in-out"
+            style={{
+              backgroundColor: '#3B82F6',
+              transform: isActive ? 'translateX(0)' : 'translateX(-8px)',
+              opacity: isActive ? 1 : 0,
+            }}
           />
           <span className="relative z-10">
             <Icon />

@@ -1,12 +1,12 @@
 [
   {
-    "key": "2026-03-28T08:08:05.600Z|TCS|HOLD|0",
-    "symbol": "TCS",
-    "resolvedSymbol": "TCS.NS",
+    "key": "2026-03-29T09:44:11.478Z|SBIN|HOLD|9",
+    "symbol": "SBIN",
+    "resolvedSymbol": "SBIN.NS",
     "action": "HOLD",
-    "runGeneratedAt": "2026-03-28T08:08:05.600Z",
-    "runDate": "2026-03-28",
-    "entryPrice": 2406.53,
+    "runGeneratedAt": "2026-03-29T09:44:11.478Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1019.5,
     "entryIndex": 247,
     "horizons": {
       "1D": {
@@ -19,38 +19,16 @@
         "sampleReady": false
       }
     },
-    "updatedAt": "2026-03-28T08:14:14.594Z"
+    "updatedAt": "2026-03-29T09:44:21.159Z"
   },
   {
-    "key": "2026-03-28T08:08:05.600Z|ICICIBANK|HOLD|1",
-    "symbol": "ICICIBANK",
-    "resolvedSymbol": "ICICIBANK.NS",
-    "action": "HOLD",
-    "runGeneratedAt": "2026-03-28T08:08:05.600Z",
-    "runDate": "2026-03-28",
-    "entryPrice": 1254.09,
-    "entryIndex": 247,
-    "horizons": {
-      "1D": {
-        "sampleReady": false
-      },
-      "3D": {
-        "sampleReady": false
-      },
-      "5D": {
-        "sampleReady": false
-      }
-    },
-    "updatedAt": "2026-03-28T08:14:14.644Z"
-  },
-  {
-    "key": "2026-03-28T08:08:05.600Z|ITC|HOLD|2",
+    "key": "2026-03-29T09:44:11.478Z|ITC|HOLD|8",
     "symbol": "ITC",
     "resolvedSymbol": "ITC.NS",
     "action": "HOLD",
-    "runGeneratedAt": "2026-03-28T08:08:05.600Z",
-    "runDate": "2026-03-28",
-    "entryPrice": 296.76,
+    "runGeneratedAt": "2026-03-29T09:44:11.478Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 294.7,
     "entryIndex": 247,
     "horizons": {
       "1D": {
@@ -63,16 +41,16 @@
         "sampleReady": false
       }
     },
-    "updatedAt": "2026-03-28T08:14:14.696Z"
+    "updatedAt": "2026-03-29T09:44:21.056Z"
   },
   {
-    "key": "2026-03-28T07:58:51.614Z|TCS|HOLD|0",
-    "symbol": "TCS",
-    "resolvedSymbol": "TCS.NS",
+    "key": "2026-03-29T09:44:11.478Z|LT|HOLD|7",
+    "symbol": "LT",
+    "resolvedSymbol": "LT.NS",
     "action": "HOLD",
-    "runGeneratedAt": "2026-03-28T07:58:51.614Z",
-    "runDate": "2026-03-28",
-    "entryPrice": 2406.53,
+    "runGeneratedAt": "2026-03-29T09:44:11.478Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 3564.1001,
     "entryIndex": 247,
     "horizons": {
       "1D": {
@@ -85,16 +63,170 @@
         "sampleReady": false
       }
     },
-    "updatedAt": "2026-03-28T08:14:14.696Z"
+    "updatedAt": "2026-03-29T09:44:20.952Z"
   },
   {
-    "key": "2026-03-28T07:58:51.614Z|ICICIBANK|HOLD|1",
+    "key": "2026-03-29T09:44:11.478Z|INFY|HOLD|6",
+    "symbol": "INFY",
+    "resolvedSymbol": "INFY.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T09:44:11.478Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1269.7,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:20.831Z"
+  },
+  {
+    "key": "2026-03-29T09:44:11.478Z|RELIANCE|HOLD|5",
+    "symbol": "RELIANCE",
+    "resolvedSymbol": "RELIANCE.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T09:44:11.478Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1348.1,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:20.712Z"
+  },
+  {
+    "key": "2026-03-29T09:44:11.478Z|HDFCBANK|HOLD|4",
+    "symbol": "HDFCBANK",
+    "resolvedSymbol": "HDFCBANK.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T09:44:11.478Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 756.2,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:20.562Z"
+  },
+  {
+    "key": "2026-03-29T09:44:11.478Z|AXISBANK|HOLD|3",
+    "symbol": "AXISBANK",
+    "resolvedSymbol": "AXISBANK.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T09:44:11.478Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1205.2,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:20.441Z"
+  },
+  {
+    "key": "2026-03-29T09:44:11.478Z|IRCTC|HOLD|2",
+    "symbol": "IRCTC",
+    "resolvedSymbol": "IRCTC.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T09:44:11.478Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 510.6,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:20.316Z"
+  },
+  {
+    "key": "2026-03-29T09:44:11.478Z|ADANIPORTS|HOLD|1",
+    "symbol": "ADANIPORTS",
+    "resolvedSymbol": "ADANIPORTS.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T09:44:11.478Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1337.8,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:20.190Z"
+  },
+  {
+    "key": "2026-03-29T09:44:11.478Z|TATASTEEL|HOLD|0",
+    "symbol": "TATASTEEL",
+    "resolvedSymbol": "TATASTEEL.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T09:44:11.478Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 193.22,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:19.978Z"
+  },
+  {
+    "key": "2026-03-29T09:18:24.835Z|ICICIBANK|HOLD|4",
     "symbol": "ICICIBANK",
     "resolvedSymbol": "ICICIBANK.NS",
     "action": "HOLD",
-    "runGeneratedAt": "2026-03-28T07:58:51.614Z",
-    "runDate": "2026-03-28",
-    "entryPrice": 1254.09,
+    "runGeneratedAt": "2026-03-29T09:18:24.835Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1233.8,
     "entryIndex": 247,
     "horizons": {
       "1D": {
@@ -107,38 +239,16 @@
         "sampleReady": false
       }
     },
-    "updatedAt": "2026-03-28T08:14:14.696Z"
+    "updatedAt": "2026-03-29T09:44:21.383Z"
   },
   {
-    "key": "2026-03-28T07:58:51.614Z|ITC|HOLD|2",
-    "symbol": "ITC",
-    "resolvedSymbol": "ITC.NS",
-    "action": "HOLD",
-    "runGeneratedAt": "2026-03-28T07:58:51.614Z",
-    "runDate": "2026-03-28",
-    "entryPrice": 296.76,
-    "entryIndex": 247,
-    "horizons": {
-      "1D": {
-        "sampleReady": false
-      },
-      "3D": {
-        "sampleReady": false
-      },
-      "5D": {
-        "sampleReady": false
-      }
-    },
-    "updatedAt": "2026-03-28T08:14:14.696Z"
-  },
-  {
-    "key": "2026-03-28T07:58:44.378Z|TCS|HOLD|0",
+    "key": "2026-03-29T09:18:24.835Z|TCS|HOLD|1",
     "symbol": "TCS",
     "resolvedSymbol": "TCS.NS",
     "action": "HOLD",
-    "runGeneratedAt": "2026-03-28T07:58:44.378Z",
-    "runDate": "2026-03-28",
-    "entryPrice": 2406.53,
+    "runGeneratedAt": "2026-03-29T09:18:24.835Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 2389.8,
     "entryIndex": 247,
     "horizons": {
       "1D": {
@@ -151,16 +261,16 @@
         "sampleReady": false
       }
     },
-    "updatedAt": "2026-03-28T08:14:14.697Z"
+    "updatedAt": "2026-03-29T09:44:21.273Z"
   },
   {
-    "key": "2026-03-28T07:58:44.378Z|ICICIBANK|HOLD|1",
-    "symbol": "ICICIBANK",
-    "resolvedSymbol": "ICICIBANK.NS",
+    "key": "2026-03-29T09:12:54.267Z|MARUTI|HOLD|17",
+    "symbol": "MARUTI",
+    "resolvedSymbol": "MARUTI.NS",
     "action": "HOLD",
-    "runGeneratedAt": "2026-03-28T07:58:44.378Z",
-    "runDate": "2026-03-28",
-    "entryPrice": 1254.09,
+    "runGeneratedAt": "2026-03-29T09:12:54.267Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 12389,
     "entryIndex": 247,
     "horizons": {
       "1D": {
@@ -173,16 +283,236 @@
         "sampleReady": false
       }
     },
-    "updatedAt": "2026-03-28T08:14:14.697Z"
+    "updatedAt": "2026-03-29T09:44:22.022Z"
   },
   {
-    "key": "2026-03-28T07:58:44.378Z|ITC|HOLD|2",
+    "key": "2026-03-29T09:12:54.267Z|HINDUNILVR|HOLD|16",
+    "symbol": "HINDUNILVR",
+    "resolvedSymbol": "HINDUNILVR.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T09:12:54.267Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 2074.3999,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:21.914Z"
+  },
+  {
+    "key": "2026-03-29T09:12:54.267Z|BHARTIARTL|HOLD|15",
+    "symbol": "BHARTIARTL",
+    "resolvedSymbol": "BHARTIARTL.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T09:12:54.267Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1843.9,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:21.815Z"
+  },
+  {
+    "key": "2026-03-29T09:12:54.267Z|KOTAKBANK|HOLD|14",
+    "symbol": "KOTAKBANK",
+    "resolvedSymbol": "KOTAKBANK.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T09:12:54.267Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 366.15,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:21.712Z"
+  },
+  {
+    "key": "2026-03-29T09:12:54.267Z|ZOMATO|SELL|13",
+    "symbol": "ZOMATO",
+    "resolvedSymbol": "ETERNAL.NS",
+    "action": "SELL",
+    "runGeneratedAt": "2026-03-29T09:12:54.267Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 232.71,
+    "entryIndex": 246,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:21.607Z"
+  },
+  {
+    "key": "2026-03-29T09:12:54.267Z|TRENT|HOLD|12",
+    "symbol": "TRENT",
+    "resolvedSymbol": "TRENT.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T09:12:54.267Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 3399.6001,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:21.495Z"
+  },
+  {
+    "key": "2026-03-29T08:56:43.028Z|ZOMATO|SELL|13",
+    "symbol": "ZOMATO",
+    "resolvedSymbol": "ETERNAL.NS",
+    "action": "SELL",
+    "runGeneratedAt": "2026-03-29T08:56:43.028Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 225.78,
+    "entryIndex": 246,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.024Z"
+  },
+  {
+    "key": "2026-03-29T08:20:49.958Z|MARUTI|HOLD|11",
+    "symbol": "MARUTI",
+    "resolvedSymbol": "MARUTI.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T08:20:49.958Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 12662.52,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:20:49.958Z|HINDUNILVR|HOLD|10",
+    "symbol": "HINDUNILVR",
+    "resolvedSymbol": "HINDUNILVR.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T08:20:49.958Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 2121.97,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:20:49.958Z|BHARTIARTL|HOLD|9",
+    "symbol": "BHARTIARTL",
+    "resolvedSymbol": "BHARTIARTL.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T08:20:49.958Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1862.95,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:20:49.958Z|KOTAKBANK|HOLD|8",
+    "symbol": "KOTAKBANK",
+    "resolvedSymbol": "KOTAKBANK.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T08:20:49.958Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 371.07,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:20:49.958Z|ITC|HOLD|7",
     "symbol": "ITC",
     "resolvedSymbol": "ITC.NS",
     "action": "HOLD",
-    "runGeneratedAt": "2026-03-28T07:58:44.378Z",
-    "runDate": "2026-03-28",
-    "entryPrice": 296.76,
+    "runGeneratedAt": "2026-03-29T08:20:49.958Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 296.61,
     "entryIndex": 247,
     "horizons": {
       "1D": {
@@ -195,35 +525,336 @@
         "sampleReady": false
       }
     },
-    "updatedAt": "2026-03-28T08:14:14.697Z"
+    "updatedAt": "2026-03-29T09:44:22.027Z"
   },
   {
-    "signalId": "ITC-BUY-020",
-    "symbol": "ITC",
-    "action": "BUY",
-    "entryPrice": 455,
-    "exitPrice": 481.75,
-    "entryDate": "2026-02-10",
-    "exitDate": "2026-02-22",
-    "returnPct": 5.87,
-    "maxDrawdownPct": -1.2,
-    "confidence": 72,
+    "key": "2026-03-29T08:20:49.958Z|LT|HOLD|6",
+    "symbol": "LT",
+    "resolvedSymbol": "LT.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T08:20:49.958Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 3636.68,
+    "entryIndex": 247,
     "horizons": {
       "1D": {
-        "sampleReady": true,
-        "strategyReturnPct": 1.4,
-        "maxDrawdownPct": -0.4
+        "sampleReady": false
       },
       "3D": {
-        "sampleReady": true,
-        "strategyReturnPct": 3.2,
-        "maxDrawdownPct": -0.75
+        "sampleReady": false
       },
       "5D": {
-        "sampleReady": true,
-        "strategyReturnPct": 5.87,
-        "maxDrawdownPct": -1.2
+        "sampleReady": false
       }
-    }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:20:49.958Z|SBIN|HOLD|5",
+    "symbol": "SBIN",
+    "resolvedSymbol": "SBIN.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T08:20:49.958Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1050.8,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:20:49.958Z|ICICIBANK|HOLD|4",
+    "symbol": "ICICIBANK",
+    "resolvedSymbol": "ICICIBANK.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T08:20:49.958Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1258.26,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:20:49.958Z|HDFCBANK|HOLD|3",
+    "symbol": "HDFCBANK",
+    "resolvedSymbol": "HDFCBANK.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T08:20:49.958Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 778.18,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:20:49.958Z|INFY|HOLD|2",
+    "symbol": "INFY",
+    "resolvedSymbol": "INFY.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T08:20:49.958Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1276.37,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:20:49.958Z|TCS|HOLD|1",
+    "symbol": "TCS",
+    "resolvedSymbol": "TCS.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T08:20:49.958Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 2404.21,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:20:49.958Z|RELIANCE|HOLD|0",
+    "symbol": "RELIANCE",
+    "resolvedSymbol": "RELIANCE.NS",
+    "action": "HOLD",
+    "runGeneratedAt": "2026-03-29T08:20:49.958Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1397.6,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:04:09.490Z|HINDUNILVR|SELL|10",
+    "symbol": "HINDUNILVR",
+    "resolvedSymbol": "HINDUNILVR.NS",
+    "action": "SELL",
+    "runGeneratedAt": "2026-03-29T08:04:09.490Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 2075,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.028Z"
+  },
+  {
+    "key": "2026-03-29T08:04:09.490Z|MARUTI|SELL|11",
+    "symbol": "MARUTI",
+    "resolvedSymbol": "MARUTI.NS",
+    "action": "SELL",
+    "runGeneratedAt": "2026-03-29T08:04:09.490Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 12411,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.028Z"
+  },
+  {
+    "key": "2026-03-29T08:04:09.490Z|KOTAKBANK|SELL|8",
+    "symbol": "KOTAKBANK",
+    "resolvedSymbol": "KOTAKBANK.NS",
+    "action": "SELL",
+    "runGeneratedAt": "2026-03-29T08:04:09.490Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 363.23,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:04:09.490Z|ICICIBANK|SELL|4",
+    "symbol": "ICICIBANK",
+    "resolvedSymbol": "ICICIBANK.NS",
+    "action": "SELL",
+    "runGeneratedAt": "2026-03-29T08:04:09.490Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1237.9,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:04:09.490Z|SBIN|SELL|5",
+    "symbol": "SBIN",
+    "resolvedSymbol": "SBIN.NS",
+    "action": "SELL",
+    "runGeneratedAt": "2026-03-29T08:04:09.490Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1019.2,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:04:09.490Z|HDFCBANK|SELL|3",
+    "symbol": "HDFCBANK",
+    "resolvedSymbol": "HDFCBANK.NS",
+    "action": "SELL",
+    "runGeneratedAt": "2026-03-29T08:04:09.490Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 757.95,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:04:09.490Z|RELIANCE|SELL|0",
+    "symbol": "RELIANCE",
+    "resolvedSymbol": "RELIANCE.NS",
+    "action": "SELL",
+    "runGeneratedAt": "2026-03-29T08:04:09.490Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 1348,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
+  },
+  {
+    "key": "2026-03-29T08:04:09.490Z|TCS|SELL|1",
+    "symbol": "TCS",
+    "resolvedSymbol": "TCS.NS",
+    "action": "SELL",
+    "runGeneratedAt": "2026-03-29T08:04:09.490Z",
+    "runDate": "2026-03-29",
+    "entryPrice": 2387.5,
+    "entryIndex": 247,
+    "horizons": {
+      "1D": {
+        "sampleReady": false
+      },
+      "3D": {
+        "sampleReady": false
+      },
+      "5D": {
+        "sampleReady": false
+      }
+    },
+    "updatedAt": "2026-03-29T09:44:22.027Z"
   }
 ]

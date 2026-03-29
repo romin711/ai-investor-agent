@@ -21,7 +21,7 @@ function SignalBreakdown({ symbol, signals, isCollapsed = true }) {
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-700 dark:text-slate-300">
               Signal Analysis
             </p>
-            <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
+            <p className="mt-1 text-sm text-secondary">
               Top 3 reasons driving this decision
             </p>
           </div>
@@ -52,7 +52,7 @@ function SignalBreakdown({ symbol, signals, isCollapsed = true }) {
                         <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                           {signal.label}
                         </p>
-                        <p className="mt-0.5 text-xs text-gray-600 dark:text-slate-400">
+                        <p className="mt-0.5 text-xs text-secondary">
                           {signal.detail || 'No additional details'}
                         </p>
                       </div>
@@ -65,7 +65,7 @@ function SignalBreakdown({ symbol, signals, isCollapsed = true }) {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-gray-500 dark:text-slate-400">
+              <p className="text-sm text-muted">
                 No signal data available
               </p>
             )}
@@ -74,7 +74,7 @@ function SignalBreakdown({ symbol, signals, isCollapsed = true }) {
           {/* Disclaimer */}
           {topSignals.length > 0 && (
             <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800">
-              <p className="text-xs text-gray-600 dark:text-slate-400">
+              <p className="text-xs text-secondary">
                 <span className="font-semibold">Note:</span> These weights represent signal contribution to the current decision. Market conditions constantly evolve.
               </p>
             </div>
