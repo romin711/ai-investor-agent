@@ -2,6 +2,10 @@
 
 Portfolio-aware market intelligence with actionable signals, explainable reasoning, and validation-first analytics.
 
+Detailed onboarding guide:
+
+- [PROJECT_SETUP_AND_API_INTEGRATION.md](PROJECT_SETUP_AND_API_INTEGRATION.md)
+
 ## What This Repo Contains
 
 This workspace has two backend options and one frontend:
