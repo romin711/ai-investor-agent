@@ -1,50 +1,154 @@
-# Arthasanket - AI Investor Agent
+<div align="center">
 
-Portfolio-aware market intelligence with actionable signals, explainable reasoning, and validation-first analytics.
+# 🏦 Arthasanket
 
-Detailed onboarding guide:
+### AI-Powered Investor Agent for the Indian Market
 
-- [PROJECT_SETUP_AND_API_INTEGRATION.md](PROJECT_SETUP_AND_API_INTEGRATION.md)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org/)
+[![Gemini AI](https://img.shields.io/badge/Gemini-AI%202.5-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
+[![License](https://img.shields.io/badge/License-TBD-lightgrey?style=for-the-badge)](#-license)
 
-## What This Repo Contains
+> **Portfolio-aware market intelligence** with actionable signals, explainable AI reasoning, and validation-first analytics — built for NSE/BSE investors.
 
-This workspace has two backend options and one frontend:
+---
 
-- Node backend (primary app backend): portfolio analysis, opportunity radar, market chat, validation metrics, and financial data routes.
-- React frontend: dashboard and workflows for portfolio, radar, chat, insights, and validation.
-- Python agent package (optional/parallel implementation): FastAPI API and CLI runner for multi-agent portfolio analysis.
+[🚀 Quick Start](#-quick-start) · [✨ Features](#-features) · [🏗 Architecture](#-architecture) · [📡 API Reference](#-api-reference) · [🔧 Configuration](#-configuration) · [🐛 Troubleshooting](#-troubleshooting) · [🤝 Contributing](#-contributing)
 
-## Monorepo Layout
+</div>
 
-```text
-ai-investor-agent/
-|- backend/                 # Primary Node API server (port 3001 by default)
-|- frontend/                # React app (port 3000 by default)
-|- ai_investor_agent/       # Python package with agents/workflow
-|- api.py                   # Optional FastAPI entrypoint
-|- main.py                  # Optional Python CLI entrypoint
-`- validate-refactoring.sh
+---
+
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%">
+
+### 📊 Portfolio Analysis
+Upload your holdings and get instant, symbol-by-symbol risk breakdowns, concentration alerts, and weighted signal summaries.
+
+</td>
+<td width="50%">
+
+### 🎯 Opportunity Radar
+Scans NSE universe for emerging opportunities aligned with your portfolio's risk profile — on-demand or on a scheduled cadence.
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 🤖 Market Chat (AI)
+Conversational market Q&A powered by **Gemini 2.5 Flash**. Ask natural-language questions about your holdings, macro trends, or strategy.
+
+</td>
+<td width="50%">
+
+### ✅ Validation Dashboard
+Track signal accuracy, trading readiness, strategy-type breakdown, and outcome syncing — all in one view.
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 📰 Financial News & Events
+Pulls live headlines and symbol-specific events from NewsAPI, enriching every analysis with real-time context.
+
+</td>
+<td width="50%">
+
+### 🔬 Financial Health Scoring
+Aggregates insider data, events, and signals into a composite health score per NSE symbol.
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🏗 Architecture
+
+```
+┌──────────────────────────────────────────────────────┐
+│                    React Frontend                    │
+│  Dashboard · Portfolio · Radar · Chat · Validation   │
+│              http://127.0.0.1:3000                   │
+└──────────────────────┬───────────────────────────────┘
+                       │ REST (REACT_APP_API_BASE_URL)
+┌──────────────────────▼───────────────────────────────┐
+│              Node.js Backend  (server.js)            │
+│                 http://127.0.0.1:3001                │
+│                                                      │
+│  ┌─────────────────────────────────────────────────┐ │
+│  │               Engine Layer                      │ │
+│  │  pipeline.js · opportunityAgent.js              │ │
+│  │  marketChatAgent.js · signalOutcomeService.js   │ │
+│  │  performanceService.js                          │ │
+│  └────────────────────┬────────────────────────────┘ │
+│                       │                              │
+│  ┌────────────────────▼────────────────────────────┐ │
+│  │  JSON Storage  (backend/storage/)               │ │
+│  │  radar history · outcomes · chat sessions       │ │
+│  └─────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────┘
+
+                 (Optional Python path)
+┌──────────────────────────────────────────────────────┐
+│        FastAPI / CLI  (api.py · main.py)             │
+│              http://127.0.0.1:8000                   │
+│  ai_investor_agent/ package — multi-agent workflow   │
+└──────────────────────────────────────────────────────┘
 ```
 
-## Quick Start (Node + React)
+### Monorepo Layout
 
-Prerequisites:
+```text
+Arthasanket/
+├── backend/                 # Node.js API server  (port 3001)
+│   ├── engine/              # Core analysis & agent logic
+│   ├── routes/              # Express route handlers
+│   └── storage/             # Persistent JSON data stores
+├── frontend/                # React app  (port 3000)
+│   └── src/                 # Components, pages, context
+├── ai_investor_agent/       # Python package — multi-agent workflow
+├── api.py                   # FastAPI entrypoint  (port 8000)
+├── main.py                  # Python CLI entrypoint
+└── validate-refactoring.sh
+```
 
-- Node.js 18+
-- npm 9+
+---
 
-1. Backend setup
+## 🚀 Quick Start
+
+### Prerequisites
+
+| Requirement | Version |
+|---|---|
+| Node.js | 18+ |
+| npm | 9+ |
+| Python *(optional)* | 3.10+ |
+
+> 💡 Full onboarding details: **[PROJECT_SETUP_AND_API_INTEGRATION.md](PROJECT_SETUP_AND_API_INTEGRATION.md)**
+
+---
+
+### Step 1 — Start the Backend
 
 ```bash
 cd backend
 npm install
-cp .env.example .env
+cp .env.example .env   # then add your API keys (see Configuration)
 npm start
 ```
 
-Backend runs at `http://127.0.0.1:3001`.
+✅ Backend is live at **`http://127.0.0.1:3001`**
 
-2. Frontend setup (new terminal)
+---
+
+### Step 2 — Start the Frontend *(new terminal)*
 
 ```bash
 cd frontend
@@ -53,114 +157,145 @@ cp .env.example .env
 npm start
 ```
 
-Frontend runs at `http://127.0.0.1:3000`.
+✅ Frontend is live at **`http://127.0.0.1:3000`**
 
-3. Open the app
+---
 
-- Dashboard: `http://127.0.0.1:3000/dashboard`
-- Portfolio: `http://127.0.0.1:3000/portfolio`
-- Opportunity Radar: `http://127.0.0.1:3000/opportunity-radar`
-- Market Chat: `http://127.0.0.1:3000/market-chat`
-- Validation: `http://127.0.0.1:3000/validation-dashboard`
+### Step 3 — Open the App
 
-## Environment Variables
+| Page | URL |
+|---|---|
+| 🏠 Dashboard | `http://127.0.0.1:3000/dashboard` |
+| 📊 Portfolio | `http://127.0.0.1:3000/portfolio` |
+| 🎯 Opportunity Radar | `http://127.0.0.1:3000/opportunity-radar` |
+| 🤖 Market Chat | `http://127.0.0.1:3000/market-chat` |
+| ✅ Validation | `http://127.0.0.1:3000/validation-dashboard` |
 
-### backend/.env
+---
+
+## 🔧 Configuration
+
+### `backend/.env`
 
 ```env
 PORT=3001
 HOST=127.0.0.1
-GEMINI_API_KEY=
+
+# ── AI ──────────────────────────────────────────────
+GEMINI_API_KEY=          # Required for AI chat & reasoning
 GEMINI_MODEL=gemini-2.5-flash
-NEWSAPI_KEY=
 
-# Production-safe defaults: real data mode unless explicitly enabled.
-USE_MOCK_SIGNALS=false
-USE_MOCK_FINANCIAL_DATA=false
+# ── News ────────────────────────────────────────────
+NEWSAPI_KEY=             # Required for live financial news
 
+# ── Data Mode ───────────────────────────────────────
+USE_MOCK_SIGNALS=false         # Keep false for real data
+USE_MOCK_FINANCIAL_DATA=false  # Keep false for real data
+
+# ── Radar Scheduler ─────────────────────────────────
 RADAR_AUTORUN_ENABLED=false
 RADAR_AUTORUN_INTERVAL_MINUTES=720
 RADAR_AUTORUN_RISK_PROFILE=moderate
 RADAR_AUTORUN_UNIVERSE_LIMIT=0
 NSE_UNIVERSE_FILE=
 
-# Optional. Needed only to enable synthetic backtest endpoint.
-ENABLE_SYNTHETIC_BACKTEST=false
+# ── Feature Gates ───────────────────────────────────
+ENABLE_SYNTHETIC_BACKTEST=false  # Enable only in demo/test
 ```
 
-Notes:
+> 🔑 **Get your keys:**
+> - Gemini API key → [ai.google.dev](https://ai.google.dev/)
+> - NewsAPI key → [newsapi.org](https://newsapi.org/) (free tier available)
 
-- Set `GEMINI_API_KEY` to unlock AI-generated reasoning in market chat and decision flows.
-- Keep mock flags disabled in production-like runs.
-- Synthetic backtest is intentionally feature-gated.
-
-### frontend/.env
+### `frontend/.env`
 
 ```env
 REACT_APP_API_BASE_URL=http://127.0.0.1:3001
 ```
 
-## Verified API Reference (Node Backend)
+---
 
-Base URL: `http://127.0.0.1:3001`
+## 📡 API Reference
 
-### Health and analysis
+**Base URL:** `http://127.0.0.1:3001`
 
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/health` | Service status + market context mode |
-| GET | `/api/stock/:symbol` | Analyze a single symbol |
-| POST | `/api/portfolio/analyze` | Analyze portfolio rows |
-
-### Opportunity radar
+<details>
+<summary><strong>🩺 Health & Stock Analysis</strong></summary>
 
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/agent/opportunity-radar` | Portfolio-based radar run |
-| POST | `/api/agent/opportunity-radar/universe` | Universe scan |
-| GET | `/api/agent/opportunity-radar/history?limit=25` | Radar history |
-| GET | `/api/agent/opportunity-radar/scheduler` | Scheduler status |
-| POST | `/api/agent/opportunity-radar/scheduler/start` | Start scheduler |
-| POST | `/api/agent/opportunity-radar/scheduler/stop` | Stop scheduler |
-| POST | `/api/agent/opportunity-radar/scheduler/run-now` | Trigger immediate scheduler run |
+|:---:|---|---|
+| `GET` | `/health` | Service status + market context mode |
+| `GET` | `/api/stock/:symbol` | Analyze a single NSE symbol |
+| `POST` | `/api/portfolio/analyze` | Analyze full portfolio |
 
-### Market chat
+</details>
 
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/agent/market-chat` | Portfolio-aware Q&A |
-| GET | `/api/agent/market-chat/session?sessionId=...` | Fetch chat session |
-
-### Validation and market intel
+<details>
+<summary><strong>🎯 Opportunity Radar</strong></summary>
 
 | Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/validation/performance` | Performance metrics |
-| GET | `/api/validation/readiness` | Trading readiness snapshot |
-| GET | `/api/validation/strategy-breakdown` | Strategy-type breakdown |
-| GET | `/api/validation/outcomes` | Synced outcomes |
-| GET | `/api/market/summary` | Market summary |
-| GET | `/api/news/financial?limit=5` | Financial headlines |
+|:---:|---|---|
+| `POST` | `/api/agent/opportunity-radar` | Portfolio-based radar run |
+| `POST` | `/api/agent/opportunity-radar/universe` | Full NSE universe scan |
+| `GET` | `/api/agent/opportunity-radar/history?limit=25` | Past radar runs |
+| `GET` | `/api/agent/opportunity-radar/scheduler` | Scheduler status |
+| `POST` | `/api/agent/opportunity-radar/scheduler/start` | Start auto-scheduler |
+| `POST` | `/api/agent/opportunity-radar/scheduler/stop` | Stop auto-scheduler |
+| `POST` | `/api/agent/opportunity-radar/scheduler/run-now` | Trigger immediate run |
 
-### Financial data endpoints
+</details>
 
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/financial/health?symbol=...` | Financial health scoring |
-| GET | `/api/financial/events?symbol=...` | Financial events stream |
-| GET | `/api/financial/signal?symbol=...&price=...` | Financial signal synthesis |
-| GET | `/api/financial/insider?symbol=...` | NSE insider data |
-| GET | `/api/financial/news?symbol=...` | Symbol-specific news |
-
-### Feature-gated endpoint
+<details>
+<summary><strong>🤖 Market Chat</strong></summary>
 
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/backtest/run` | Synthetic backtest (requires `ENABLE_SYNTHETIC_BACKTEST=true`) |
+|:---:|---|---|
+| `POST` | `/api/agent/market-chat` | Portfolio-aware AI Q&A |
+| `GET` | `/api/agent/market-chat/session?sessionId=...` | Fetch chat session |
 
-## Request Examples
+</details>
 
-### Analyze portfolio
+<details>
+<summary><strong>✅ Validation & Market Intel</strong></summary>
+
+| Method | Endpoint | Description |
+|:---:|---|---|
+| `GET` | `/api/validation/performance` | Signal performance metrics |
+| `GET` | `/api/validation/readiness` | Trading readiness snapshot |
+| `GET` | `/api/validation/strategy-breakdown` | Strategy-type breakdown |
+| `GET` | `/api/validation/outcomes` | Synced signal outcomes |
+| `GET` | `/api/market/summary` | Market summary |
+| `GET` | `/api/news/financial?limit=5` | Latest financial headlines |
+
+</details>
+
+<details>
+<summary><strong>💹 Financial Data</strong></summary>
+
+| Method | Endpoint | Description |
+|:---:|---|---|
+| `GET` | `/api/financial/health?symbol=...` | Financial health score |
+| `GET` | `/api/financial/events?symbol=...` | Financial events stream |
+| `GET` | `/api/financial/signal?symbol=...&price=...` | Signal synthesis |
+| `GET` | `/api/financial/insider?symbol=...` | NSE insider activity |
+| `GET` | `/api/financial/news?symbol=...` | Symbol-specific news |
+
+</details>
+
+<details>
+<summary><strong>🔬 Feature-Gated</strong></summary>
+
+| Method | Endpoint | Description |
+|:---:|---|---|
+| `POST` | `/api/backtest/run` | Synthetic backtest *(requires `ENABLE_SYNTHETIC_BACKTEST=true`)* |
+
+</details>
+
+---
+
+## 💻 Request Examples
+
+### Analyze a portfolio
 
 ```bash
 curl -X POST http://127.0.0.1:3001/api/portfolio/analyze \
@@ -168,8 +303,10 @@ curl -X POST http://127.0.0.1:3001/api/portfolio/analyze \
   -d '[{"symbol":"RELIANCE","weight":40},{"symbol":"TCS","weight":60}]'
 ```
 
-Alternative payloads accepted by `/api/portfolio/analyze`:
+<details>
+<summary>Alternative payload formats</summary>
 
+**Object with `portfolio` key:**
 ```json
 {
   "portfolio": [
@@ -179,21 +316,30 @@ Alternative payloads accepted by `/api/portfolio/analyze`:
 }
 ```
 
+**Raw text input:**
 ```json
 {
   "rawInput": "RELIANCE 40\nTCS 60"
 }
 ```
 
+</details>
+
 ### Run opportunity radar
 
 ```bash
 curl -X POST http://127.0.0.1:3001/api/agent/opportunity-radar \
   -H "Content-Type: application/json" \
-  -d '{"portfolio":[{"symbol":"INFY","weight":50},{"symbol":"HDFCBANK","weight":50}],"riskProfile":"moderate"}'
+  -d '{
+    "portfolio": [
+      {"symbol":"INFY","weight":50},
+      {"symbol":"HDFCBANK","weight":50}
+    ],
+    "riskProfile": "moderate"
+  }'
 ```
 
-### Ask market chat
+### Ask the market chat
 
 ```bash
 curl -X POST http://127.0.0.1:3001/api/agent/market-chat \
@@ -201,79 +347,84 @@ curl -X POST http://127.0.0.1:3001/api/agent/market-chat \
   -d '{"question":"Should I reduce concentration risk in my portfolio?"}'
 ```
 
-## Test Commands
+---
 
-Run from the correct package folders:
+## 🐍 Optional: Python Service & CLI
 
-```bash
-# Backend tests
-cd backend
-npm test
-
-# Frontend tests
-cd frontend
-npm test
-
-# Focused radar page test
-cd frontend
-npm run test:radar
-```
-
-## Optional Python Service and CLI
-
-Python requirements are not installed by default in Node/React setup. If you want to run the Python path:
-
-1. Create/activate environment and install dependencies (per your own requirements file/environment).
-2. Start FastAPI app from project root:
+> The Python path is independent of the Node/React stack. Install only if needed.
 
 ```bash
+# From project root
+python -m venv .venv
+source .venv/bin/activate
+pip install fastapi uvicorn pydantic
+
+# Start FastAPI server
 uvicorn api:app --host 127.0.0.1 --port 8000 --reload
-```
 
-3. Run CLI analyzer:
-
-```bash
+# Or run the CLI analyzer
 python main.py --symbols AAPL,MSFT,RELIANCE.NS
 ```
 
-Python API endpoints (from `api.py`):
+**Python API endpoints** (`http://127.0.0.1:8000`):
 
-- `POST /analyze`
-- `POST /portfolio/save`
-- `GET /portfolio/load?user_id=default-user`
-- `GET /realtime/quotes?symbols=AAPL,MSFT`
+| Method | Endpoint | Description |
+|:---:|---|---|
+| `POST` | `/analyze` | Analyze symbols |
+| `POST` | `/portfolio/save` | Save portfolio |
+| `GET` | `/portfolio/load?user_id=default-user` | Load portfolio |
+| `GET` | `/realtime/quotes?symbols=AAPL,MSFT` | Real-time quotes |
 
-## Architecture Summary
+---
 
-- Frontend calls backend via `PortfolioContext` and page-level services.
-- `backend/server.js` dispatches all HTTP routes.
-- `backend/engine/pipeline.js` drives symbol/portfolio analysis.
-- `backend/engine/opportunityAgent.js` generates radar alerts and persists run history.
-- `backend/engine/marketChatAgent.js` orchestrates AI + deterministic fallback responses.
-- `backend/engine/signalOutcomeService.js` and `backend/engine/performanceService.js` compute validation and readiness.
-- JSON stores under `backend/storage/` keep radar history, outcomes, and chat state.
+## 🧪 Testing
 
-## Troubleshooting
+```bash
+# Backend tests
+cd backend && npm test
 
-- `EADDRINUSE` on backend start:
-  - Change `PORT` in `backend/.env` (example: `3002`) or stop the process using `3001`.
-- Frontend cannot reach backend:
-  - Verify backend is running and `REACT_APP_API_BASE_URL` matches host/port.
-- Market chat returns fallback responses:
-  - Check `GEMINI_API_KEY` and internet access.
-- Missing news data:
-  - Add `NEWSAPI_KEY` in `backend/.env`.
-- Synthetic backtest returns 403:
-  - Set `ENABLE_SYNTHETIC_BACKTEST=true` only in demo/testing environments.
+# Frontend tests
+cd frontend && npm test
 
-## Contributing
+# Focused radar page test
+cd frontend && npm run test:radar
+```
 
-1. Create a feature branch.
-2. Keep changes small and focused.
-3. Run backend and frontend tests.
-4. Open a PR with context and test notes.
+---
 
-## License
+## 🐛 Troubleshooting
 
-No license file is currently present.
-Add a `LICENSE` file (for example MIT or Apache-2.0) before public redistribution.
+| Problem | Solution |
+|---|---|
+| `EADDRINUSE` on backend start | Change `PORT` in `backend/.env` (e.g. `3002`) or free port `3001` |
+| Frontend can't reach backend | Verify backend is running; check `REACT_APP_API_BASE_URL` |
+| Market chat returns fallback | Set a valid `GEMINI_API_KEY` and confirm internet access |
+| No news data | Add `NEWSAPI_KEY` in `backend/.env` |
+| Backtest returns `403` | Set `ENABLE_SYNTHETIC_BACKTEST=true` in **non-production** only |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. 🍴 Fork the repository
+2. 🌿 Create a feature branch: `git checkout -b feature/your-feature`
+3. ✏️ Make small, focused changes
+4. 🧪 Run backend and frontend tests
+5. 📬 Open a PR with clear context and test notes
+
+---
+
+## 📄 License
+
+No license file is currently present.  
+Add a `LICENSE` file (e.g. MIT or Apache-2.0) before public redistribution.
+
+---
+
+<div align="center">
+
+Made with ❤️ for Indian investors &nbsp;|&nbsp; Powered by [Gemini AI](https://ai.google.dev/) &nbsp;|&nbsp; NSE/BSE data
+
+</div>
