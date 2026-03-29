@@ -422,9 +422,3 @@ No license file is currently present.
 Add a `LICENSE` file (e.g. MIT or Apache-2.0) before public redistribution.
 
 ---
-
-<div align="center">
-
-Made with ❤️ for Indian investors &nbsp;|&nbsp; Powered by [Gemini AI](https://ai.google.dev/) &nbsp;|&nbsp; NSE/BSE data
-
-</div>
