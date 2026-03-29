@@ -1,97 +1,182 @@
-# Arthsanket (AI Investor Agent)
+# Arthasanket — AI Investor Agent
 
-Arthsanket is a multi-component investment intelligence platform for portfolio-aware decision support.
+> Portfolio-aware market intelligence with actionable signals, explainable reasoning, and validation-first analytics.
 
-It combines:
-- A Node.js backend for Opportunity Radar, Market Chat, validation analytics, and financial signal APIs.
-- A React frontend dashboard for portfolio tracking, insights, market chat, validation, and charts.
-- A Python multi-agent engine and FastAPI service for stock analysis workflows.
+![Frontend](https://img.shields.io/badge/Frontend-React%2018-blue)
+![Backend](https://img.shields.io/badge/Backend-Node.js-brightgreen)
+![AI](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-purple)
+![Status](https://img.shields.io/badge/Status-Active%20Hackathon-orange)
+![License](https://img.shields.io/badge/License-Not%20Specified-lightgrey)
 
-The project is designed around Indian market use cases while still supporting generic symbols where available from upstream data providers.
+Arthasanket helps retail investors turn raw portfolio holdings into structured decisions. It combines technical analysis, market context, financial events, and AI-assisted explanations into one workflow: analyze portfolio -> run opportunity radar -> validate signal quality -> ask portfolio-aware market questions.
 
-## Core Capabilities
+---
 
-- Portfolio-aware stock analysis and action recommendations.
-- Opportunity Radar scans for candidate signals and alerts.
-- Market Chat assistant with session memory and prediction/outcome tracking.
-- Validation and readiness metrics using synchronized live outcomes.
-- Financial health/event/news/insider APIs.
-- Optional synthetic backtest generation for demo environments.
-- Adaptive scoring modules in backend engine codebase.
+## 🚀 Project Overview
 
-## Repository Structure
+This repository contains a production-style React + Node workflow for portfolio decision support:
+
+1. **Frontend dashboard** for portfolio input, insights, market chat, radar scans, validation metrics, and charts.
+2. **Node backend engine** with route-level orchestration for analysis, alert generation, market-chat synthesis, financial APIs, and outcome validation.
+3. **Local JSON persistence** for radar runs, signal outcomes, and market chat sessions.
+
+Real problem addressed:
+Manual portfolio review is fragmented across charts, news, and intuition. This project consolidates those into a single decision pipeline with explainable outputs and measurable reliability gates.
+
+---
+
+## ✨ Features
+
+### Frontend
+
+- Portfolio builder with JSON import and weight validation
+- Live analyze/refresh workflow from a shared context layer
+- Opportunity Radar UI (portfolio scan + NSE universe scan)
+- Market Chat UI with session load/resume
+- Validation dashboard (hit rate, Sharpe, drawdown, readiness)
+- Dashboard with market summary and financial headline feed
+
+### Backend APIs
+
+- Portfolio analysis endpoint with flexible payload parsing
+- Symbol-level analysis endpoint
+- Opportunity Radar endpoints (scan/history/scheduler controls)
+- Validation endpoints with synchronized realized outcomes
+- Financial endpoints (health/events/signal/insider/news)
+- Market summary + financial news endpoints
+- Synthetic backtest endpoint (explicitly feature-gated)
+
+### AI / Decision Intelligence
+
+- Gemini-powered reasoning for technical decisions
+- Multi-step Market Chat agent with context-aware prompt synthesis
+- Fallback deterministic response path when AI fails/timeouts
+- Signal classification with confidence + execution-plan generation
+
+### System / Reliability
+
+- Host fallback logic (`127.0.0.1` <-> `localhost`) in frontend calls
+- Route-level validations and centralized backend error mapping
+- Radar scheduler with overlap protection (`isExecuting` guard)
+- JSON-backed historical stores for reproducible validation
+
+---
+
+## 🧰 Tech Stack
+
+| Layer | Technology | Notes |
+|---|---|---|
+| Frontend | React 18, React Router DOM 6, Axios, Lightweight Charts | CRA-based SPA with route modules and shared context |
+| Backend | Node.js (native `http` server) | API routing handled directly in `backend/server.js` |
+| Database | JSON file stores | `backend/storage/*.json` for sessions/outcomes/history |
+| External APIs | Yahoo Finance Chart API, NSE quote-equity, NewsAPI, RSS feeds | Yahoo + NSE for prices, NewsAPI/RSS for headlines/events |
+| AI Model | Google Gemini (`gemini-2.5-flash` default) | Used in market chat and reasoning paths with fallback |
+| Libraries/Tools | Testing Library, Tailwind/PostCSS, Jest (via react-scripts), Node tests | UI tests + backend engine/API tests |
+
+---
+
+## 🧭 System Architecture
+
+### High-level interaction
+
+1. User interacts with React pages (`/portfolio`, `/opportunity-radar`, `/market-chat`, `/validation-dashboard`).
+2. Frontend context (`PortfolioContext`) calls backend APIs.
+3. Backend orchestrates engine modules:
+   - `pipeline.js` for per-symbol/portfolio analysis
+   - `opportunityAgent.js` for alert generation
+   - `marketChatAgent.js` for multi-source synthesis + AI response
+   - `signalOutcomeService.js` + `performanceService.js` for validation metrics
+4. Outputs are persisted to JSON stores where required.
+5. Frontend renders live status, insights, and readiness metrics.
+
+### Request lifecycle (example: Opportunity Radar)
+
+1. Frontend posts portfolio rows or universe settings.
+2. Backend normalizes rows and runs `analyzePortfolio`.
+3. Signal features are classified (`BUY`/`SELL`/`HOLD`).
+4. Execution plan, confidence, risk flags, and evidence fields are attached.
+5. Run is saved to `backend/storage/opportunity_radar_history.json`.
+6. Frontend displays alerts + historical runs.
+
+---
+
+## 🗂️ Project Structure
 
 ```text
-.
-├── ai_investor_agent/          # Python multi-agent engine (data/signal/decision/explanation/portfolio)
-├── api.py                      # FastAPI service for Python agent pipeline
-├── main.py                     # Python CLI entrypoint
-├── backend/                    # Node.js backend (HTTP APIs + engine services + tests)
-│   ├── server.js
+ai-investor-agent/
+├── backend/
+│   ├── server.js                       # Main HTTP API server and route dispatch
+│   ├── package.json                    # Backend scripts
 │   ├── engine/
-│   ├── routes/
-│   ├── tests/
-│   ├── storage/
-│   └── .env.example
-├── frontend/                   # React dashboard app
-│   ├── src/
-│   ├── public/
-│   ├── package.json
-│   └── .env.example
-└── validate-refactoring.sh     # Convenience validation script for backend checks
+│   │   ├── pipeline.js                 # Portfolio/symbol analysis pipeline
+│   │   ├── opportunityAgent.js         # Radar scan + alert generation
+│   │   ├── marketChatAgent.js          # Multi-step AI chat orchestration
+│   │   ├── performanceService.js       # Validation metrics + readiness logic
+│   │   ├── signalOutcomeService.js     # Outcome synchronization and persistence
+│   │   ├── marketIntelService.js       # Market summary + RSS financial news
+│   │   ├── financialDataService.js     # Financial health/events/news integrations
+│   │   └── ...
+│   ├── tests/                          # Backend test suite
+│   └── storage/                        # Runtime JSON stores
+│       ├── opportunity_radar_history.json
+│       ├── signal_outcomes.json
+│       ├── market_chat_sessions.json
+│       └── market_chat_outcomes.json
+├── frontend/
+│   ├── package.json                    # Frontend scripts and deps
+│   └── src/
+│       ├── context/PortfolioContext.js # API abstraction + shared state
+│       ├── layout/AppLayout.js         # Primary app shell + quick scan trigger
+│       ├── pages/                      # Dashboard / Portfolio / Chat / Radar / Validation
+│       └── ...
+├── ai_investor_agent/                  # Python agent package (present in repo)
+├── api.py                              # Python FastAPI entrypoint (present in repo)
+├── main.py                             # Python CLI entrypoint (present in repo)
+└── validate-refactoring.sh             # Utility validation script
 ```
 
-## Tech Stack
+---
 
-- Backend API: Node.js (built-in HTTP server)
-- Frontend: React (Create React App), React Router, Axios, Lightweight Charts
-- Python API: FastAPI + Pydantic
-- Python market data: yfinance
-- AI integration (Node backend): Gemini/OpenAI env-configurable hooks
-- Storage: JSON file-based local persistence for sessions/outcomes/history
+## ⚙️ Installation & Setup
 
-## Quick Start
-
-## 1. Prerequisites
+### Prerequisites
 
 - Node.js 18+
 - npm 9+
-- Python 3.10+
-- Optional API keys:
-  - GEMINI_API_KEY
-  - OPENAI_API_KEY
-  - NEWSAPI_KEY
+- Python 3.10+ (only if you want to run Python modules too)
 
-## 2. Clone and install
+### 1) Clone
 
 ```bash
-git clone https://github.com/romin711/ai-investor-agent.git
+git clone <your-repo-url>
 cd ai-investor-agent
-
-cd backend
-npm install
-
-cd ../frontend
-npm install
-
-cd ..
-python -m venv .venv
-source .venv/bin/activate
-pip install fastapi uvicorn yfinance
 ```
 
-## 3. Configure environment files
+### 2) Backend setup
 
-### Backend env
-Create backend/.env from backend/.env.example:
+```bash
+cd backend
+npm install
+cp .env.example .env
+```
+
+### 3) Frontend setup
+
+```bash
+cd ../frontend
+npm install
+cp .env.example .env
+```
+
+### 4) Configure environment variables
+
+#### Backend (`backend/.env`)
 
 ```env
 PORT=3001
 HOST=127.0.0.1
 GEMINI_API_KEY=
 GEMINI_MODEL=gemini-2.5-flash
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4.1-mini
 NEWSAPI_KEY=
 USE_MOCK_FINANCIAL_DATA=false
 RADAR_AUTORUN_ENABLED=false
@@ -101,222 +186,214 @@ RADAR_AUTORUN_UNIVERSE_LIMIT=0
 NSE_UNIVERSE_FILE=
 ```
 
-### Frontend env
-Create frontend/.env from frontend/.env.example:
+Notes:
+
+- `GEMINI_API_KEY` enables AI synthesis paths.
+- `NEWSAPI_KEY` enables NewsAPI-based financial news enrichment.
+- `RADAR_AUTORUN_*` controls the scheduler behavior.
+
+#### Frontend (`frontend/.env`)
 
 ```env
 REACT_APP_API_BASE_URL=http://127.0.0.1:3001
 ```
 
-## 4. Run services
+---
 
-Use three terminals.
+## ▶️ Usage
 
-### Terminal A: Node backend
+### Run backend
 
 ```bash
 cd backend
 npm start
 ```
 
-Backend listens on:
-- http://127.0.0.1:3001 (default)
-
-### Terminal B: React frontend
+### Run frontend
 
 ```bash
 cd frontend
 npm start
 ```
 
-Frontend runs on:
-- http://localhost:3000
-
-### Terminal C: Python FastAPI (optional)
+### Run tests
 
 ```bash
-source .venv/bin/activate
-uvicorn api:app --reload --host 127.0.0.1 --port 8000
-```
-
-Python API listens on:
-- http://127.0.0.1:8000
-
-## 5. Python CLI analysis (optional)
-
-```bash
-source .venv/bin/activate
-python main.py --symbols AAPL,MSFT,RELIANCE.NS
-```
-
-## Frontend Routes
-
-The frontend app defines these routes:
-
-- /dashboard
-- /portfolio
-- /charts
-- /insights
-- /market-chat
-- /opportunity-radar
-- /validation-dashboard
-- /settings
-
-## Node Backend API Reference
-
-Base URL: http://127.0.0.1:3001
-
-## Health
-
-- GET /health
-
-## Stock and portfolio analysis
-
-- GET /api/stock/:symbol
-- POST /api/portfolio/analyze
-
-Accepted portfolio payload formats for /api/portfolio/analyze include:
-- Array rows: [{"symbol":"TCS","weight":40}, ...]
-- Object map: {"TCS":40,"INFY":60}
-- Raw text via rawInput (CSV/space separated rows)
-
-## Opportunity Radar
-
-- POST /api/agent/opportunity-radar
-- POST /api/agent/opportunity-radar/universe
-- GET /api/agent/opportunity-radar/history?limit=25
-
-Scheduler controls:
-- GET /api/agent/opportunity-radar/scheduler
-- POST /api/agent/opportunity-radar/scheduler/start
-- POST /api/agent/opportunity-radar/scheduler/stop
-- POST /api/agent/opportunity-radar/scheduler/run-now
-
-## Validation and outcomes
-
-- GET /api/validation/performance
-- GET /api/validation/readiness
-- GET /api/validation/strategy-breakdown
-- GET /api/validation/outcomes
-
-## Market summary and news
-
-- GET /api/market/summary
-- GET /api/news/financial?limit=5
-
-## Market Chat
-
-- POST /api/agent/market-chat
-- GET /api/agent/market-chat/session?sessionId=...
-
-## Financial signal APIs
-
-- GET /api/financial/health?symbol=RELIANCE
-- GET /api/financial/events?symbol=RELIANCE
-- GET /api/financial/signal?symbol=RELIANCE&price=2500
-- GET /api/financial/insider?symbol=RELIANCE
-- GET /api/financial/news?symbol=RELIANCE
-
-## Synthetic backtest (disabled by default)
-
-- POST /api/backtest/run
-
-Requires backend env:
-- ENABLE_SYNTHETIC_BACKTEST=true
-
-## FastAPI (Python) API Reference
-
-Base URL: http://127.0.0.1:8000
-
-- GET /
-  - Basic service info and endpoint pointers
-- POST /analyze
-  - Body: list of portfolio items [{"symbol":"AAPL","weight":30}, ...]
-- POST /portfolio/save
-  - Body: {"user_id":"default-user","portfolio":[...]}
-- GET /portfolio/load?user_id=default-user
-- GET /realtime/quotes?symbols=AAPL,MSFT,GOOGL
-
-## Example Requests
-
-### Analyze portfolio (Node backend)
-
-```bash
-curl -X POST http://127.0.0.1:3001/api/portfolio/analyze \
-  -H "Content-Type: application/json" \
-  -d '[{"symbol":"RELIANCE","weight":40},{"symbol":"TCS","weight":60}]'
-```
-
-### Opportunity radar by universe
-
-```bash
-curl -X POST http://127.0.0.1:3001/api/agent/opportunity-radar/universe \
-  -H "Content-Type: application/json" \
-  -d '{"riskProfile":"moderate","universeLimit":25}'
-```
-
-### Market Chat question
-
-```bash
-curl -X POST http://127.0.0.1:3001/api/agent/market-chat \
-  -H "Content-Type: application/json" \
-  -d '{"question":"What should I reduce in my portfolio this week?"}'
-```
-
-### Python API analyze
-
-```bash
-curl -X POST http://127.0.0.1:8000/analyze \
-  -H "Content-Type: application/json" \
-  -d '[{"symbol":"AAPL","weight":30},{"symbol":"MSFT","weight":70}]'
-```
-
-## Testing
-
-### Backend tests
-
-```bash
+# backend
 cd backend
 npm test
-```
 
-### Frontend tests
-
-```bash
-cd frontend
+# frontend
+cd ../frontend
 npm test
 ```
 
-### Validation helper script
+### Typical user workflow
 
-```bash
-./validate-refactoring.sh
+1. Open `/portfolio`, add symbols + weights, run analyze.
+2. Open `/opportunity-radar`, run portfolio scan or universe scan.
+3. Review `/insights` and `/dashboard` for decision context.
+4. Use `/market-chat` for portfolio-aware what-to-do-next guidance.
+5. Check `/validation-dashboard` for statistical reliability/readiness.
+
+---
+
+## 🔌 API Documentation
+
+Base URL: `http://127.0.0.1:3001`
+
+### Core endpoints
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/health` | Service heartbeat + market context mode |
+| GET | `/api/stock/:symbol` | Analyze one symbol |
+| POST | `/api/portfolio/analyze` | Analyze full portfolio |
+| POST | `/api/agent/opportunity-radar` | Portfolio radar scan |
+| POST | `/api/agent/opportunity-radar/universe` | NSE universe radar scan |
+| GET | `/api/agent/opportunity-radar/history?limit=25` | Get radar history |
+| GET | `/api/agent/opportunity-radar/scheduler` | Scheduler state |
+| POST | `/api/agent/opportunity-radar/scheduler/start` | Start scheduler |
+| POST | `/api/agent/opportunity-radar/scheduler/stop` | Stop scheduler |
+| POST | `/api/agent/opportunity-radar/scheduler/run-now` | Trigger immediate run |
+| POST | `/api/agent/market-chat` | Portfolio-aware market Q&A |
+| GET | `/api/agent/market-chat/session?sessionId=...` | Load chat session |
+| GET | `/api/validation/performance` | Validation metrics |
+| GET | `/api/validation/readiness` | Trading readiness snapshot |
+| GET | `/api/validation/strategy-breakdown` | Decision-type breakdown |
+| GET | `/api/validation/outcomes` | Synced outcomes list |
+| GET | `/api/market/summary` | Market overview |
+| GET | `/api/news/financial?limit=5` | Financial headlines |
+| GET | `/api/financial/health?symbol=...` | Financial health score |
+| GET | `/api/financial/events?symbol=...` | Financial events |
+| GET | `/api/financial/signal?symbol=...&price=...` | Financial signal output |
+| GET | `/api/financial/insider?symbol=...` | Insider data feed |
+| GET | `/api/financial/news?symbol=...` | Symbol news feed |
+| POST | `/api/backtest/run` | Synthetic backtest (feature-gated) |
+
+### Portfolio analyze request format
+
+Accepted request body variants for `POST /api/portfolio/analyze`:
+
+```json
+[
+  { "symbol": "RELIANCE", "weight": 40 },
+  { "symbol": "TCS", "weight": 60 }
+]
 ```
 
-## Data and Persistence Notes
+```json
+{
+  "portfolio": [
+    { "symbol": "RELIANCE", "weight": 40 },
+    { "symbol": "TCS", "weight": 60 }
+  ]
+}
+```
 
-- Backend uses local JSON files in backend/storage for outcomes/sessions/history.
-- Python API persists saved portfolios in ai_investor_agent/storage/portfolio_store.json.
-- This setup is suitable for local development and hackathon demos.
-- For production, replace file storage with managed persistent storage and add authentication.
+```json
+{
+  "rawInput": "RELIANCE 40\nTCS 60"
+}
+```
 
-## Operational Notes
+### Example response (truncated)
 
-- CORS is open by default in both backend services for local development.
-- Portfolio payload validation is strict for required symbol and positive weight.
-- If backend port is busy, set PORT to another value in backend env.
-- If financial/news providers are unavailable, response quality depends on configured fallbacks.
+```json
+{
+  "portfolioInsight": "...",
+  "sectorAllocation": { "Technology": 60, "Energy": 40 },
+  "overexposedSectors": [],
+  "results": [
+    {
+      "symbol": "RELIANCE",
+      "resolvedSymbol": "RELIANCE.NS",
+      "decision": "HOLD",
+      "confidence": 62,
+      "technical_score": 0.34,
+      "reason": "...",
+      "next_action": "..."
+    }
+  ]
+}
+```
 
-## Troubleshooting
+---
 
-- Frontend cannot connect:
-  - Verify backend is running at REACT_APP_API_BASE_URL.
-- Empty or missing market data:
-  - Check symbol format accepted by upstream providers.
-- Market chat quality is degraded:
-  - Ensure GEMINI_API_KEY (or configured provider key) is set.
-- Backtest endpoint returns 403:
-  - Set ENABLE_SYNTHETIC_BACKTEST=true only in demo/testing.
+## 🧠 Architecture / Logic Deep Dive
+
+### 1) Analysis pipeline (`pipeline.js`)
+
+- Normalizes holdings and validates positive weights
+- Resolves tickers using mapping/fuzzy/Gemini-assisted resolution
+- Pulls historical candles and latest prices (Yahoo, NSE price preference)
+- Computes MA/RSI/momentum/volatility/pattern features
+- Produces decision payload with risk/context fields
+
+### 2) Opportunity Radar (`opportunityAgent.js`)
+
+- Converts analysis results into structured signal items
+- Classifies decision type (`BUY`/`SELL`/`HOLD`) and confidence
+- Builds execution plan (entry range, stop-loss, target, horizon)
+- Persists each run for later analytics and UI history
+
+### 3) Market Chat (`marketChatAgent.js`)
+
+- Detects user intent and focus symbols
+- Aggregates portfolio analysis + alerts + financial events + market/news context
+- Calls Gemini with strict response format and retry logic
+- If AI path fails/invalid, produces deterministic fallback answer
+- Stores turns and prediction metadata for session continuity and tracking
+
+### 4) Validation engine (`signalOutcomeService.js` + `performanceService.js`)
+
+- Replays historical alerts against fetched market data across horizons (1D/3D/5D)
+- Computes hit rate, Wilson confidence interval, Sharpe, max drawdown, baseline outperformance
+- Produces readiness gates with explicit pass/fail diagnostics
+
+### 5) Error handling strategy
+
+- Backend route wrapper maps thrown errors to HTTP responses
+- Frontend host fallback retries local alias if network resolution fails
+- Market chat uses step-level safe execution (`runSafeStep`) to avoid full-request collapse
+- External feed failures degrade gracefully to partial data instead of hard crash
+
+---
+
+## 🖼️ Screenshots / Demo
+
+![Dashboard Demo](./assets/dashboard-demo.png)
+![Opportunity Radar Demo](./assets/opportunity-radar-demo.png)
+![Market Chat Demo](./assets/market-chat-demo.png)
+![Validation Demo](./assets/validation-demo.png)
+
+---
+
+## 🔭 Future Improvements
+
+- Add API authentication + authorization for all non-health routes
+- Restrict CORS to explicit frontend origins
+- Replace JSON file stores with transactional persistence (e.g., SQLite/Postgres)
+- Add schema validation layer (request/response contracts) across API boundaries
+- Surface degraded data quality mode explicitly in UI (not only server internals)
+- Extract large `server.js` route handlers into modular controllers/services
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository.
+2. Create a feature branch.
+3. Keep changes small and testable.
+4. Run backend and frontend tests before opening a PR.
+5. Submit a clear PR with context, screenshots (if UI), and test notes.
+
+---
+
+## 📄 License
+
+No license file is currently present in this repository.
+Add a `LICENSE` file (for example MIT/Apache-2.0) before public redistribution.
 
 ## Disclaimer
 
