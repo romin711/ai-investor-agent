@@ -974,6 +974,544 @@
           "createdAt": "2026-03-29T10:00:05.294Z"
         }
       ]
+    },
+    "mc_1774791205312_trcnmw": {
+      "id": "mc_1774791205312_trcnmw",
+      "createdAt": "2026-03-29T13:33:25.312Z",
+      "updatedAt": "2026-03-29T13:34:09.649Z",
+      "turns": [
+        {
+          "question": "Should I buy INFY?",
+          "answer": "PRIMARY SIGNAL: INFY: HOLD (Low Conviction)\nAnswer: Do not buy INFY at this time; the current signal is HOLD.\nWhy:\n- Pattern backtest and financial health data for INFY are currently unavailable.\n- The broader market is experiencing a risk-off session with general weakness.\n- INFY structure is downtrend with momentum at 4.01%.\nAction:\n- Maintain a HOLD position on INFY.\n- While downside risk for INFY is low, there is no strong upside catalyst to warrant a BUY.\n- Wait for a breakout trigger before buying INFY; current setup does not justify immediate entry.",
+          "symbolsAnalyzed": [
+            "INFY"
+          ],
+          "citations": [
+            {
+              "source": "Portfolio analysis engine",
+              "endpoint": "/api/portfolio/analyze"
+            },
+            {
+              "source": "Opportunity Radar alerts",
+              "endpoint": "/api/agent/opportunity-radar"
+            },
+            {
+              "source": "Financial health engine",
+              "endpoint": "/api/financial/health"
+            },
+            {
+              "source": "Market summary engine",
+              "endpoint": "/api/market/summary"
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "INFY",
+              "title": "Yahoo momentum: 20D -11.1%, 60D -28.9%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Histalk2.com",
+              "symbol": "INFY",
+              "title": "News 3/27/26",
+              "date": "2026-03-26",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "What Corporate Lawyers Know About 401(k)s That Most Investors Don’t",
+              "date": "2026-03-28T11:41:13Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/options/articles/corporate-lawyers-know-401-k-114113806.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "How can a surgeon struggle on a $665K salary? Ramit Sethi blames a certain financial mistake — here’s how to avoid it",
+              "date": "2026-03-28T12:00:00Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/surgeon-struggle-665k-salary-ramit-120000399.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Marvell, Caterpillar Lead Five Stocks To Watch In Weak Market",
+              "date": "2026-03-28T12:00:31Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://www.investors.com/news/marvell-stock-caterpillar-stocks-to-watch/?src=A00220&amp;yptr=yahoo"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "On Canada's tariff frontline, business stalls over US trade deal jitters",
+              "date": "2026-03-28T10:07:30Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/news/canadas-tariff-frontline-business-stalls-100730047.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "My ex opened a credit card using our son's Social Security number and he's now been denied student loans. What now?",
+              "date": "2026-03-28T11:30:00Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/currencies/articles/ex-opened-credit-card-using-113000197.html"
+            }
+          ],
+          "workflow": [
+            "parse_intent_and_symbols",
+            "fetch_portfolio_and_fundamental_context",
+            "synthesize_with_gemini_and_market_news"
+          ],
+          "aiProvider": "gemini",
+          "model": "gemini-2.5-flash",
+          "aiErrorCode": null,
+          "decisionIntel": {
+            "overallDecision": "HOLD",
+            "confidencePercent": 50,
+            "keySignals": [
+              "INFY HOLD",
+              "Confidence 31%",
+              "Pattern backtest 0.0%"
+            ],
+            "portfolioRisk": {
+              "sectorExposurePercent": null,
+              "riskLevel": "unknown"
+            },
+            "riskLevel": "Medium",
+            "nextBestAction": "HOLD INFY with strict stop discipline and reduced size if volatility expands.",
+            "alternativeStrategy": "If INFY loses support on close, switch to defensive rotation and protect capital over upside capture.",
+            "marketSentiment": "Risk-off session with broad weakness. Sector rotation mixed with no dominant theme."
+          },
+          "scoreBreakdown": {
+            "symbol": "ZOMATO",
+            "raw": {
+              "momentum": 0.4,
+              "fundamentals": 0,
+              "newsSentiment": 0.25,
+              "risk": 0.2
+            },
+            "weights": {
+              "momentum": 0.35,
+              "fundamentals": 0.3,
+              "newsSentiment": 0.2,
+              "risk": 0.15
+            },
+            "weighted": {
+              "momentum": 0.14,
+              "fundamentals": 0,
+              "newsSentiment": 0.05,
+              "risk": 0.03
+            },
+            "totalScore": 0.22,
+            "derivedConfidencePercent": 59
+          },
+          "confidenceReasoning": "Confidence 50% reflects evidence coverage 100% with signal conflict penalty applied. Weighted contributors: momentum 0.35, fundamentals 0.3, news 0.2, risk 0.15.",
+          "riskFactors": [
+            "No outsized risk flags detected beyond normal market volatility."
+          ],
+          "fallbackUsed": false,
+          "errorCode": null,
+          "createdAt": "2026-03-29T13:33:25.312Z"
+        },
+        {
+          "question": "what is best next move for me",
+          "answer": "PRIMARY SIGNAL: INFY: HOLD (Low Conviction)\nAnswer: Maintain your HOLD position on INFY.\nWhy:\n- PORTFOLIO structure is sideways trend with momentum at 0.00%.\n- PORTFOLIO has low downside probability due to trend is sideways without strong momentum, momentum is positive (0.00%), volatility is contained (0.00%).\n- INFY structure is downtrend with momentum at 4.01%.\nAction:\n- Hold PORTFOLIO and wait for a valid breakout or reversal confirmation before adding.\n- If price closes below 0.00, reduce exposure and re-evaluate structure.\n- Immediate step: execute the HOLD plan on INFY only if your stop level is pre-defined.",
+          "symbolsAnalyzed": [
+            "INFY"
+          ],
+          "citations": [
+            {
+              "source": "Portfolio analysis engine",
+              "endpoint": "/api/portfolio/analyze"
+            },
+            {
+              "source": "Opportunity Radar alerts",
+              "endpoint": "/api/agent/opportunity-radar"
+            },
+            {
+              "source": "Financial health engine",
+              "endpoint": "/api/financial/health"
+            },
+            {
+              "source": "Market summary engine",
+              "endpoint": "/api/market/summary"
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "INFY",
+              "title": "Yahoo momentum: 20D -11.1%, 60D -28.9%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Histalk2.com",
+              "symbol": "INFY",
+              "title": "News 3/27/26",
+              "date": "2026-03-26",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "What Corporate Lawyers Know About 401(k)s That Most Investors Don’t",
+              "date": "2026-03-28T11:41:13Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/options/articles/corporate-lawyers-know-401-k-114113806.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "How can a surgeon struggle on a $665K salary? Ramit Sethi blames a certain financial mistake — here’s how to avoid it",
+              "date": "2026-03-28T12:00:00Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/surgeon-struggle-665k-salary-ramit-120000399.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Marvell, Caterpillar Lead Five Stocks To Watch In Weak Market",
+              "date": "2026-03-28T12:00:31Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://www.investors.com/news/marvell-stock-caterpillar-stocks-to-watch/?src=A00220&amp;yptr=yahoo"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "On Canada's tariff frontline, business stalls over US trade deal jitters",
+              "date": "2026-03-28T10:07:30Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/news/canadas-tariff-frontline-business-stalls-100730047.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "My ex opened a credit card using our son's Social Security number and he's now been denied student loans. What now?",
+              "date": "2026-03-28T11:30:00Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/currencies/articles/ex-opened-credit-card-using-113000197.html"
+            }
+          ],
+          "workflow": [
+            "parse_intent_and_symbols",
+            "fetch_portfolio_and_fundamental_context",
+            "synthesize_with_gemini_and_market_news"
+          ],
+          "aiProvider": "gemini",
+          "model": "gemini-2.5-flash",
+          "aiErrorCode": null,
+          "decisionIntel": {
+            "overallDecision": "HOLD",
+            "confidencePercent": 50,
+            "keySignals": [
+              "INFY HOLD",
+              "Confidence 31%",
+              "Pattern backtest 0.0%"
+            ],
+            "portfolioRisk": {
+              "sectorExposurePercent": null,
+              "riskLevel": "unknown"
+            },
+            "riskLevel": "Medium",
+            "nextBestAction": "HOLD INFY with strict stop discipline and reduced size if volatility expands.",
+            "alternativeStrategy": "If INFY loses support on close, switch to defensive rotation and protect capital over upside capture.",
+            "marketSentiment": "Risk-off session with broad weakness. Sector rotation mixed with no dominant theme."
+          },
+          "scoreBreakdown": {
+            "symbol": "ZOMATO",
+            "raw": {
+              "momentum": 0.4,
+              "fundamentals": 0,
+              "newsSentiment": 0.25,
+              "risk": 0.2
+            },
+            "weights": {
+              "momentum": 0.35,
+              "fundamentals": 0.3,
+              "newsSentiment": 0.2,
+              "risk": 0.15
+            },
+            "weighted": {
+              "momentum": 0.14,
+              "fundamentals": 0,
+              "newsSentiment": 0.05,
+              "risk": 0.03
+            },
+            "totalScore": 0.22,
+            "derivedConfidencePercent": 59
+          },
+          "confidenceReasoning": "Confidence 50% reflects evidence coverage 100% with signal conflict penalty applied. Weighted contributors: momentum 0.35, fundamentals 0.3, news 0.2, risk 0.15.",
+          "riskFactors": [
+            "No outsized risk flags detected beyond normal market volatility."
+          ],
+          "fallbackUsed": false,
+          "errorCode": null,
+          "createdAt": "2026-03-29T13:34:09.649Z"
+        }
+      ]
+    },
+    "mc_1774797311211_unpzgm": {
+      "id": "mc_1774797311211_unpzgm",
+      "createdAt": "2026-03-29T15:15:11.211Z",
+      "updatedAt": "2026-03-29T15:15:25.406Z",
+      "turns": [
+        {
+          "question": "Should I buy INFY?",
+          "answer": "PRIMARY SIGNAL: INFY: HOLD (Low Conviction)\nAnswer: It is not advisable to buy INFY at this time.\nWhy:\n- PORTFOLIO structure is sideways trend with momentum at 0.00%.\n- PORTFOLIO has low downside probability due to trend is sideways without strong momentum, momentum is positive (0.00%), volatility is contained (0.00%).\n- INFY structure is downtrend with momentum at 4.01%.\nAction:\n- Hold PORTFOLIO and wait for a valid breakout or reversal confirmation before adding.\n- If price closes below 0.00, reduce exposure and re-evaluate structure.\n- Wait for a breakout trigger before buying INFY; current setup does not justify immediate entry.",
+          "symbolsAnalyzed": [
+            "INFY"
+          ],
+          "citations": [
+            {
+              "source": "Portfolio analysis engine",
+              "endpoint": "/api/portfolio/analyze"
+            },
+            {
+              "source": "Opportunity Radar alerts",
+              "endpoint": "/api/agent/opportunity-radar"
+            },
+            {
+              "source": "Financial health engine",
+              "endpoint": "/api/financial/health"
+            },
+            {
+              "source": "Market summary engine",
+              "endpoint": "/api/market/summary"
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "INFY",
+              "title": "Yahoo momentum: 20D -11.1%, 60D -28.9%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Histalk2.com",
+              "symbol": "INFY",
+              "title": "News 3/27/26",
+              "date": "2026-03-26",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Netflix Hikes Prices For All Plans As Content Spending Surges",
+              "date": "2026-03-29T15:01:11Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/netflix-hikes-prices-plans-content-150111163.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Trump 'pays attention to the stock market': Wall Street eyes signs of TACO amid Iran war",
+              "date": "2026-03-29T14:00:48Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/news/trump-pays-attention-to-the-stock-market-wall-street-eyes-signs-of-taco-amid-iran-war-140048438.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Teradyne (TER) Stock Up Significantly After Jim Cramer Was Hesistant",
+              "date": "2026-03-28T13:52:43Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/teradyne-ter-stock-significantly-jim-135243347.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Tesla (TSLA) Shares Up After Jim Cramer Said It Had Options",
+              "date": "2026-03-28T13:49:28Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/tesla-tsla-shares-jim-cramer-134928306.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Symbotic’s (SYM) Share Price Performance Validates Jim Cramer’s Caution",
+              "date": "2026-03-28T13:48:55Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/symbotic-sym-share-price-performance-134855804.html"
+            }
+          ],
+          "workflow": [
+            "parse_intent_and_symbols",
+            "fetch_portfolio_and_fundamental_context",
+            "synthesize_with_gemini_and_market_news"
+          ],
+          "aiProvider": "gemini",
+          "model": "gemini-2.5-flash",
+          "aiErrorCode": null,
+          "decisionIntel": {
+            "overallDecision": "HOLD",
+            "confidencePercent": 50,
+            "keySignals": [
+              "INFY HOLD",
+              "Confidence 31%",
+              "Pattern backtest 0.0%"
+            ],
+            "portfolioRisk": {
+              "sectorExposurePercent": null,
+              "riskLevel": "unknown"
+            },
+            "riskLevel": "Medium",
+            "nextBestAction": "HOLD INFY with strict stop discipline and reduced size if volatility expands.",
+            "alternativeStrategy": "If INFY loses support on close, switch to defensive rotation and protect capital over upside capture.",
+            "marketSentiment": "Risk-off session with broad weakness. Sector rotation mixed with no dominant theme."
+          },
+          "scoreBreakdown": {
+            "symbol": "ZOMATO",
+            "raw": {
+              "momentum": 0.4,
+              "fundamentals": 0,
+              "newsSentiment": 0.75,
+              "risk": 0.2
+            },
+            "weights": {
+              "momentum": 0.35,
+              "fundamentals": 0.3,
+              "newsSentiment": 0.2,
+              "risk": 0.15
+            },
+            "weighted": {
+              "momentum": 0.14,
+              "fundamentals": 0,
+              "newsSentiment": 0.15,
+              "risk": 0.03
+            },
+            "totalScore": 0.32,
+            "derivedConfidencePercent": 63
+          },
+          "confidenceReasoning": "Confidence 50% reflects evidence coverage 100% with signal conflict penalty applied. Weighted contributors: momentum 0.35, fundamentals 0.3, news 0.2, risk 0.15.",
+          "riskFactors": [
+            "No outsized risk flags detected beyond normal market volatility."
+          ],
+          "fallbackUsed": false,
+          "errorCode": null,
+          "createdAt": "2026-03-29T15:15:11.211Z"
+        },
+        {
+          "question": "What should I reduce to control risk now?",
+          "answer": "PRIMARY SIGNAL: INFY: HOLD (Low Conviction)\nAnswer: While INFY has low downside risk, it.\nWhy:\n- PORTFOLIO structure is sideways trend with momentum at 0.00%.\n- PORTFOLIO has low downside probability due to trend is sideways without strong momentum, momentum is positive (0.00%), volatility is contained (0.00%).\n- INFY structure is downtrend with momentum at 4.01%.\nAction:\n- Hold PORTFOLIO and wait for a valid breakout or reversal confirmation before adding.\n- If price closes below 0.00, reduce exposure and re-evaluate structure.\n- Size INFY conservatively and keep loss limits predefined before entry.",
+          "symbolsAnalyzed": [
+            "INFY"
+          ],
+          "citations": [
+            {
+              "source": "Portfolio analysis engine",
+              "endpoint": "/api/portfolio/analyze"
+            },
+            {
+              "source": "Opportunity Radar alerts",
+              "endpoint": "/api/agent/opportunity-radar"
+            },
+            {
+              "source": "Financial health engine",
+              "endpoint": "/api/financial/health"
+            },
+            {
+              "source": "Market summary engine",
+              "endpoint": "/api/market/summary"
+            },
+            {
+              "source": "Yahoo Finance",
+              "symbol": "INFY",
+              "title": "Yahoo momentum: 20D -11.1%, 60D -28.9%",
+              "date": "2026-03-29",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Histalk2.com",
+              "symbol": "INFY",
+              "title": "News 3/27/26",
+              "date": "2026-03-26",
+              "endpoint": "/api/financial/events",
+              "url": ""
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Netflix Hikes Prices For All Plans As Content Spending Surges",
+              "date": "2026-03-29T15:01:11Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/netflix-hikes-prices-plans-content-150111163.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Trump 'pays attention to the stock market': Wall Street eyes signs of TACO amid Iran war",
+              "date": "2026-03-29T14:00:48Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/news/trump-pays-attention-to-the-stock-market-wall-street-eyes-signs-of-taco-amid-iran-war-140048438.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Teradyne (TER) Stock Up Significantly After Jim Cramer Was Hesistant",
+              "date": "2026-03-28T13:52:43Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/teradyne-ter-stock-significantly-jim-135243347.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Tesla (TSLA) Shares Up After Jim Cramer Said It Had Options",
+              "date": "2026-03-28T13:49:28Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/tesla-tsla-shares-jim-cramer-134928306.html"
+            },
+            {
+              "source": "Yahoo Finance",
+              "title": "Symbotic’s (SYM) Share Price Performance Validates Jim Cramer’s Caution",
+              "date": "2026-03-28T13:48:55Z",
+              "endpoint": "/api/news/financial",
+              "url": "https://finance.yahoo.com/markets/stocks/articles/symbotic-sym-share-price-performance-134855804.html"
+            }
+          ],
+          "workflow": [
+            "parse_intent_and_symbols",
+            "fetch_portfolio_and_fundamental_context",
+            "synthesize_with_gemini_and_market_news"
+          ],
+          "aiProvider": "gemini",
+          "model": "gemini-2.5-flash",
+          "aiErrorCode": null,
+          "decisionIntel": {
+            "overallDecision": "HOLD",
+            "confidencePercent": 50,
+            "keySignals": [
+              "INFY HOLD",
+              "Confidence 31%",
+              "Pattern backtest 0.0%"
+            ],
+            "portfolioRisk": {
+              "sectorExposurePercent": null,
+              "riskLevel": "unknown"
+            },
+            "riskLevel": "Medium",
+            "nextBestAction": "HOLD INFY with strict stop discipline and reduced size if volatility expands.",
+            "alternativeStrategy": "If INFY loses support on close, switch to defensive rotation and protect capital over upside capture.",
+            "marketSentiment": "Risk-off session with broad weakness. Sector rotation mixed with no dominant theme."
+          },
+          "scoreBreakdown": {
+            "symbol": "ZOMATO",
+            "raw": {
+              "momentum": 0.4,
+              "fundamentals": 0,
+              "newsSentiment": 0.75,
+              "risk": 0.2
+            },
+            "weights": {
+              "momentum": 0.35,
+              "fundamentals": 0.3,
+              "newsSentiment": 0.2,
+              "risk": 0.15
+            },
+            "weighted": {
+              "momentum": 0.14,
+              "fundamentals": 0,
+              "newsSentiment": 0.15,
+              "risk": 0.03
+            },
+            "totalScore": 0.32,
+            "derivedConfidencePercent": 63
+          },
+          "confidenceReasoning": "Confidence 50% reflects evidence coverage 100% with signal conflict penalty applied. Weighted contributors: momentum 0.35, fundamentals 0.3, news 0.2, risk 0.15.",
+          "riskFactors": [
+            "No outsized risk flags detected beyond normal market volatility."
+          ],
+          "fallbackUsed": false,
+          "errorCode": null,
+          "createdAt": "2026-03-29T15:15:25.406Z"
+        }
+      ]
     }
   }
 }

@@ -162,7 +162,7 @@ function buildVolumeSeries(candles) {
     return {
       time: candle.time,
       value: candle.volume,
-      color: candle.close >= candle.open ? 'rgba(34, 197, 94, 0.65)' : 'rgba(239, 68, 68, 0.65)',
+      color: candle.close >= candle.open ? 'rgba(34, 197, 94, 0.58)' : 'rgba(239, 68, 68, 0.58)',
     };
   });
 }
@@ -308,38 +308,43 @@ function CandlestickChart({ data, meta, height = 448, showSignals = false }) {
       width: containerRef.current.clientWidth,
       height: initialHeightRef.current,
       layout: {
-        background: { color: '#08111F' },
-        textColor: '#CBD5E1',
+        background: { color: '#111827' },
+        textColor: '#9CA3AF',
         attributionLogo: false,
       },
       grid: {
-        vertLines: { color: 'rgba(148, 163, 184, 0.08)' },
-        horzLines: { color: 'rgba(148, 163, 184, 0.08)' },
+        vertLines: { color: 'rgba(255, 255, 255, 0.05)' },
+        horzLines: { color: 'rgba(255, 255, 255, 0.05)' },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
         vertLine: {
-          color: 'rgba(148, 163, 184, 0.45)',
-          labelBackgroundColor: '#0F172A',
+          color: 'rgba(156, 163, 175, 0.45)',
+          labelBackgroundColor: '#1F2937',
         },
         horzLine: {
-          color: 'rgba(148, 163, 184, 0.35)',
-          labelBackgroundColor: '#0F172A',
+          color: 'rgba(156, 163, 175, 0.35)',
+          labelBackgroundColor: '#1F2937',
         },
       },
       rightPriceScale: {
         visible: true,
-        borderColor: 'rgba(148, 163, 184, 0.30)',
+        borderVisible: false,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
         scaleMargins: {
           top: 0.08,
-          bottom: 0.18,
+          bottom: 0.2,
         },
       },
       timeScale: {
         visible: true,
-        borderColor: 'rgba(148, 163, 184, 0.30)',
+        borderVisible: false,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
         timeVisible: false,
         secondsVisible: false,
+        barSpacing: 10,
+        minBarSpacing: 7,
+        rightOffset: 8,
       },
       handleScroll: {
         mouseWheel: true,
@@ -368,8 +373,8 @@ function CandlestickChart({ data, meta, height = 448, showSignals = false }) {
     });
 
     const ma20Series = chart.addSeries(LineSeries, {
-      color: '#38BDF8',
-      lineWidth: 2,
+      color: '#3B82F6',
+      lineWidth: 3,
       lineStyle: 0,
       priceLineVisible: false,
       lastValueVisible: false,
@@ -377,8 +382,8 @@ function CandlestickChart({ data, meta, height = 448, showSignals = false }) {
     });
 
     const ma50Series = chart.addSeries(LineSeries, {
-      color: '#FB923C',
-      lineWidth: 2,
+      color: '#F59E0B',
+      lineWidth: 3,
       lineStyle: 0,
       priceLineVisible: false,
       lastValueVisible: false,
@@ -409,14 +414,14 @@ function CandlestickChart({ data, meta, height = 448, showSignals = false }) {
     chart.priceScale('right', 1).applyOptions({
       borderVisible: false,
       scaleMargins: {
-        top: 0.12,
+        top: 0.14,
         bottom: 0,
       },
     });
 
     const panes = chart.panes();
     if (panes[0]) {
-      panes[0].setStretchFactor(3);
+      panes[0].setStretchFactor(4);
     }
     if (panes[1]) {
       panes[1].setStretchFactor(1);
@@ -515,11 +520,11 @@ function CandlestickChart({ data, meta, height = 448, showSignals = false }) {
   }, [candles, ma20Data, ma50Data, volumeData, markerData]);
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-2xl bg-[#08111F]">
+    <div className="relative h-full w-full overflow-hidden rounded-2xl bg-[#111827] p-2">
       <div ref={containerRef} className="h-full w-full" />
 
       <div className="pointer-events-none absolute inset-x-3 top-3 z-10 flex items-start justify-between gap-3">
-        <div className="min-w-0 rounded-xl border border-slate-700/70 bg-slate-950/85 px-3 py-2 shadow-lg backdrop-blur-sm">
+        <div className="min-w-0 rounded-xl border border-slate-600/45 bg-[#1F2937]/88 px-3 py-2 shadow-lg backdrop-blur-sm">
           <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
             <span ref={legendSymbolRef}>Price Action</span>
             <span className="h-2 w-2 rounded-full bg-sky-400" />
@@ -539,7 +544,7 @@ function CandlestickChart({ data, meta, height = 448, showSignals = false }) {
 
         <div
           ref={tooltipRef}
-          className="rounded-xl border border-slate-700/70 bg-slate-950/90 px-4 py-3 text-xs text-slate-100 opacity-0 shadow-lg backdrop-blur-sm transition-all duration-150 ease-out"
+          className="rounded-xl border border-slate-600/50 bg-[#1F2937]/95 px-4 py-3 text-xs text-slate-100 opacity-0 shadow-lg backdrop-blur-sm transition-all duration-150 ease-out"
         >
           <p ref={tooltipDateRef} className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">--</p>
           <div className="grid grid-cols-2 gap-x-4 gap-y-1">

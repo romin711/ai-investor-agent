@@ -180,17 +180,19 @@ function DashboardPage() {
   return (
     <div className="space-y-6" style={{ color: 'var(--text-primary)' }}>
       <section className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card className="p-6 lg:col-span-2" interactive={false}>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>Decision</p>
-          <div className="mt-3 flex items-end justify-between gap-6">
-            <p className={`text-5xl font-black ${decisionTone(selectedAction)}`}>{selectedAction}</p>
-            <div className="text-right">
-              <p className="text-xs uppercase tracking-[0.16em]" style={{ color: 'var(--text-muted)' }}>Confidence</p>
-              <p className="mt-1 text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{formatConfidence(primaryResult?.confidence)}</p>
+        {portfolioRows && portfolioRows.length > 0 && (
+          <Card className="p-6 lg:col-span-2" interactive={false}>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>Decision</p>
+            <div className="mt-3 flex items-end justify-between gap-6">
+              <p className={`text-5xl font-black ${decisionTone(selectedAction)}`}>{selectedAction}</p>
+              <div className="text-right">
+                <p className="text-xs uppercase tracking-[0.16em]" style={{ color: 'var(--text-muted)' }}>Confidence</p>
+                <p className="mt-1 text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{formatConfidence(primaryResult?.confidence)}</p>
+              </div>
             </div>
-          </div>
-          <p className="mt-4 text-sm leading-6" style={{ color: 'var(--text-muted)' }}>{decisionLine}</p>
-        </Card>
+            <p className="mt-4 text-sm leading-6" style={{ color: 'var(--text-muted)' }}>{decisionLine}</p>
+          </Card>
+        )}
 
         <Card className="p-6" interactive={false}>
           <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: 'var(--text-muted)' }}>Action</p>

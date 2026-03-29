@@ -13,7 +13,7 @@ function ChartCard({ title, subtitle, data, meta, actions = null, showSignals = 
         {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
       </div>
 
-      <div className="h-[28rem] w-full rounded-xl border border-slate-200 bg-white/60 p-2 dark:border-slate-700 dark:bg-slate-900/40">
+      <div className="h-[28rem] w-full rounded-xl border border-white/10 bg-[#111827] p-2">
         <CandlestickChart data={data} meta={meta} showSignals={showSignals} />
       </div>
     </Card>

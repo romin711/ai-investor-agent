@@ -2,7 +2,12 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
-const { analyzeSingleSymbol, analyzePortfolio, normalizePortfolioRows } = require('./engine/pipeline');
+const {
+  analyzeSingleSymbol,
+  analyzePortfolio,
+  getConfiguredDataSource,
+  normalizePortfolioRows,
+} = require('./engine/pipeline');
 const { runOpportunityRadar, runOpportunityRadarForUniverse, getOpportunityRadarHistory } = require('./engine/opportunityAgent');
 const { createRadarScheduler } = require('./engine/radarScheduler');
 const { runMarketChatAgent } = require('./engine/marketChatAgent');
@@ -246,6 +251,10 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
+      const dataSourceConfig = getConfiguredDataSource();
+      // eslint-disable-next-line no-console
+      console.log(`[server] DATA SOURCE: ${dataSourceConfig.label} | route=/api/stock/:symbol | symbol=${symbol}`);
+
       const result = await analyzeSingleSymbol(symbol, {
         geminiApiKey: GEMINI_API_KEY,
       });
@@ -256,6 +265,10 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && pathname === '/api/portfolio/analyze') {
       const payload = await readJsonBody(req);
       const rows = normalizePortfolioRows(rowsFromPayload(payload));
+      const dataSourceConfig = getConfiguredDataSource();
+      // eslint-disable-next-line no-console
+      console.log(`[server] DATA SOURCE: ${dataSourceConfig.label} | route=/api/portfolio/analyze | symbols=${rows.length}`);
+
       const result = await analyzePortfolio(rows, {
         geminiApiKey: GEMINI_API_KEY,
       });
@@ -788,7 +801,22 @@ const server = http.createServer(async (req, res) => {
   } catch (error) {
     const statusCode = Number(error?.statusCode) || 500;
     const message = error?.message || 'Unexpected backend error.';
-    sendJson(res, statusCode, { error: message });
+    const payload = {
+      error: error?.error || message,
+      message,
+    };
+
+    if (error?.symbol) {
+      payload.symbol = error.symbol;
+    }
+    if (error?.data_source) {
+      payload.data_source = error.data_source;
+    }
+    if (error?.meta && typeof error.meta === 'object') {
+      payload.meta = error.meta;
+    }
+
+    sendJson(res, statusCode, payload);
   }
 });
 
@@ -807,6 +835,9 @@ server.on('error', (error) => {
 });
 
 server.listen(PORT, HOST, () => {
+  const dataSourceConfig = getConfiguredDataSource();
   // eslint-disable-next-line no-console
   console.log(`Investor decision backend listening on http://${HOST}:${PORT}`);
+  // eslint-disable-next-line no-console
+  console.log(`[startup] DATA SOURCE: ${dataSourceConfig.label} (USE_MOCK_SIGNALS=${dataSourceConfig.useMockSignals})`);
 });

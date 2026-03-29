@@ -11,7 +11,25 @@ const { fetchYahooStockData } = require('./yahooClient');
 const { analyzePatternIntelligence } = require('./patternIntelligence');
 const { generateMockSignal, buildMockMarketData } = require('./mockSignalGenerator');
 
-const USE_MOCK_SIGNALS = String(process.env.USE_MOCK_SIGNALS || 'true').toLowerCase() === 'true';
+// Production safety: mock market data must never be the default.
+// Only an explicit USE_MOCK_SIGNALS=true enables mock mode.
+const USE_MOCK_SIGNALS = String(process.env.USE_MOCK_SIGNALS || '').toLowerCase() === 'true';
+
+function resolveUseMockSignals(overrideValue) {
+  if (typeof overrideValue === 'boolean') {
+    return overrideValue;
+  }
+  return USE_MOCK_SIGNALS;
+}
+
+function getConfiguredDataSource() {
+  const dataSource = USE_MOCK_SIGNALS ? 'mock' : 'real';
+  return {
+    useMockSignals: USE_MOCK_SIGNALS,
+    dataSource,
+    label: dataSource.toUpperCase(),
+  };
+}
 
 function normalizePortfolioRows(inputRows) {
   const rows = Array.isArray(inputRows)
@@ -115,7 +133,8 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
   } = options;
 
   const inputSymbol = normalizeInputSymbol(rawSymbol);
-  const useMockSignals = options?.useMockSignals ?? USE_MOCK_SIGNALS;
+  const useMockSignals = resolveUseMockSignals(options?.useMockSignals);
+  const dataSource = useMockSignals ? 'mock' : 'real';
 
   const resolved = resolvedSymbol
     ? {
@@ -125,9 +144,26 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
     }
     : await resolveSymbol(rawSymbol, { geminiApiKey });
 
-  const marketData = useMockSignals
-    ? buildMockMarketData(resolved.resolvedSymbol, generateMockSignal(inputSymbol))
-    : await fetchYahooStockData(resolved.resolvedSymbol);
+  // eslint-disable-next-line no-console
+  console.log(`[analysis] DATA SOURCE: ${dataSource.toUpperCase()} | symbol=${resolved.resolvedSymbol}`);
+
+  let marketData;
+  if (useMockSignals) {
+    marketData = buildMockMarketData(resolved.resolvedSymbol, generateMockSignal(inputSymbol));
+  } else {
+    try {
+      marketData = await fetchYahooStockData(resolved.resolvedSymbol);
+    } catch (error) {
+      throw {
+        statusCode: Number(error?.statusCode) || 502,
+        error: 'REAL_DATA_FETCH_FAILED',
+        message: error?.message || `Failed to fetch real market data for ${resolved.resolvedSymbol}.`,
+        symbol: resolved.resolvedSymbol,
+        data_source: 'real',
+        meta: { data_source: 'real' },
+      };
+    }
+  }
 
   const price = marketData.price;
   const closes = marketData.closes;
@@ -242,6 +278,10 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
   return {
     symbol: resolved.inputSymbol,
     resolvedSymbol: resolved.resolvedSymbol,
+    data_source: dataSource,
+    meta: {
+      data_source: dataSource,
+    },
     price,
     historical,
     trend: derivedTrend,
@@ -269,6 +309,12 @@ async function analyzeSingleSymbol(rawSymbol, options = {}) {
 async function analyzePortfolio(rows, options = {}) {
   const normalizedRows = normalizePortfolioRows(rows);
   const geminiApiKey = options?.geminiApiKey || '';
+
+  const useMockSignals = resolveUseMockSignals(options?.useMockSignals);
+  const dataSource = useMockSignals ? 'mock' : 'real';
+
+  // eslint-disable-next-line no-console
+  console.log(`[analysis] DATA SOURCE: ${dataSource.toUpperCase()} | portfolio_size=${normalizedRows.length}`);
 
   const resolvedRows = await Promise.all(
     normalizedRows.map(async (row) => {
@@ -306,7 +352,7 @@ async function analyzePortfolio(rows, options = {}) {
         policyContext,
         geminiApiKey,
         resolvedSymbol: row.resolvedSymbol,
-        useMockSignals: options?.useMockSignals,
+        useMockSignals,
       });
 
       const sector = detectSector(row.resolvedSymbol);
@@ -319,6 +365,10 @@ async function analyzePortfolio(rows, options = {}) {
   );
 
   return {
+    data_source: dataSource,
+    meta: {
+      data_source: dataSource,
+    },
     portfolioInsight: portfolioContext.summary,
     sectorAllocation: portfolioContext.sectorAllocation,
     overexposedSectors: portfolioContext.overexposedSectors,
@@ -329,5 +379,6 @@ async function analyzePortfolio(rows, options = {}) {
 module.exports = {
   analyzeSingleSymbol,
   analyzePortfolio,
+  getConfiguredDataSource,
   normalizePortfolioRows,
 };

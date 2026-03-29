@@ -13,7 +13,7 @@ const policyEngine = require('./policyEngine');
 const patternIntelligence = require('./patternIntelligence');
 const { generateMockSignal, buildMockMarketData, SCENARIO_MAP } = require('./mockSignalGenerator');
 
-const USE_MOCK_SIGNALS = String(process.env.USE_MOCK_SIGNALS || 'true').toLowerCase() === 'true';
+const USE_MOCK_SIGNALS = String(process.env.USE_MOCK_SIGNALS || '').toLowerCase() === 'true';
 const DECISION_TRACE_LOGS = String(process.env.DECISION_TRACE_LOGS || 'false').toLowerCase() === 'true';
 
 /**
