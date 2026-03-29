@@ -415,10 +415,3 @@ Contributions are welcome! Please follow these steps:
 5. 📬 Open a PR with clear context and test notes
 
 ---
-
-## 📄 License
-
-No license file is currently present.  
-Add a `LICENSE` file (e.g. MIT or Apache-2.0) before public redistribution.
-
----
